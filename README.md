@@ -8,7 +8,7 @@ The gameplay is simple. Given a photo of a house somewhere in the world, you are
 
 Geo50x is inspired by such childhood games as _[Where's Waldo?](https://en.wikipedia.org/wiki/Where%27s_Wally%3F)_ and _[Where in the World is Carmen Sandiego?](https://en.wikipedia.org/wiki/Carmen_Sandiego)_. And the simple pleasures of looking out through vehicle windows and just gazing at the passing landscapes and cityscapes.
 
-<picture><img alt="Shelfie screenshot 1" src="images/geo50x_1.jpg"></picture>
+<picture><img alt="Shelfie screenshot 1" src="/static/images/geo50x_1.jpg"></picture>
 More screenshots below.
 
 ## Disclaimer
@@ -105,7 +105,7 @@ password: carto
 * The folks at CS50 for a mind-altering course.
 
 ## Screenshots
-<picture><img alt="Shelfie screenshot 1" src="images/geo50x_2.jpg"></picture>
-<picture><img alt="Shelfie screenshot 1" src="images/geo50x_3.jpg"></picture>
-<picture><img alt="Shelfie screenshot 1" src="images/geo50x_4.jpg"></picture>
+<picture><img alt="Shelfie screenshot 1" src="/static/images/geo50x_2.jpg"></picture>
+<picture><img alt="Shelfie screenshot 1" src="/static/images/geo50x_3.jpg"></picture>
+<picture><img alt="Shelfie screenshot 1" src="/static/images/geo50x_4.jpg"></picture>
 
