@@ -1,0 +1,62 @@
+-- Create USERS table
+DROP TABLE IF EXISTS users;
+CREATE TABLE users
+	(
+	id 				INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+	username 		TEXT NOT NULL, 
+	hash 			TEXT NOT NULL
+	);
+
+
+-- Create GEOIDS table
+DROP TABLE IF EXISTS geoids;
+CREATE TABLE geoids
+	(
+	geoid 			TEXT PRIMARY KEY NOT NULL,
+	name 			TEXT
+	);
+
+
+-- Create LOCS table
+DROP TABLE IF EXISTS locs;
+CREATE TABLE locs 
+	(
+	id 					INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+	loc_internal_id		TEXT UNIQUE NOT NULL,
+	loc_source_url		TEXT UNIQUE NOT NULL,
+	loc_active			INTEGER DEFAULT 0,
+	loc_lat_game		TEXT NOT NULL,
+	loc_lng_game		TEXT NOT NULL,
+	loc_lat_key			TEXT NOT NULL,
+	loc_lng_key			TEXT NOT NULL,
+	loc_distance_key	INTEGER,
+	loc_key_buffer		INTEGER DEFAULT 50,
+	loc_image_url		TEXT NOT NULL,
+	geoid 				TEXT,
+	loc_city			TEXT,
+	loc_state			TEXT,
+	loc_country			TEXT,
+	loc_date_add		TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (geoid) REFERENCES geoids(geoid)
+	);
+
+
+-- Create GAMES table
+DROP TABLE IF EXISTS games;
+CREATE TABLE games 
+	(
+	id						INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	user_id					INTEGER NOT NULL,
+	loc_id					INTEGER NOT NULL,
+	game_start				TEXT DEFAULT CURRENT_TIMESTAMP,
+	game_end				TEXT DEFAULT CURRENT_TIMESTAMP,
+	game_lat				TEXT DEFAULT NULL,
+	game_lng				TEXT DEFAULT NULL,
+	game_user_quit			INTEGER DEFAULT 1,
+	game_answer_off			INTEGER DEFAULT NULL,
+	game_answer_validation	INTEGER DEFAULT 0,
+	game_duration			INTEGER DEFAULT NULL,
+	game_score				INTEGER DEFAULT 0,
+	FOREIGN KEY (user_id) REFERENCES users(id),
+	FOREIGN KEY (loc_id) REFERENCES locs(id)
+	);
