@@ -26,11 +26,7 @@ Session(app)
 db = "geo.db"
 
 # Make sure Google Maps API key is set
-# In terminal window, execute: export MAP_API_KEY=value
-#
 if not os.environ.get("MAP_API_KEY"):
-    # TO DELETE
-    # map_api_key = "AIzaSyDnegNPWUO2qN9pMWUaW4fxcV1VGn64Tyc"
     print("INFO: MAP_API_KEY not set")
     print("INFO: Get a Google Maps API Key")
     print("INFO: On terminal, excecute: 'export MAP_API_KEY=value'")
