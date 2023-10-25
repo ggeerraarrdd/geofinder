@@ -1,6 +1,5 @@
 import os
 
-from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -71,7 +70,7 @@ def index():
     session["page"] = "index"
 
     # Print to debug
-    print(f"\nprint from app.py > index():\n{session}\n")
+    # print(f"\nprint from app.py > index():\n{session}\n")
 
     return render_template("index.html", page="index", userid=session["user_id"], username=session["username"], total=session["user_total_score"], map_api_key=map_api_key)
 
@@ -86,17 +85,17 @@ def index():
 def game():
     """Start a game"""
     
-    # Printo to debug
-    print("GAME() function call")
+    # Print to debug
+    # print("GAME() function call")
 
     if "try_again" not in session:
         session["try_again"] = 0
 
     # Printo to debug
-    print(f"Try Again: {session['try_again']}")
+    # print(f"Try Again: {session['try_again']}")
 
     # Print to debug
-    print(f"\nPre-gane session check - BEFORE clean-up: \n{session}\n")
+    # print(f"\nPre-gane session check - BEFORE clean-up: \n{session}\n")
 
     # Clean-up session
     # Leave only user_id and username
@@ -113,48 +112,55 @@ def game():
     session.pop("current_game_map_zoom", None)
 
     # Print to debug
-    print(f"\nPre-gane session check - AFTER clean-up: \n{session}\n")
+    # print(f"\nPre-gane session check - AFTER clean-up: \n{session}\n")
 
+    # Get playable location
     if session["try_again"] == 1:
         location = queries.get_playable_location_again(db, session["current_game_loc_id"])
     else:
         location = queries.get_playable_location(db, session["user_id"])
 
-    # Update session with location info to be played
-    session["current_game_loc_id"] = location["id"]
-    session["current_game_lat_answer_key"] = location["loc_lat_key"]
-    session["current_game_long_answer_key"] = location["loc_lng_key"]
+    # Checks if query returns a playable location
+    if location == None:
+        # Print to debug
+        # print("\nPlayer has found all locations.\n")
+        return redirect("/history")
+    else:
+        # Update session with location info to be played
+        session["current_game_loc_id"] = location["id"]
+        session["current_game_lat_answer_key"] = location["loc_lat_key"]
+        session["current_game_long_answer_key"] = location["loc_lng_key"]
 
-    # Create new entry in games table
-    current_game_id, current_game_start = queries.start_game(db, session["user_id"], session["current_game_loc_id"])
-    
-    # Get hour, minute and seconds from current_game_start
-    clock = {
-        "hour": current_game_start.hour,
-        "minute": current_game_start.minute,
-        "second": current_game_start.second
-    }
+        # Create new entry in games table
+        current_game_id, current_game_start = queries.start_game(db, session["user_id"], session["current_game_loc_id"])
+        
+        # Get hour, minute and seconds from current_game_start
+        clock = {
+            "hour": current_game_start.hour,
+            "minute": current_game_start.minute,
+            "second": current_game_start.second
+        }
 
-    # Update session with game info to be played
-    session["current_game_loc_id"] = location["id"]
-    session["current_game_lat_default"] = location["loc_lat_game"]
-    session["current_game_long_default"] = location["loc_lng_game"]
-    session["current_game_lat_answer_key"] = location["loc_lat_key"]
-    session["current_game_long_answer_key"] = location["loc_lng_key"]
-    session["current_game_id"] = current_game_id
-    session["current_game_start"] = current_game_start
+        # Update session with game info to be played
+        session["current_game_loc_id"] = location["id"]
+        session["current_game_lat_default"] = location["loc_lat_game"]
+        session["current_game_long_default"] = location["loc_lng_game"]
+        session["current_game_lat_answer_key"] = location["loc_lat_key"]
+        session["current_game_long_answer_key"] = location["loc_lng_key"]
+        session["current_game_id"] = current_game_id
+        session["current_game_start"] = current_game_start
 
-    # Print to debug
-    print(f"DATA SENT TO GAME PAGE: \n{location}\n")
+        # Print to debug
+        # print(f"DATA SENT TO GAME PAGE: \n{location}\n")
 
-    # Get offset latitude to position infowindow on map
-    loc_lat_game_offset = latitude_offset(float(location["loc_lat_game"]), float(location["loc_lng_game"]))
+        # Get offset latitude to position infowindow on map
+        loc_lat_game_offset = latitude_offset(float(location["loc_lat_game"]), float(location["loc_lng_game"]))
 
-    # Ensure session page is set to "game" before game.html is rendered
-    session["page"] = "game"
+        # Ensure session page is set to "game" before game.html is rendered
+        session["page"] = "game"
 
-    # Print to debug
-    print(f"SESSION JUST BEFORE RENDER TEMPLATE: \n{session}\n")
+        # Print to debug
+        # print(f"SESSION JUST BEFORE RENDER TEMPLATE: \n{session}\n")
 
     return render_template("game.html", page="game", username=session["username"], total=session["user_total_score"], location=location, loc_lat_game_offset=loc_lat_game_offset, clock=clock, map_api_key=map_api_key)
 
@@ -345,15 +351,16 @@ def history():
     # Print to debug
     # print("HISTORY function call")
 
-    history = queries.get_history(db, session["user_id"])
+    locs_playable_count, history = queries.get_history(db, session["user_id"])
 
     # Printo to debug
     # print(history[0])
+    # print(locs_playable_count)
 
     # Ensure session page is set to "history" before history.html is rendered
     session["page"] = "history"
 
-    return render_template("history.html", page="history", history=history, userid=session["user_id"], username=session["username"], total=session["user_total_score"], map_api_key=map_api_key)
+    return render_template("history.html", page="history", locs_playable_count=locs_playable_count, history=history, userid=session["user_id"], username=session["username"], total=session["user_total_score"], map_api_key=map_api_key)
 
 
 ####################################################################

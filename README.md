@@ -32,6 +32,7 @@ Apart from what was to be gained from implementing the requirements, this projec
 
 * cs50==9.2.5
 * Flask==2.2.5
+* Flask-Session==0.4.1
 * geographiclib==2.0
 * haversine==2.8.0
 * Werkzeug==3.0.0
@@ -82,11 +83,6 @@ password: carto
 
 ## Author(s)
 * [@ggeerraarrdd](https://github.com/ggeerraarrdd/)
-
-## Version History
-* 1.0.0
-    * October 13, 2023
-    * Initial Release
 
 ## Future Work
 * Add functionalities to Search History page such as reviewing submitted locations and more easily re-try locations attempted but not yet found.

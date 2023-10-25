@@ -87,11 +87,14 @@ def get_playable_location(db, user_id):
     # Get count of playable locations
     locs_playable_count = len(locs_playable)
 
-    # Generate random number in range to loc_playable
-    row = randint(0, locs_playable_count - 1)
+    if locs_playable_count == 0:
+        location = None
+    else: 
+        # Generate random number in range to loc_playable
+        row = randint(0, locs_playable_count - 1)
 
-    # Get row
-    location = dict(locs_playable[row])
+        # Get row
+        location = dict(locs_playable[row])
 
     cursor.close()
     connection.close()
@@ -321,6 +324,15 @@ def get_history(db, user_id):
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
 
+    # Get playable locations count
+    query = "SELECT * "
+    query = query + "FROM locs "
+    query = query + "WHERE id NOT IN (SELECT DISTINCT loc_id FROM games WHERE user_id = ? AND game_answer_validation = 1) "
+    query = query + "AND loc_active = 1; "
+    cursor.execute(query, (user_id,))
+    locs_playable = cursor.fetchall()
+    locs_playable_count = len(locs_playable)
+
     # Get history
     query = "WITH cte AS "
     query = query + "( "
@@ -348,7 +360,7 @@ def get_history(db, user_id):
     cursor.close()
     connection.close()
 
-    return history
+    return locs_playable_count, history
 
 
 

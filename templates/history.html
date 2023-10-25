@@ -36,10 +36,16 @@
                             </div>
 
                             <div class="container-bottom-history-title-right">
+                                {% if locs_playable_count == 0 %}
+                                <div class="container-bottom-history-title-right-found">
+                                    Congratulations! You found all locations! More on the way...
+                                </div>
+                                {% else %}
                                 <form name="submit" action="/game" method="post">
                                     <input type="hidden" name="answer-lat" class="hidden-field" value="new-game"></input>
                                     <button class="btn btn-primary" type="submit">Start Game</button>
                                 </form>
+                                {% endif %}
                             </div>
                         </div>
 
