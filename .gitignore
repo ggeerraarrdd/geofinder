@@ -8,6 +8,10 @@
 flask_session/
 /*_session/
 
+locations.txt
+
+geo.db
+
 ####################################################
 
 # Byte-compiled / optimized / DLL files
