@@ -30,7 +30,6 @@ Apart from what was to be gained from implementing the requirements, this projec
 
 ### Dependencies
 
-* cs50==9.2.5
 * Flask==2.2.5
 * Flask-Session==0.4.1
 * geographiclib==2.0
