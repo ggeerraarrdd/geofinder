@@ -71,10 +71,10 @@
                                     <td class="text-start">{{ h.loc_city }}, {{ h.loc_state }}, {{ h.loc_country }}</td>
                                     <td class="text-start-center">{{ h.found.upper() }}</td>
                                     <td class="text-start-center">{{ h.total_attempts }}</td>
-                                    <td class="text-start-center">{% if h.score|default("-", True) == "-" %}-{% else %}{{ h.total_duration }}{% endif %}</td>
-                                    <td class="text-start-center">{% if h.score|default("-", True) == "-" %}-{% else %}{{ h.avg_time }}{% endif %}</td>
-                                    <td class="text-start-center">{% if h.score|default("-", True) == "-" %}-{% else %}{{ h.avg_offset }}{% endif %}</td>
-                                    <td class="text-start-center">{{ h.score|default("-", True) }}</td>
+                                    <td class="text-start-center">{% if h.found|default("-", True) == "-" %}-{% else %}{{ h.total_duration }}{% endif %}</td>
+                                    <td class="text-start-center">{% if h.found|default("-", True) == "-" %}-{% else %}{{ h.avg_time }}{% endif %}</td>
+                                    <td class="text-start-center">{% if h.found|default("-", True) == "-" %}-{% else %}{% if h.avg_offset == None %}&#248;{% else %}{{ h.avg_offset }}{% endif %}{% endif %}</td>
+                                    <td class="text-start-center">{% if h.found|default("-", True) == "-" %}-{% else %}{{ h.score }}{% endif %}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

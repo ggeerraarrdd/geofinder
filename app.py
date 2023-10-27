@@ -67,7 +67,9 @@ def disconnect():
 
     result = queries.get_disconnected(db, current_game_id, current_game_start)
 
-    print(f"{result}\n")
+    # print(f"{result}\n")
+
+    return 1
 
 
 ####################################################################
@@ -82,6 +84,14 @@ def index():
 
     # Print to debug
     # print("INDEX() function call")
+
+    page = session["current_page"]
+    goto = session["current_goto"]
+
+    # Print to debug
+    # print("\nINDEX:")
+    # print(f"page: {page}")
+    # print(f"goto: {goto}")
 
     # Calculate user total score
     session["user_total_score"] = queries.get_total_score(db, session["user_id"])
@@ -108,6 +118,14 @@ def game():
     
     # Print to debug
     # print("GAME() function call")
+
+    page = session["current_page"] = request.form.get("page")
+    goto = session["current_goto"] = request.form.get("goto")
+
+    # Print to debug
+    # print("\nGAME:")
+    # print(f"page: {page}")
+    # print(f"goto: {goto}")
 
     if "try_again" not in session:
         session["try_again"] = 0
@@ -196,99 +214,207 @@ def game():
 def result():
     """Submit game"""
 
-    # Printo to debug
+    # Print to debug
     # print("RESULT() function call")
 
-    # Set current timestamp
-    current_game_end = datetime.now()
+    if request.method == "POST":
 
-    # Get user-submitted answer
-    current_game_lat_answer_user = request.form.get("answer-lat")
-    current_game_long_answer_user = request.form.get("answer-long")
-    
-    # Update session
-    session["current_game_lat_answer_user"] = current_game_lat_answer_user
-    session["current_game_long_answer_user"] = current_game_long_answer_user 
-    session["current_game_map_center"] = request.form.get("answer-map-center")
-    session["current_game_map_zoom"] = request.form.get("answer-map-zoom")
+        # Print to debug
+        # print("RESULT() -> method POST")
 
-    # Get location answer 
-    lat_answer_key = session["current_game_lat_answer_key"]
-    long_answer_key = session["current_game_long_answer_key"]
+        page = session["current_page"] = request.form.get("page")
+        goto = session["current_goto"] = request.form.get("goto")
 
-    # Calculate distance difference between answer key and user submission
-    game_answer_distance = queries.game_answer_distance(lat_answer_key, long_answer_key, current_game_lat_answer_user, current_game_long_answer_user)
+        # Print to debug
+        # print("\nRESULTS:")
+        # print(f"page: {page}")
+        # print(f"goto: {goto}")
 
-    # Validate answer as 1 = "correct" or 0 = "incorrect"
-    if game_answer_distance <= 40:
-        game_answer_validation = 1
-        current_game_answer_user_validation = "correct!"
+        if (page == "game") and (goto == "result"):
+
+            # Print to debug
+            # print("RESULT() -> method POST -> page 'game', goto 'result'")
+
+            # Set current timestamp
+            current_game_end = datetime.now()
+
+            # Get user-submitted answer
+            current_game_lat_answer_user = request.form.get("answer-lat")
+            current_game_long_answer_user = request.form.get("answer-long")
+            
+            # Update session
+            session["current_game_lat_answer_user"] = current_game_lat_answer_user
+            session["current_game_long_answer_user"] = current_game_long_answer_user 
+            session["current_game_map_center"] = request.form.get("answer-map-center")
+            session["current_game_map_zoom"] = request.form.get("answer-map-zoom")
+
+            # Get location answer 
+            lat_answer_key = session["current_game_lat_answer_key"]
+            long_answer_key = session["current_game_long_answer_key"]
+
+            # Calculate distance difference between answer key and user submission
+            game_answer_distance = queries.game_answer_distance(lat_answer_key, long_answer_key, current_game_lat_answer_user, current_game_long_answer_user)
+
+            # Validate answer as 1 = "correct" or 0 = "incorrect"
+            if game_answer_distance <= 40:
+                game_answer_validation = 1
+                current_game_answer_user_validation = "correct!"
+            else:
+                game_answer_validation = 0
+                current_game_answer_user_validation = "incorrect"
+
+            # Calcuate game duration in minutes
+            durations = queries.game_answer_duration(session["current_game_start"], current_game_end)
+
+            # Calcuate game duration for all previous attempts in minutes
+            duration_total = queries.get_loc_duration_total(db, session["current_game_id"], session["user_id"], session["current_game_loc_id"], durations[1])
+
+            # Calculate game score
+            scores = queries.game_answer_score(db, session["user_id"], session["current_game_loc_id"], game_answer_validation, duration_total)
+            base_score = scores[0]
+            bonus_score = scores[1]
+            game_score = scores[2]
+            attempts = scores[3]
+
+            # Print to debug
+            # print(f"\nAnswer: ({current_game_lat_answer_user}, {current_game_long_answer_user})")
+            # print(f"Distance: {game_answer_validation}")
+            # print(f"Validation: {game_answer_validation}")
+            # print(f"Duration: {durations}")
+            # print(f"Base Score: {base_score}")
+            # print(f"Bonus Score: {bonus_score}")
+            # print(f"Score: {game_score}\n")
+
+            # Set update_current_game arguments
+            id = session["current_game_id"] 
+            game_end = current_game_end
+            game_lat = current_game_lat_answer_user
+            game_lng = current_game_long_answer_user
+            game_user_quit = 0
+            game_answer_off = game_answer_distance
+            # game_answer_validation = game_answer_validation
+            game_duration = durations[1]
+            # game_score = game_score
+
+            # Update games table
+            queries.update_current_game(db, id, game_end, game_lat, game_lng, game_user_quit, game_answer_off, game_answer_validation, game_duration, game_score)
+
+            # Update session with new total score
+            session["user_total_score"] = queries.get_total_score(db, session["user_id"])
+
+            # Create dictionary for html page
+            results = {
+                "current_game_lat_default": session["current_game_lat_default"],
+                "current_game_long_default": session["current_game_long_default"],
+                "current_game_lat_answer_user": current_game_lat_answer_user,
+                "current_game_long_answer_user": current_game_long_answer_user,
+                "answer_validation": game_answer_validation,
+                "current_game_answer_user_validation": current_game_answer_user_validation,
+                "current_game_loc_id": session["current_game_loc_id"],
+                "current_game_loc_attempt": attempts,
+                "current_game_duration": game_duration,
+                "current_location_duration": duration_total,
+                "current_game_score_base": base_score,
+                "current_game_score_bonus": bonus_score,
+                "current_game_score_total": game_score
+            }
+
+            # print(results)
+
+            # Ensure session page is set to "result" before submit.html is rendered
+            session["page"] = "result"
+
+            return render_template("submit.html", data=results, page="result", username=session["username"], total=session["user_total_score"], map_api_key=map_api_key)
+        
+        else:
+
+            # Print to debug
+            # print("RESULT() -> method POST -> else")
+
+            # Ensure current_game_loc_id is cleared
+            session.pop("current_game_loc_id", None)
+
+            # Ensure session page is cleared before redirecting to "/"
+            session.pop("page", None)
+
+            return redirect("/")
+            
     else:
-        game_answer_validation = 0
-        current_game_answer_user_validation = "incorrect."
 
-    # Calcuate game duration in minutes
-    durations = queries.game_answer_duration(session["current_game_start"], current_game_end)
+        # Print to debug
+        # print("RESULT() -> method GET")
 
-    # Calcuate game duration for all previous attempts in minutes
-    duration_total = queries.get_loc_duration_total(db, session["current_game_id"], session["user_id"], session["current_game_loc_id"], durations[1])
+        page = session["current_page"]
+        goto = session["current_goto"]
 
-    # Calculate game score
-    scores = queries.game_answer_score(db, session["user_id"], session["current_game_loc_id"], game_answer_validation, duration_total)
-    base_score = scores[0]
-    bonus_score = scores[1]
-    game_score = scores[2]
-    attempts = scores[3]
+        if (page == "game") and (goto == "zero"):
 
-    # Print to debug
-    # print(f"\nAnswer: ({current_game_lat_answer_user}, {current_game_long_answer_user})")
-    # print(f"Distance: {game_answer_validation}")
-    # print(f"Validation: {game_answer_validation}")
-    # print(f"Duration: {durations}")
-    # print(f"Base Score: {base_score}")
-    # print(f"Bonus Score: {bonus_score}")
-    # print(f"Score: {game_score}\n")
+            # Print to debug
+            # print("RESULT() -> method GET -> page 'game', goto 'zero'")
 
-    # Set update_current_game arguments
-    id = session["current_game_id"] 
-    game_end = current_game_end
-    game_lat = current_game_lat_answer_user
-    game_lng = current_game_long_answer_user
-    game_user_quit = 0
-    game_answer_off = game_answer_distance
-    # game_answer_validation = game_answer_validation
-    game_duration = durations[1]
-    # game_score = game_score
+            # Print to debug
+            # print("\nRESULTS:")
+            # print(f"page: {page}")
+            # print(f"goto: {goto}")
 
-    # Update games table
-    queries.update_current_game(db, id, game_end, game_lat, game_lng, game_user_quit, game_answer_off, game_answer_validation, game_duration, game_score)
+            # print(session["current_game_id"])
 
-    # Update session with new total score
-    session["user_total_score"] = queries.get_total_score(db, session["user_id"])
+            # Get info on current game
+            current_game_record = queries.get_game_info(db, session["current_game_id"])
 
-    # Create dictionary for html page
-    results = {
-        "current_game_lat_default": session["current_game_lat_default"],
-        "current_game_long_default": session["current_game_long_default"],
-        "current_game_lat_answer_user": current_game_lat_answer_user,
-        "current_game_long_answer_user": current_game_long_answer_user,
-        "answer_validation": game_answer_validation,
-        "current_game_answer_user_validation": current_game_answer_user_validation,
-        "current_game_loc_id": session["current_game_loc_id"],
-        "current_game_loc_attempt": attempts,
-        "current_game_duration": game_duration,
-        "current_location_duration": duration_total,
-        "current_game_score_base": base_score,
-        "current_game_score_bonus": bonus_score,
-        "current_game_score_total": game_score
-    }
+            # Get info on location of current game
+            current_game_loc_record = queries.get_locs_info(db, session["current_game_loc_id"])
 
-    print(results)
+            # Calcuate game duration for all previous attempts in minutes
+            duration_total = queries.get_loc_duration_total(db, session["current_game_id"], session["user_id"], session["current_game_loc_id"], current_game_record["game_duration"])
 
-    # Ensure session page is set to "result" before submit.html is rendered
-    session["page"] = "result"
+            # Calculate total attempts
+            scores = queries.game_answer_score(db, session["user_id"], session["current_game_loc_id"], current_game_record["game_answer_validation"], duration_total)
+            attempts = scores[3]
 
-    return render_template("submit.html", data=results, page="result", username=session["username"], total=session["user_total_score"], map_api_key=map_api_key)
+            # Create dictionary for html page
+            results = {
+                "current_game_lat_default": current_game_loc_record["loc_lat_game"],
+                "current_game_long_default": current_game_loc_record["loc_lng_game"],
+                "current_game_lat_answer_user": current_game_loc_record["loc_lat_key"],
+                "current_game_long_answer_user": current_game_loc_record["loc_lng_key"],
+                "answer_validation": current_game_record["game_answer_validation"],
+                "current_game_answer_user_validation": "quit",
+                "current_game_loc_id": current_game_loc_record["id"],
+                "current_game_loc_attempt": attempts,
+                "current_game_duration": current_game_record["game_duration"],
+                "current_location_duration": duration_total,
+                "current_game_score_base": 0,
+                "current_game_score_bonus": 0,
+                "current_game_score_total": 0
+            }
+
+            # Print to debug
+            # print(results)
+
+            # Ensure current_game_loc_id is cleared
+            session.pop("current_game_loc_id", None)
+
+            return render_template("submit.html", data=results, page="result", username=session["username"], total=session["user_total_score"], map_api_key=map_api_key)
+
+        else:
+
+            # Print to debug
+            # print("RESULT() -> method GET -> else")
+
+            # Print to debug
+            # print("\nRESULTS:")
+            # print(f"page: {page}")
+            # print(f"goto: {goto}")
+
+            # Ensure current_game_loc_id is cleared
+            session.pop("current_game_loc_id", None)
+
+            # Ensure session page is cleared before redirecting to "/"
+            session.pop("page", None)
+
+            return redirect("/")
+
 
 
 ####################################################################
@@ -473,7 +599,7 @@ def login():
     else:
 
         # Ensure session page is set to "login" before login.html is rendered
-        session["page"] = "game"
+        session["page"] = "login"
 
         return render_template("login.html", page="login", map_api_key=map_api_key)
     
@@ -508,8 +634,13 @@ def traffic():
     # Print to debug
     # print("TRAFFIC() function call")
 
-    session["current_page"] = request.form.get("page")
-    session["current_goto"] = request.form.get("goto")
+    page = session["current_page"] = request.form.get("page")
+    goto = session["current_goto"] = request.form.get("goto")
+
+    # Print to debug
+    # print("\nRESULTS:")
+    # print(f"page: {page}")
+    # print(f"goto: {goto}")
 
     try:
         session["try_again"] = request.form.get("try-again")
@@ -601,7 +732,7 @@ def traffic_in():
     """Request from user for new location or to stop game"""
 
     # Print to debug
-    # print("ROUTER() / TRAFFIC_IN() function call")
+    # print("ROUTER() -> TRAFFIC_IN() function call")
 
     page = session["current_page"]
     goto = session["current_goto"]
@@ -653,7 +784,7 @@ def traffic_in():
         elif page == "game":
 
             # Print to debug
-            # print("TRAFIC_IN() function call -> page GAME")
+            # print("TRAFIC_IN() function call -> page = GAME")
 
             # Print to debug
             # print("\nTRAFIC_IN() function call -> page GAME:")
@@ -674,50 +805,76 @@ def traffic_in():
             game_lng = None
             game_user_quit = 1
             game_answer_off = None
-            game_answer_validation = 0
+            # game_answer_validation = 0
             game_duration = duration_min
             game_score = 0
 
-            # TODO: Decide on duration seconds
-            if duration_sec >= 10:
-                # If user is on game page for x sec or more, counted as an attempt
+            if goto == "zero":
+
+                # Print to debug
+                # print("TRAFIC_IN() function call -> page = GAME, goto = zero")
+
+                # Current game location abandoned and NOT longer playable in future games
+                game_answer_validation = 2
+
                 # Update record
                 queries.update_current_game(db, id, game_end, game_lat, game_lng, game_user_quit, game_answer_off, game_answer_validation, game_duration, game_score)
 
-            elif duration_sec >= 0:
-                # If user is on game page for under x sec, not counted as an attempt
-                # Delete record
-                queries.get_current_game_deleted(db, id)
+                # Ensure current_game_loc_id is cleared
+                # session.pop("current_game_loc_id", None)
+
+                # After game record has been updated, redirect to start new game location
+                return redirect("/result")
 
             else:
-                # Else redirect to index
-                # TODO: Better to redirect to error page
+
+                # Print to debug
+                # print("TRAFIC_IN() function call -> page = GAME, goto != ZERO")
+
+                # Current game location abandoned but STILL playable in future games
+                game_answer_validation = 0
+
+                # TODO: Decide on duration seconds
+                if duration_sec >= 10:
+                    # If user is on game page for x sec or more, counted as an attempt
+                    # Update record
+                    queries.update_current_game(db, id, game_end, game_lat, game_lng, game_user_quit, game_answer_off, game_answer_validation, game_duration, game_score)
+
+                elif duration_sec >= 0:
+                    # If user is on game page for under x sec, not counted as an attempt
+                    # Delete record
+                    queries.get_current_game_deleted(db, id)
+
+                else:
+                    # Else redirect to index
+                    # TODO: Better to redirect to error page
+                    return redirect("/")
+
+                # Ensure current_game_loc_id is cleared
+                session.pop("current_game_loc_id", None)
+
+                # After game record has been updated or deleted, redirect to requested page
+
+                if goto == "game":
+                    return redirect("/game")
+            
+                if goto == "about":
+                    return redirect("/about")
+                
+                if goto == "howto":
+                    return redirect("/howto")
+                
+                if goto == "index":
+                    return redirect("/")
+                
+                if goto == "history":
+                    return redirect("/history")
+                
+                if goto == "logout":
+                    return redirect("/logout")
+                
                 return redirect("/")
 
-            # Ensure current_game_loc_id is cleared
-            session.pop("current_game_loc_id", None)
-
-            # After game record has been updated or deleted, redirect to requested page
-
-            if goto == "game":
-                return redirect("/game")
-        
-            if goto == "about":
-                return redirect("/about")
-            
-            if goto == "howto":
-                return redirect("/howto")
-            
-            if goto == "index":
-                return redirect("/")
-            
-            if goto == "history":
-                return redirect("/history")
-            
-            if goto == "logout":
-                return redirect("/logout")
-            
-            return redirect("/")
 
         elif page == "result":
 
@@ -727,6 +884,9 @@ def traffic_in():
             if goto == "game_again":
                 session["try_again"] = 1
                 return redirect("/game")
+
+            if goto == "zero":
+                return redirect("/")
             
             if goto == "game_new":
                 return redirect("/game")

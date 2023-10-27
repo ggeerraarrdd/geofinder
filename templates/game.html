@@ -55,18 +55,29 @@
 
     <div class="container-bottom-image-buttons">
         <div class="container-bottom-image-buttons-left">
-            <form name="submit" action="/traffic" method="post">
-                <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
-                <input type="hidden" name="goto" class="hidden-field" value="game"></input>
-                <button name="router" class="btn btn-primary btn-sm" type="submit">New Search</button>
-            </form>
-        </div>
+            <div class="container-bottom-image-buttons-new">
+                <form name="submit" action="/traffic" method="post">
+                    <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                    <input type="hidden" name="goto" class="hidden-field" value="game"></input>
+                    <button name="router" class="btn btn-primary btn-sm" type="submit">New Search</button>
+                </form>
+            </div>
+            <div class="container-bottom-image-buttons-stop">
+                <form name="submit" action="/traffic" method="post">
+                    <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                    <input type="hidden" name="goto" class="hidden-field" value="index"></input>
+                    <button name="router" class="btn btn-link btn-sm" type="submit">Stop Game</button>
+                </form>
+            </div>
+        </div> 
         <div class="container-bottom-image-buttons-right">
-            <form name="submit" action="/traffic" method="post">
-                <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
-                <input type="hidden" name="goto" class="hidden-field" value="index"></input>
-                <button name="router" class="btn btn-link btn-sm" type="submit">Quit Game</button>
-            </form>
+            <div class="container-bottom-image-buttons-quit">
+                <form name="submit" action="/traffic" method="post">
+                    <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                    <input type="hidden" name="goto" class="hidden-field" value="zero"></input>
+                    <button name="router" class="btn btn-link btn-sm" type="submit">Quit Location</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

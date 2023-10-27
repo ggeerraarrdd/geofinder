@@ -56,6 +56,8 @@ async function initMap() {
     '<form name="submit" action="/game" method="post">' + 
       '<input type="hidden" name="try-again" class="hidden-field" value="0"></input>' +
       '<input type="hidden" name="current-game-id" class="hidden-field" value="0"></input>' +
+      '<input type="hidden" name="page" class="hidden-field" value="index"></input>' +
+      '<input type="hidden" name="goto" class="hidden-field" value="game"></input>' +
       '<button class="btn btn-primary" type="submit">Start Game</button>' +
     '</form>'
     '</div>';

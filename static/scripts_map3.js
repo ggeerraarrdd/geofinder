@@ -53,7 +53,7 @@ async function initMap() {
   // Content for Info Window on submit.html
   let try_again
 
-  if (current_game_answer_user_validation == 'incorrect.') {
+  if (current_game_answer_user_validation == 'incorrect') {
     try_again = 
     '<div class="infowindow-result-footer-try">' +
       '<form name="router" action="/traffic" method="post">' + 
@@ -64,8 +64,20 @@ async function initMap() {
       '</form>' +
     '</div>';
   } else {
-    try_again = ''
+    if (current_game_answer_user_validation == 'quit') {
+      try_again = 
+      '<div class="infowindow-result-footer-try">' +
+        '<form name="router" action="/traffic" method="post">' + 
+        '<input type="hidden" name="page" class="hidden-field" value="result"></input>' + 
+        '<input type="hidden" name="goto" class="hidden-field" value="zero"></input>' +
+        '<button name="router" class="btn btn-primary btn-sm" type="submit" disabled>Try Again</button>' +
+        '</form>' +
+      '</div>';
+    } else {
+      try_again = ''
+    }
   }
+
 
   const contentResult = 
     '<div class="infowindow-result">' +
@@ -100,7 +112,7 @@ async function initMap() {
             '<input type="hidden" name="page" class="hidden-field" value="result"></input>' + 
             '<input type="hidden" name="goto" class="hidden-field" value="index"></input>' + 
             '<input type="hidden" name="try-again" class="hidden-field" value="0"></input>' +
-            '<button name="router" class="btn btn-link btn-sm" type="submit">Quit Game</button>' + 
+            '<button name="router" class="btn btn-link btn-sm" type="submit">Stop Game</button>' + 
           '</form>' +
         '</div>' + 
       '</div>' +

@@ -79,7 +79,13 @@ def get_playable_location(db, user_id):
     # Get playable locations
     query = "SELECT * "
     query = query + "FROM locs "
-    query = query + "WHERE id NOT IN (SELECT DISTINCT loc_id FROM games WHERE user_id = ? AND game_answer_validation = 1) "
+    query = query + "WHERE id NOT IN "
+    query = query + "( "
+    query = query + "SELECT DISTINCT loc_id "
+    query = query + "FROM games "
+    query = query + "WHERE user_id = ? "
+    query = query + "AND game_answer_validation > 0 "
+    query = query + ") "
     query = query + "AND loc_active = 1; "
     cursor.execute(query, (user_id,))
     locs_playable = cursor.fetchall()
@@ -158,6 +164,44 @@ def start_game(db, user_id, loc_id):
     return(game_id, now)
 
 
+def get_game_info(db, id):
+
+    # Create connection and cursor
+    connection = sqlite3.connect(db, check_same_thread=False)
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+
+    # Insert values from get_playable_location to games table
+    query = "SELECT * FROM games WHERE id = ?; "
+    cursor.execute(query, (id,))
+    results = cursor.fetchone()
+
+    # Close cursor and connection
+    cursor.close()
+    connection.close()
+
+    return(results)
+
+
+def get_locs_info(db, id):
+
+    # Create connection and cursor
+    connection = sqlite3.connect(db, check_same_thread=False)
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+
+    # Insert values from get_playable_location to games table
+    query = "SELECT * FROM locs WHERE id = ?; "
+    cursor.execute(query, (id,))
+    results = cursor.fetchone()
+
+    # Close cursor and connection
+    cursor.close()
+    connection.close()
+
+    return(results)
+
+
 def update_current_game(db, id, game_end, game_lat, game_lng, game_user_quit, game_answer_off, game_answer_validation, game_duration, game_score):
 
     # (db, id, game_end, game_lat, game_lng, game_user_quit, game_answer_off, game_answer_validation, game_duration, game_score)
@@ -184,7 +228,7 @@ def update_current_game(db, id, game_end, game_lat, game_lng, game_user_quit, ga
     game_id = cursor.lastrowid
 
     # Print to debug
-    print("game_id:", game_id)
+    # print("game_id:", game_id)
 
     # Commit update
     connection.commit()
@@ -381,7 +425,7 @@ def get_history(db, user_id):
     # Get playable locations count
     query = "SELECT * "
     query = query + "FROM locs "
-    query = query + "WHERE id NOT IN (SELECT DISTINCT loc_id FROM games WHERE user_id = ? AND game_answer_validation = 1) "
+    query = query + "WHERE id NOT IN (SELECT DISTINCT loc_id FROM games WHERE user_id = ? AND game_answer_validation > 0) "
     query = query + "AND loc_active = 1; "
     cursor.execute(query, (user_id,))
     locs_playable = cursor.fetchall()
@@ -392,7 +436,8 @@ def get_history(db, user_id):
     query = query + "( "
     query = query + "SELECT "
     query = query + "DISTINCT loc_id "
-    query = query + ",CASE WHEN game_score = 0 THEN '-' ELSE 'yes' END AS found "
+    query = query + ",CASE WHEN sum(game_answer_validation) OVER (PARTITION BY loc_id) > 1 THEN 'N' WHEN game_score = 0 THEN '-' ELSE 'Y' END AS found "
+    query = query + ",sum(game_answer_validation) OVER (PARTITION BY loc_id) AS total_game_answer_validation "
     query = query + ",count(*) OVER (PARTITION BY loc_id) AS total_attempts "
     query = query + ",sum(game_duration) OVER (PARTITION BY loc_id) AS total_duration "
     query = query + ",sum(game_duration) OVER (PARTITION BY loc_id) / count(*) OVER (PARTITION BY loc_id) AS avg_time "

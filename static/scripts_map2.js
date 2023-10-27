@@ -69,6 +69,8 @@ async function initMap() {
       '<input type="hidden" name="answer-long" class="hidden-field" value="' + contentLong + '"></input>' +
       '<input type="hidden" name="answer-map-center" class="hidden-field" value="' + contentCenter + '"></input>' +
       '<input type="hidden" name="answer-map-zoom" class="hidden-field" value="' + contentZoom + '"></input>' +
+      '<input type="hidden" name="page" class="hidden-field" value="game"></input>' +
+      '<input type="hidden" name="goto" class="hidden-field" value="result"></input>' +
       '<button class="btn btn-primary btn-sm" type="submit">Submit</button>' +
       '</form>' +
       '</div>';
