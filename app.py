@@ -85,8 +85,12 @@ def index():
     # Print to debug
     # print("INDEX() function call")
 
-    page = session["current_page"]
-    goto = session["current_goto"]
+    try:
+        page = session["current_page"]
+        goto = session["current_goto"]
+    except KeyError:
+        page = None
+        goto = "index" 
 
     # Print to debug
     # print("\nINDEX:")
