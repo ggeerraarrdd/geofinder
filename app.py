@@ -2,6 +2,7 @@ import os
 
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
+from flask_socketio import SocketIO
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 
@@ -11,6 +12,9 @@ import queries
 
 # Configure application
 app = Flask(__name__)
+
+app.config['SECRET_KEY'] = 'secret!'
+socketio = SocketIO(app)
 
 # View HTML changes without rerunning server
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -47,6 +51,23 @@ def after_request(response):
     response.headers["Expires"] = 0
     response.headers["Pragma"] = "no-cache"
     return response
+
+
+@socketio.on('disconnect')
+def disconnect():
+    
+    # Print to debug
+    # print("\nDISCONNECTED:")
+    # print(f"Current Game ID: {session['current_game_id']}")
+    # print(f"Current Location ID: {session['current_game_loc_id']}")
+    # print(f"Current Game Start: {session['current_game_start']}")
+
+    current_game_id = session["current_game_id"]
+    current_game_start = session['current_game_start']
+
+    result = queries.get_disconnected(db, current_game_id, current_game_start)
+
+    print(f"{result}\n")
 
 
 ####################################################################

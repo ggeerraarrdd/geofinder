@@ -32,9 +32,10 @@ Apart from what was to be gained from implementing the requirements, this projec
 
 * Flask==2.2.5
 * Flask-Session==0.4.1
+* Flask_SocketIO==5.3.6
 * geographiclib==2.0
 * haversine==2.8.0
-* Werkzeug==3.0.0
+* Werkzeug==3.0.1
 
 ### Usage
 

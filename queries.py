@@ -1,9 +1,9 @@
-from cs50 import SQL
 import sqlite3
 from random import randint
 from datetime import datetime
 from math import floor, ceil, exp
 from haversine import haversine, Unit
+import time
 
 
 def get_user(db, new_username, new_password):
@@ -215,6 +215,60 @@ def get_current_game_deleted(db, current_game_id):
     connection.close()
 
     return 1
+
+
+def get_disconnected(db, current_game_id, current_game_start):
+
+    # Set current timestamp
+    current_game_end = datetime.now()
+    
+    # Delay function by 5 seconds to allow other functions to update db
+    time.sleep(5)
+
+    # TODO try-catch db connection
+    # Create connection and cursor
+    connection = sqlite3.connect(db)
+    cursor = connection.cursor()
+
+    # Check value of game_duration
+    query = "SELECT game_duration FROM games WHERE id = ?; "
+    cursor.execute(query, (current_game_id,))
+    result = cursor.fetchone()
+
+    # Check if game record is deleted or still there
+    if result == None: 
+        # Game record has been deleted
+        result = f"Game record has been deleted."
+    
+    else:
+        # Game record is still there & game_duration is still None
+        if result[0] == None:
+            # Calculate duration
+            duration_sec, duration_min = game_answer_duration(current_game_start, current_game_end)
+
+            if duration_sec >= 10:
+                # Update game_duration
+                query = "UPDATE games SET game_duration = ? WHERE id = ?; "
+                cursor.execute(query, (duration_min, current_game_id))
+
+                # Commit update
+                connection.commit()
+
+                result = f"Game record updated."
+            
+            else:
+                get_current_game_deleted(db, current_game_id)
+                result = f"Game record deleted."
+        
+        # Game record is still there & game_duration is still None
+        else:
+            result = f"Game record has game_duration."
+    
+    # Close cursor and connection
+    cursor.close()
+    connection.close()
+
+    return result
 
 
 def game_answer_distance(loc_answer_lat, loc_answer_long, game_answer_lat, game_answer_long):
