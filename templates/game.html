@@ -59,6 +59,7 @@
                 <form name="submit" action="/traffic" method="post">
                     <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
                     <input type="hidden" name="goto" class="hidden-field" value="game"></input>
+                    <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
                     <button name="router" class="btn btn-primary btn-sm" type="submit">New Search</button>
                 </form>
             </div>
@@ -66,6 +67,7 @@
                 <form name="submit" action="/traffic" method="post">
                     <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
                     <input type="hidden" name="goto" class="hidden-field" value="index"></input>
+                    <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
                     <button name="router" class="btn btn-link btn-sm" type="submit">Stop Game</button>
                 </form>
             </div>
@@ -75,6 +77,7 @@
                 <form name="submit" action="/traffic" method="post">
                     <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
                     <input type="hidden" name="goto" class="hidden-field" value="zero"></input>
+                    <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
                     <button name="router" class="btn btn-link btn-sm" type="submit">Quit Location</button>
                 </form>
             </div>

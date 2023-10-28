@@ -67,9 +67,7 @@ async function initMap() {
     if (current_game_answer_user_validation == 'quit') {
       try_again = 
       '<div class="infowindow-result-footer-try">' +
-        '<form name="router" action="/traffic" method="post">' + 
-        '<input type="hidden" name="page" class="hidden-field" value="result"></input>' + 
-        '<input type="hidden" name="goto" class="hidden-field" value="zero"></input>' +
+        '<form name="router">' + 
         '<button name="router" class="btn btn-primary btn-sm" type="submit" disabled>Try Again</button>' +
         '</form>' +
       '</div>';

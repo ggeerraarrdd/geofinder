@@ -56,6 +56,7 @@
                                     <th class="text-start">Location ID</th>
                                     <th class="text-start">Search Area</th>
                                     <th class="text-start-center">Found</th>
+                                    <th class="text-start-center"></th>
                                     <th class="text-start-center">Attempts</th>
                                     <th class="text-start-center">Total <br>Time (min)</th>
                                     <th class="text-start-center">Avg Time <br>per Attempt</th>
@@ -70,6 +71,18 @@
                                     <td class="text-start">{{ h.loc_id }}</td>
                                     <td class="text-start">{{ h.loc_city }}, {{ h.loc_state }}, {{ h.loc_country }}</td>
                                     <td class="text-start-center">{{ h.found.upper() }}</td>
+                                    <td class="text-start-center">
+                                        {% if h.found|default("-", True) == "-" %}
+                                        <form name="router" action="/traffic" method="post">
+                                            <input type="hidden" name="page" class="hidden-field" value="history"></input>
+                                            <input type="hidden" name="goto" class="hidden-field" value="game_again"></input>
+                                            <input type="hidden" name="try-again" class="hidden-field" value="1"></input>
+                                            <input type="hidden" name="try-again-loc-id" class="hidden-field" value="{{ h.loc_id }}"></input>
+                                            <button class="btn btn-primary btn-xs" type="submit">Try Again</button>
+                                        </form>
+                                        {% else %}
+                                        {% endif %}
+                                    </td>
                                     <td class="text-start-center">{{ h.total_attempts }}</td>
                                     <td class="text-start-center">{% if h.found|default("-", True) == "-" %}-{% else %}{{ h.total_duration }}{% endif %}</td>
                                     <td class="text-start-center">{% if h.found|default("-", True) == "-" %}-{% else %}{{ h.avg_time }}{% endif %}</td>

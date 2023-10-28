@@ -121,18 +121,46 @@ def game():
     """Start a game"""
     
     # Print to debug
-    # print("GAME() function call")
+    print("GAME() function call")
 
-    page = session["current_page"] = request.form.get("page")
-    goto = session["current_goto"] = request.form.get("goto")
+    if request.method == "POST":
 
-    # Print to debug
-    # print("\nGAME:")
-    # print(f"page: {page}")
-    # print(f"goto: {goto}")
+        # Print to debug
+        print("GAME() function call -> method POST")
 
-    if "try_again" not in session:
-        session["try_again"] = 0
+        page = session["current_page"] = request.form.get("page")
+        goto = session["current_goto"] = request.form.get("goto")
+        try_again = session["try_again"] = request.form.get("try-again")
+
+        if "current_game_id" not in session:
+            session["current_game_id"] = 0
+
+        # Print to debug
+        # print("\nGAME:")
+        # print(f"page: {page}")
+        # print(f"goto: {goto}")
+        # print(f"try_again: {try_again}")
+        # print(f"current_game_id: {session['current_game_id']}")
+
+    else:
+
+        # Print to debug
+        print("GAME() function call -> method GET")
+
+        page = session["current_page"]
+        goto = session["current_goto"]
+        try_again = session["try_again"]
+
+        if "current_game_id" not in session:
+            session["current_game_id"] = 0
+
+        # Print to debug
+        # print("\nGAME:")
+        # print(f"page: {page}")
+        # print(f"goto: {goto}")
+        # print(f"try_again: {try_again}")
+        # print(f"current_game_id: {session['current_game_id']}")
+
 
     # Printo to debug
     # print(f"Try Again: {session['try_again']}")
@@ -158,9 +186,11 @@ def game():
     # print(f"\nPre-gane session check - AFTER clean-up: \n{session}\n")
 
     # Get playable location
-    if session["try_again"] == 1:
+    if (session["try_again"] == "1") or (session["try_again"] == 1):
+        # Get specific location to try again
         location = queries.get_playable_location_again(db, session["current_game_loc_id"])
     else:
+        # Get random location as new game
         location = queries.get_playable_location(db, session["user_id"])
 
     # Checks if query returns a playable location
@@ -641,25 +671,27 @@ def traffic():
     page = session["current_page"] = request.form.get("page")
     goto = session["current_goto"] = request.form.get("goto")
 
-    # Print to debug
-    # print("\nRESULTS:")
-    # print(f"page: {page}")
-    # print(f"goto: {goto}")
-
     try:
-        session["try_again"] = request.form.get("try-again")
+        try_again = session["try_again"] = request.form.get("try-again")
     except KeyError:
-        session["try_again"] = 0
+        try_again = session["try_again"] = 0
+
+    # Set current_game_loc_id if Try Again clicked from Search History page
+    if request.form.get("try-again-loc-id"):
+        try_again_loc_id = session["current_game_loc_id"] = request.form.get("try-again-loc-id")
+    else:
+        try_again_loc_id = 0
 
     if "current_game_id" not in session:
         session["current_game_id"] = 0
 
     # Print to debug
     # print("\nTRAFFIC:")
-    # print(f"Current Page: {session['current_page']}")
-    # print(f"Request Go To: {session['current_goto']}")
-    # print(f"Try Again: {session['try_again']}")
-    # print(f"Current Game ID: {session['current_game_id']}\n")
+    # print(f"page: {page}")
+    # print(f"goto: {goto}")
+    # print(f"try_again: {try_again}")
+    # print(f"try_again_loc_id: {try_again_loc_id}")
+    # print(f"current_game_id: {session['current_game_id']}\n")
 
     if session.get("user_id") is None:
         return redirect("/tout")
@@ -762,28 +794,34 @@ def traffic_in():
             # print(f"page: {page}")
             # print(f"goto: {goto}")
 
-            if goto == "about":
-                return redirect("/about")
+            if (page == "history") and (goto == "game_again"):
+
+                return redirect("/game")
             
-            if goto == "howto":
-                return redirect("/howto")
-            
-            if goto == "index":
-                return redirect("/")
-            
-            if goto == "history":
-                return redirect("/history")
-            
-            # Not rendered if session has user_id
-            # if goto == "register":
-            #     return redirect("/register")
-            
-            # Not rendered if session has user_id
-            # if goto == "login":
-            #     return redirect("/login")
-            
-            if goto == "logout":
-                return redirect("/logout")
+            else:
+
+                if goto == "about":
+                    return redirect("/about")
+                
+                if goto == "howto":
+                    return redirect("/howto")
+                
+                if goto == "index":
+                    return redirect("/")
+                
+                if goto == "history":
+                    return redirect("/history")
+                
+                # Not rendered if session has user_id
+                # if goto == "register":
+                #     return redirect("/register")
+                
+                # Not rendered if session has user_id
+                # if goto == "login":
+                #     return redirect("/login")
+                
+                if goto == "logout":
+                    return redirect("/logout")
 
         elif page == "game":
 
@@ -878,7 +916,6 @@ def traffic_in():
                     return redirect("/logout")
                 
                 return redirect("/")
-
 
         elif page == "result":
 
