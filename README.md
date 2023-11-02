@@ -2,13 +2,13 @@
 It's like _Where's Waldo?_ but for houses
 
 ## Description
-Geo50x is an online carto-architectural scavenger hunt designed and implemented by Gerard Bul-lalayao as his final project for [CS50x: Introduction to Computer Science](https://cs50.harvard.edu/x/2023/) (HarvardX, 2023).
+Geo50x is an online carto-architectural scavenger hunt originally designed and implemented by Gerard Bul-lalayao for the final project assignment of [CS50x: Introduction to Computer Science](https://cs50.harvard.edu/x/2023/) (HarvardX, 2023).
 
 The gameplay is simple. Given a photo of a house somewhere in the world, you are tasked with locating that house on Google Maps. It's that straighforward. Although the search might not be.
 
 Geo50x is inspired by such childhood games as _[Where's Waldo?](https://en.wikipedia.org/wiki/Where%27s_Wally%3F)_ and _[Where in the World is Carmen Sandiego?](https://en.wikipedia.org/wiki/Carmen_Sandiego)_. And the simple pleasures of looking out through vehicle windows and just gazing at the passing landscapes and cityscapes.
 
-<picture><img alt="Shelfie screenshot 1" src="/static/images/geo50x_1.jpg"></picture>
+<picture><img alt="Geo50x" src="static/images/geo50x_5.jpg"></picture>
 More screenshots below.
 
 ## Disclaimer
@@ -88,7 +88,7 @@ password: carto
 * See [https://github.com/ggeerraarrdd/geo50x/releases](https://github.com/ggeerraarrdd/geo50x/releases)
 
 ## Future Work
-* Add functionalities to Search History page such as reviewing submitted locations and more easily re-try locations attempted but not yet found.
+* Add functionalities to Search History page such as ~~reviewing submitted locations~~ _(Update Nov 2, 2023: Done)_ and ~~more easily re-try locations attempted but not yet found~~ _(Update Nov 2, 2023: Done)_.
 * Add administration interface for data management.
 * Deploy app on AWS Lightsail.
 
@@ -104,7 +104,9 @@ password: carto
 * The folks at CS50 for a mind-altering course.
 
 ## Screenshots
-<picture><img alt="Shelfie screenshot 1" src="/static/images/geo50x_2.jpg"></picture>
-<picture><img alt="Shelfie screenshot 1" src="/static/images/geo50x_3.jpg"></picture>
-<picture><img alt="Shelfie screenshot 1" src="/static/images/geo50x_4.jpg"></picture>
+<picture><img alt="Geo50x" src="static/images/geo50x_6.jpg"></picture>
+<picture><img alt="Geo50x" src="static/images/geo50x_7.jpg"></picture>
+<picture><img alt="Geo50x" src="static/images/geo50x_8.jpg"></picture>
+<picture><img alt="Geo50x" src="static/images/geo50x_9.jpg"></picture>
+<picture><img alt="Geo50x" src="static/images/geo50x_10.jpg"></picture>
 
