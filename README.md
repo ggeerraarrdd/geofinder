@@ -84,6 +84,9 @@ password: carto
 ## Author(s)
 * [@ggeerraarrdd](https://github.com/ggeerraarrdd/)
 
+## Version History
+* See [https://github.com/ggeerraarrdd/geo50x/releases](https://github.com/ggeerraarrdd/geo50x/releases)
+
 ## Future Work
 * Add functionalities to Search History page such as reviewing submitted locations and more easily re-try locations attempted but not yet found.
 * Add administration interface for data management.

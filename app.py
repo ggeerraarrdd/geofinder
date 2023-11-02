@@ -6,7 +6,7 @@ from flask_socketio import SocketIO
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 
-from helpers import apology, login_required, latitude_offset
+from helpers import apology, login_required, latitude_offset, longitude_offset
 import queries
 
 
@@ -107,7 +107,12 @@ def index():
     # Print to debug
     # print(f"\nprint from app.py > index():\n{session}\n")
 
-    return render_template("index.html", page="index", userid=session["user_id"], username=session["username"], total=session["user_total_score"], map_api_key=map_api_key)
+    return render_template("index.html", 
+                           page="index", 
+                           userid=session["user_id"], 
+                           username=session["username"], 
+                           total=session["user_total_score"], 
+                           map_api_key=map_api_key)
 
 
 ####################################################################
@@ -235,7 +240,14 @@ def game():
         # Print to debug
         # print(f"SESSION JUST BEFORE RENDER TEMPLATE: \n{session}\n")
 
-    return render_template("game.html", page="game", username=session["username"], total=session["user_total_score"], location=location, loc_lat_game_offset=loc_lat_game_offset, clock=clock, map_api_key=map_api_key)
+    return render_template("game.html", 
+                           page="game", 
+                           username=session["username"], 
+                           total=session["user_total_score"], 
+                           location=location, 
+                           loc_lat_game_offset=loc_lat_game_offset, 
+                           clock=clock, 
+                           map_api_key=map_api_key)
 
 
 ####################################################################
@@ -358,7 +370,11 @@ def result():
             # Ensure session page is set to "result" before submit.html is rendered
             session["page"] = "result"
 
-            return render_template("submit.html", data=results, page="result", username=session["username"], total=session["user_total_score"], map_api_key=map_api_key)
+            return render_template("submit.html", 
+                                   data=results, page="result", 
+                                   username=session["username"], 
+                                   total=session["user_total_score"], 
+                                   map_api_key=map_api_key)
         
         else:
 
@@ -429,7 +445,11 @@ def result():
             # Ensure current_game_loc_id is cleared
             session.pop("current_game_loc_id", None)
 
-            return render_template("submit.html", data=results, page="result", username=session["username"], total=session["user_total_score"], map_api_key=map_api_key)
+            return render_template("submit.html", 
+                                   data=results, page="result", 
+                                   username=session["username"], 
+                                   total=session["user_total_score"], 
+                                   map_api_key=map_api_key)
 
         else:
 
@@ -448,7 +468,6 @@ def result():
             session.pop("page", None)
 
             return redirect("/")
-
 
 
 ####################################################################
@@ -541,7 +560,82 @@ def history():
     # Ensure session page is set to "history" before history.html is rendered
     session["page"] = "history"
 
-    return render_template("history.html", page="history", locs_playable_count=locs_playable_count, history=history, userid=session["user_id"], username=session["username"], total=session["user_total_score"], map_api_key=map_api_key)
+    return render_template("history.html", 
+                           page="history", 
+                           locs_playable_count=locs_playable_count, 
+                           history=history, userid=session["user_id"], 
+                           username=session["username"], 
+                           total=session["user_total_score"], 
+                           map_api_key=map_api_key)
+
+
+####################################################################
+#
+# REVIEW
+#
+####################################################################
+@app.route("/review", methods=["GET", "POST"])
+@login_required
+def review():
+    """Review game"""
+
+    # Print to debug
+    # print("REVIEW function call")
+
+    if request.method == "POST":
+
+        page = session["current_page"] = request.form.get("page")
+        goto = session["current_goto"] = request.form.get("goto")
+        review = request.form.get("review")
+
+        # Print to debug
+        # print("\nRESULTS:")
+        # print(f"page: {page}")
+        # print(f"goto: {goto}")
+        # print(f"review: {review}")
+
+        loc_info, locations_right, locations_wrong, locations_none, locations_quit, time_clock = queries.get_history_review(db, session["user_id"], review)
+
+        # Get offset latitude to position infowindow on map
+        loc_lat_game_offset = latitude_offset(float(loc_info["loc_lat_game"]), float(loc_info["loc_lng_game"]))
+
+        # Print to debug
+        # print(f"loc_info = {loc_info['loc_lat_game']}")
+        # print(f"locations_right = {locations_right}")
+        # print(f"locations_wrong = {locations_wrong}")
+        # print(f"locations_quit = {locations_quit}")
+        # print(f"time_clock = {time_clock[0]}")
+
+        # print(f"locations_not = {locations_none[0]}")
+
+        locations_shift = []
+        shift = 221
+        for i in range(locations_none[0]):
+            lat, lng = longitude_offset(float(loc_info["loc_lat_game"]), float(loc_info["loc_lng_game"]), shift)
+            
+            latlng = {"game_lat": str(lat), "game_lng": str(lng)}
+            locations_shift.append(latlng)
+            
+            i += 1
+            shift += 20
+
+        # print(locations_shift)
+        
+        return render_template("review.html", 
+                               location=loc_info, 
+                               locations_right=locations_right, 
+                               locations_wrong=locations_wrong, 
+                               locations_none=locations_shift,
+                               locations_quit=locations_quit, 
+                               time_clock=time_clock[0], 
+                               username=session["username"], 
+                               total=session["user_total_score"], 
+                               loc_lat_game_offset=loc_lat_game_offset, 
+                               map_api_key=map_api_key)
+            
+    else:
+
+        return redirect("/")
 
 
 ####################################################################

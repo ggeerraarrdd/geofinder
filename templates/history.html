@@ -62,6 +62,7 @@
                                     <th class="text-start-center">Avg Time <br>per Attempt</th>
                                     <th class="text-start-center">Avg Offset <br>per Attempt (ft)</th>
                                     <th class="text-start-center">Score</th>
+                                    <th class="text-start-center"></th>
                                 </tr>
                             </thead>
 
@@ -88,6 +89,18 @@
                                     <td class="text-start-center">{% if h.found|default("-", True) == "-" %}-{% else %}{{ h.avg_time }}{% endif %}</td>
                                     <td class="text-start-center">{% if h.found|default("-", True) == "-" %}-{% else %}{% if h.avg_offset == None %}&#248;{% else %}{{ h.avg_offset }}{% endif %}{% endif %}</td>
                                     <td class="text-start-center">{% if h.found|default("-", True) == "-" %}-{% else %}{{ h.score }}{% endif %}</td>
+                                    <td class="text-start-center">
+                                        {% if h.found|default("-", True) == "Y" or h.found|default("-", True) == "N" %}
+                                        <form name="router" action="/review" method="post">
+                                            <input type="hidden" name="page" class="hidden-field" value="history"></input>
+                                            <input type="hidden" name="goto" class="hidden-field" value="review"></input>
+                                            <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
+                                            <input type="hidden" name="review" class="hidden-field" value="{{ h.loc_id }}"></input>
+                                            <button class="btn btn-xs-review" type="submit">Review</button>
+                                        </form>
+                                        {% else %}
+                                        {% endif %}
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

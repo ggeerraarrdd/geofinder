@@ -50,3 +50,22 @@ def latitude_offset(lat, long):
     lon2 = g['lon2']
 
     return(lat2)
+
+
+def longitude_offset(lat, long, j):
+    """Get latlng for first info window on game page."""
+
+    geod = Geodesic.WGS84
+
+    lat1 = lat
+    lon1 = long
+    theta = 0 # direction from North, clockwise 
+    azi1 = theta - 90 # (90 degrees to the left)
+    shift = j #meters
+
+    g = geod.Direct(lat1, lon1, azi1, shift)
+
+    lat2 = g['lat2']
+    lon2 = g['lon2']
+
+    return(lat2, lon2)

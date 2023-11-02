@@ -462,5 +462,80 @@ def get_history(db, user_id):
     return locs_playable_count, history
 
 
+def get_history_review(db, user_id, loc_id):
+
+    # Create connection and cursor
+    connection = sqlite3.connect(db)
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+
+    # Get location info
+    query = "SELECT * FROM locs WHERE id = ?; "
+    cursor.execute(query, (loc_id,))
+    loc_info = cursor.fetchone()
+
+    # Get games info - attempted w/ answer (right)
+    query = "SELECT game_lat, game_lng "
+    query = query + "FROM games "
+    query = query + "WHERE user_id = ? "
+    query = query + "AND loc_id = ? "
+    query = query + "AND game_lat NOT NULL "
+    query = query + "AND game_lng NOT NULL "
+    query = query + "AND game_answer_validation = 1; "
+    cursor.execute(query, (user_id, loc_id))
+    locations_right = [dict(zip([column[0] for column in cursor.description], row)) for row in cursor.fetchall()]
+
+    # Get games info - attempted w/ answer (wrong)
+    query = "SELECT game_lat, game_lng "
+    query = query + "FROM games "
+    query = query + "WHERE user_id = ? "
+    query = query + "AND loc_id = ? "
+    query = query + "AND game_lat NOT NULL "
+    query = query + "AND game_lng NOT NULL "
+    query = query + "AND game_answer_validation = 0; "
+    cursor.execute(query, (user_id, loc_id))
+    locations = [dict(zip([column[0] for column in cursor.description], row)) for row in cursor.fetchall()]
+    # locations = [[float(l['game_lat']), float(l['game_lng'])] for l in locations]
+
+    # Get games info - attempted w/ answer (none)
+    query = "SELECT count(*) "
+    query = query + "FROM games "
+    query = query + "WHERE user_id = ? "
+    query = query + "AND loc_id = ? "
+    query = query + "AND game_user_quit = 1 "
+    query = query + "AND game_answer_validation = 0; "
+    cursor.execute(query, (user_id, loc_id))
+    locations_none = cursor.fetchone()
+
+    # Get games info - attempted w/ answer (none) - quit
+    query = "SELECT "
+    query = query + "IFNULL(g.game_lat, l.loc_lat_key) AS game_lat, "
+    query = query + "IFNULL(g.game_lng, l.loc_lng_key) AS game_lng "
+    query = query + "FROM games AS g "
+    query = query + "JOIN locs AS l ON g.loc_id = l.id "
+    query = query + "WHERE user_id = ? "
+    query = query + "AND l.id = ? "
+    query = query + "AND g.game_answer_validation = 2; "
+    cursor.execute(query, (user_id, loc_id))
+    locations_quit = [dict(zip([column[0] for column in cursor.description], row)) for row in cursor.fetchall()]
+    
+    # Get total duration
+    query = "WITH cte AS "
+    query = query + "( "
+    query = query + "SELECT sum((strftime('%s', game_end) - strftime('%s', game_start))) AS seconds "
+    query = query + "FROM games "
+    query = query + "WHERE user_id = ? AND loc_id = ? "
+    query = query + ") "
+    query = query + "SELECT strftime('%H:%M:%S', seconds, 'unixepoch') AS time_clock "
+    query = query + "FROM cte; "
+    cursor.execute(query, (user_id, loc_id))
+    time_clock = cursor.fetchone()
+
+    # Close cursor and connection
+    cursor.close()
+    connection.close()
+
+    return loc_info, locations_right, locations, locations_none, locations_quit, time_clock
+
 
 

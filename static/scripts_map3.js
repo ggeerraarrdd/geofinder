@@ -36,8 +36,9 @@ async function initMap() {
     zoom: map_zoom,
     center: position,
     mapId: "DEMO_MAP_ID",
-    mapTypeControl: false,
-    fullscreenControl: false,
+    disableDefaultUI: true,
+    gestureHandling: "none",
+    zoomControl: false,
     title: 0,
     tilt: 0,
     mapTypeId: 'satellite',
@@ -52,8 +53,10 @@ async function initMap() {
 
   // Content for Info Window on submit.html
   let try_again
+  let review
 
   if (current_game_answer_user_validation == 'incorrect') {
+    review = '';
     try_again = 
     '<div class="infowindow-result-footer-try">' +
       '<form name="router" action="/traffic" method="post">' + 
@@ -63,19 +66,40 @@ async function initMap() {
       '<button name="router" class="btn btn-primary btn-sm" type="submit">Try Again</button>' +
       '</form>' +
     '</div>';
+  } else if (current_game_answer_user_validation == 'quit') {
+    review = 
+    '<div class="infowindow-result-title-right-review">' +
+      '<form name="router" action="/review" method="post">' + 
+      '<input type="hidden" name="page" class="hidden-field" value="result"></input>' + 
+      '<input type="hidden" name="goto" class="hidden-field" value="review"></input>' +
+      '<input type="hidden" name="try-again" class="hidden-field" value="0"></input>' +
+      '<input type="hidden" name="review" class="hidden-field" value="' + current_game_loc_id + '"></input>' + 
+      '<button name="router" class="btn btn-xs-review" type="submit">Review</button>' +
+      '</form>' +
+    '</div>';
+    try_again = 
+    '<div class="infowindow-result-footer-try">' +
+      '<form name="router">' + 
+      '<button name="router" class="btn btn-primary btn-sm" type="submit" disabled>Try Again</button>' +
+      '</form>' +
+    '</div>';
+  } else if (current_game_answer_user_validation == 'correct!') {
+    review = 
+    '<div class="infowindow-result-title-right-review">' +
+      '<form name="router" action="/review" method="post">' + 
+      '<input type="hidden" name="page" class="hidden-field" value="result"></input>' + 
+      '<input type="hidden" name="goto" class="hidden-field" value="review"></input>' +
+      '<input type="hidden" name="try-again" class="hidden-field" value="0"></input>' +
+      '<input type="hidden" name="review" class="hidden-field" value="' + current_game_loc_id + '"></input>' + 
+      '<button name="router" class="btn btn-xs-review" type="submit">Review</button>' +
+      '</form>' +
+    '</div>';
+    try_again = '';
   } else {
-    if (current_game_answer_user_validation == 'quit') {
-      try_again = 
-      '<div class="infowindow-result-footer-try">' +
-        '<form name="router">' + 
-        '<button name="router" class="btn btn-primary btn-sm" type="submit" disabled>Try Again</button>' +
-        '</form>' +
-      '</div>';
-    } else {
-      try_again = ''
-    }
+    review = '';
+    try_again = '';
   }
-
+  
 
   const contentResult = 
     '<div class="infowindow-result">' +
@@ -84,7 +108,8 @@ async function initMap() {
           current_game_answer_user_validation  +
         '</div>' + 
         '<div class="infowindow-result-title-right">' + 
-        'Score: ' + game_score + ' pts<br>' +
+        'Score: ' + game_score + ' pts' + 
+        review + 
         '</div>' +
       '</div>' +
       '<div class="infowindow-result-body">' +

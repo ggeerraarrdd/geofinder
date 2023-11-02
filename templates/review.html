@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block mapscript %}
+<script type="module" src="/static/scripts_review.js"></script>
+{% endblock %}
+
+{% block main %}
+
+<div class="container-bottom-map" id="map" map-lat="{{ location.loc_lat_game }}"
+    map-lng="{{ location.loc_lng_game }}" map-lat-offset="{{ loc_lat_game_offset }}" map-zoom="18" 
+    locations-right="{{ locations_right }}" locations-wrong="{{ locations_wrong }}" 
+    locations-none="{{ locations_none }}" locations-quit="{{ locations_quit }}">
+
+    <script>(g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
+            ({ key: "{{ map_api_key }}", v: "beta" });</script>
+
+</div>
+
+<div class="container-bottom-image-main">
+
+    <div class="container-bottom-image-top">
+        <div class="container-bottom-image-top-left">
+            Location ID: {{ location.id }}<br>
+            {{ location.loc_city }}, {{ location.loc_state }} {{ location.loc_country }}
+        </div>
+        <div class="container-bottom-image-top-right">
+            <div id="clock" class="container-bottom-image-top-right-clock">
+                {{ time_clock }}
+            </div>    
+        </div>
+    </div>
+
+    <img src="{{ location.loc_image_url }}" width="400px"><br>
+
+    <div class="container-bottom-image-source">
+        <a href="{{ location.loc_source_url }}" target="_blank">source</a>
+    </div>
+
+    <!-- 
+    <div class="container-bottom-image-buttons">
+        <div class="container-bottom-image-buttons-left">
+            <div class="container-bottom-image-buttons-new">
+                <form name="submit" action="/traffic" method="post">
+                    <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                    <input type="hidden" name="goto" class="hidden-field" value="game"></input>
+                    <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
+                    <button name="router" class="btn btn-primary btn-sm" type="submit">New Search</button>
+                </form>
+            </div>
+        </div> 
+    </div> 
+    -->
+</div>      
+
+{% endblock %}
