@@ -600,6 +600,12 @@ def review():
         loc_lat_game_offset = latitude_offset(float(loc_info["loc_lat_game"]), float(loc_info["loc_lng_game"]))
 
         # Print to debug
+        # print(f"locations_right = {len(locations_right)}")
+        # print(f"locations_wrong = {len(locations_wrong)}")
+        # print(f"locations_none = {len(locations_none)}")
+        # print(f"locations_quit = {len(locations_quit)}")
+
+        # Print to debug
         # print(f"loc_info = {loc_info['loc_lat_game']}")
         # print(f"locations_right = {locations_right}")
         # print(f"locations_wrong = {locations_wrong}")

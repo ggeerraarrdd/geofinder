@@ -36,8 +36,95 @@
         <a href="{{ location.loc_source_url }}" target="_blank">source</a>
     </div>
 
-    <!-- 
-    <div class="container-bottom-image-buttons">
+    <div class="container-bottom-image-markers-label">
+        Attempts: {{ locations_right|length + locations_quit|length + locations_wrong|length + locations_none|length }}
+    </div>
+
+    <!-- Attempt with Correct Answer -->
+    <div class="container-bottom-image-markers-images">
+        {% if locations_right|length == 1 and locations_quit|length == 0 %}
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="25px"
+            height="35px" viewBox="-0.5 -0.5 45 65"
+            style="background-color: #ffffff;">
+            <defs />
+            <g>
+                <rect x="0" y="0" width="44" height="64" fill="#ffffff" stroke="none" pointer-events="all" />
+                <rect x="0" y="0" width="44" height="64" fill="#ffffff" stroke="none" pointer-events="all" />
+                <path
+                    d="M 22 0 L 40.74 30.48 C 42.87 33.94 44 37.93 44 42 C 44 47.83 41.68 53.43 37.56 57.56 C 33.43 61.68 27.83 64 22 64 C 9.85 64 0 54.15 0 42 C 0 37.93 1.13 33.94 3.26 30.48 Z"
+                    fill="#D95040" stroke="#B31312" stroke-width="0.5" stroke-miterlimit="10"
+                    transform="rotate(-180,22,32)" pointer-events="all" />
+                <ellipse cx="22" cy="23" rx="9" ry="9" fill="#FFFF00" stroke="none" pointer-events="all" />
+            </g>
+        </svg>
+        {% else %}
+        {% endif %}
+
+        <!-- Attempt with Quit -->
+        {% if locations_right|length == 0 and locations_quit|length == 1 %}
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="25px"
+            height="35px" viewBox="-0.5 -0.5 45 65"
+            style="background-color: #ffffff;">
+            <defs />
+            <g>
+                <rect x="0" y="0" width="44" height="64" fill="#ffffff" stroke="none" pointer-events="all" />
+                <rect x="0" y="0" width="44" height="64" fill="#ffffff" stroke="none" pointer-events="all" />
+                <path
+                    d="M 22 0 L 40.74 30.48 C 42.87 33.94 44 37.93 44 42 C 44 47.83 41.68 53.43 37.56 57.56 C 33.43 61.68 27.83 64 22 64 C 9.85 64 0 54.15 0 42 C 0 37.93 1.13 33.94 3.26 30.48 Z"
+                    fill="#D95040" stroke="#B31312" stroke-width="0.5" stroke-miterlimit="10"
+                    transform="rotate(-180,22,32)" pointer-events="all" />
+                <ellipse cx="22" cy="23" rx="9" ry="9" fill="#000000" stroke="none" pointer-events="all" />
+            </g>
+        </svg>
+        {% else %}
+        {% endif %}
+
+        <!-- Attempts with Wrong Answers -->
+        {% for _ in range(locations_wrong|length) %}
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="25px"
+            height="35px" viewBox="-0.5 -0.5 45 65"
+            style="background-color: #ffffff;">
+            <defs />
+            <g>
+                <rect x="0" y="0" width="44" height="64" fill="#ffffff" stroke="none" pointer-events="all" />
+                <rect x="0" y="0" width="44" height="64" fill="#ffffff" stroke="none" pointer-events="all" />
+                <path
+                    d="M 22 0 L 40.74 30.48 C 42.87 33.94 44 37.93 44 42 C 44 47.83 41.68 53.43 37.56 57.56 C 33.43 61.68 27.83 64 22 64 C 9.85 64 0 54.15 0 42 C 0 37.93 1.13 33.94 3.26 30.48 Z"
+                    fill="#D95040" stroke="#B31312" stroke-width="0.5" stroke-miterlimit="10"
+                    transform="rotate(-180,22,32)" pointer-events="all" />
+                <ellipse cx="22" cy="23" rx="9" ry="9" fill="#D95040" stroke="none" pointer-events="all" />
+            </g>
+        </svg>
+        {% endfor %}
+
+        <!-- Attempts with No Answers -->
+        {% for _ in range(locations_none|length) %}
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="25px"
+            height="35px" viewBox="-0.5 -0.5 45 65"
+            style="background-color: #FFFFFF;">
+            <defs />
+            <g>
+                <rect x="0" y="0" width="44" height="64" fill="#FFFFFF" stroke="none" pointer-events="all" />
+                <rect x="0" y="0" width="44" height="64" fill="#FFFFFF" stroke="none" pointer-events="all" />
+                <path
+                    d="M 22 0 L 40.74 30.48 C 42.87 33.94 44 37.93 44 42 C 44 47.83 41.68 53.43 37.56 57.56 C 33.43 61.68 27.83 64 22 64 C 9.85 64 0 54.15 0 42 C 0 37.93 1.13 33.94 3.26 30.48 Z"
+                    fill="#FFFFFF" stroke="gray" stroke-width="1.5" stroke-miterlimit="10"
+                    transform="rotate(-180,22,32)" pointer-events="all" />
+                <ellipse cx="22" cy="23" rx="9" ry="9" fill="#FFFFFF" stroke="none" pointer-events="all" />
+            </g>
+        </svg>
+        {% endfor %}
+
+
+        <!--
         <div class="container-bottom-image-buttons-left">
             <div class="container-bottom-image-buttons-new">
                 <form name="submit" action="/traffic" method="post">
@@ -48,8 +135,10 @@
                 </form>
             </div>
         </div> 
+        -->
+
     </div> 
-    -->
+    
 </div>      
 
 {% endblock %}

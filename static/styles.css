@@ -436,6 +436,12 @@ li {
     text-decoration: none;
 }
 
+.container-bottom-image-markers-label {
+    margin: -5px 0 5px 0;
+    padding: 0;
+    font-size: 14px;
+}
+
 .container-bottom-image-buttons {
     width: 400px;
     display: flex;
