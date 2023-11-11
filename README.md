@@ -4,9 +4,9 @@ It's like _Where's Waldo?_ but for houses
 
 ## Description
 
-Geo50x is an online carto-architectural scavenger hunt. The gameplay is simple: Given a photo of a house somewhere in the world, you are tasked with locating that house on Google Maps. It's that straighforward, although how you will go about searching might not be.
+_Geo50x_ is an online carto-architectural scavenger hunt. The gameplay is simple: Given a photo of a house somewhere in the world, you are tasked with locating that house on Google Maps. It's that straighforward, although how you will go about searching might not be.
 
-Geo50x is inspired by such childhood games as _[Where's Waldo?](https://en.wikipedia.org/wiki/Where%27s_Wally%3F)_ and _[Where in the World is Carmen Sandiego?](https://en.wikipedia.org/wiki/Carmen_Sandiego)_. And the simple pleasures of looking out through vehicle windows and just gazing at the passing landscapes and cityscapes.
+_Geo50x_ is inspired by such childhood games as _[Where's Waldo?](https://en.wikipedia.org/wiki/Where%27s_Wally%3F)_ and _[Where in the World is Carmen Sandiego?](https://en.wikipedia.org/wiki/Carmen_Sandiego)_. And the simple pleasures of looking out through vehicle windows and just gazing at the passing landscapes and cityscapes.
 
 ![Screenshot](static/images/geo50x_5.jpg)
 
@@ -82,19 +82,23 @@ password: carto
 
 * [@ggeerraarrdd](https://github.com/ggeerraarrdd/)
 
-## Initial Release
+## Version History
 
-The [initial realease](https://github.com/ggeerraarrdd/geo50x/releases/tag/v1.0.0) of Geo50x was submitted as the final project for [CS50x: Introduction to Computer Science](https://cs50.harvard.edu/x/2023/) (HarvardX, 2023).
+### Release Notes
+
+* See [https://github.com/ggeerraarrdd/geo50x/releases](https://github.com/ggeerraarrdd/geo50x/releases)
+
+### Initial Release
+
+The [initial realease](https://github.com/ggeerraarrdd/geo50x/releases/tag/v1.0.0) of _Geo50x_ was submitted as the final project for [CS50x: Introduction to Computer Science](https://cs50.harvard.edu/x/2023/) (HarvardX, 2023).
 
 [Project brief](https://cs50.harvard.edu/x/2023/project/) as of September 2023:
 
 _The climax of this course is its final project. The final project is your opportunity to take your newfound savvy with programming out for a spin and develop your very own piece of software. So long as your project draws upon this course’s lessons, the nature of your project is entirely up to you. You may implement your project in any language(s). You are welcome to utilize infrastructure other than the CS50 Codespace. All that we ask is that you build something of interest to you, that you solve an actual problem, that you impact your community, or that you change the world. Strive to create something that outlives this course._
 
-## Version History
+### Future Work
 
-* See [https://github.com/ggeerraarrdd/geo50x/releases](https://github.com/ggeerraarrdd/geo50x/releases)
-
-## Future Work
+New features development is ongoing.
 
 * Add functionalities to Search History page such as ~~reviewing submitted locations~~ _(Update Nov 2, 2023: Done)_ and ~~more easily re-try locations attempted but not yet found~~ _(Update Nov 2, 2023: Done)_.
 * Add administration interface for data management.
