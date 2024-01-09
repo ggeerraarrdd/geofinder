@@ -212,7 +212,7 @@
                                     <td class="text-start">{{ loc.id }}</td>
                                     <td class="text-start">{{ loc.loc_internal_id }}</td>
                                     <td class="text-start">{{ loc.loc_city }}, {{ loc.loc_state }} {{ loc.loc_country }}</td>
-                                    <td class="text-start"><a href="{{ loc.loc_url_source }}" target="_blank">link</a></td>
+                                    <td class="text-start"><a href="{{ loc.loc_url_source }}" target="_blank" rel="noopener noreferrer">link</a></td>
                                     <!-- Is Playable -->
                                     <td class="text-start-center">
                                         {% if loc.loc_playable == True %}

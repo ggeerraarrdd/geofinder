@@ -68,7 +68,7 @@
                                     <td class="text-start">{{ k.id }}</td>
                                     <td class="text-start">{{ k.loc_internal_id }}</td>
                                     <td class="text-start">{{ k.loc_city }}, {{ k.loc_state }} {{ k.loc_country }}</td>
-                                    <td class="text-start"><a href="{{ k.loc_url_source }}" target="_blank">link</a></td>
+                                    <td class="text-start"><a href="{{ k.loc_url_source }}" target="_blank" rel="noopener noreferrer">link</a></td>
                                     <!-- Is Playable -->
                                     <td class="text-start-center">
                                         {% if k.loc_playable == True %}

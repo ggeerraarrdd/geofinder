@@ -1064,9 +1064,6 @@ def admin_users_edit():
             # Ensure session page is set to "howto" before howto.html is rendered
             session["page"] = "profile"
 
-            print("admin_users_edit.html")
-            print(profile_message_password)
-
             return render_template("admin_users_edit.html", 
                                     page="profile", 
                                     userid=session["user_id"], 

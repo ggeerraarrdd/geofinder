@@ -5,7 +5,6 @@ from datetime import datetime
 from math import floor, ceil, exp, radians, degrees, cos, sqrt
 from haversine import haversine, Unit
 import time
-import requests
 
 
 def get_registered(db, new_username, new_password):
