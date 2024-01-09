@@ -71,7 +71,7 @@ async function initMap() {
       '<input type="hidden" name="answer-map-zoom" class="hidden-field" value="' + contentZoom + '"></input>' +
       '<input type="hidden" name="page" class="hidden-field" value="game"></input>' +
       '<input type="hidden" name="goto" class="hidden-field" value="result"></input>' +
-      '<button class="btn btn-primary btn-sm" type="submit">Submit</button>' +
+      '<button class="bttn bttn-small bttn-primary" type="submit">Submit</button>' +
       '</form>' +
       '</div>';
     // Create a new InfoWindow.

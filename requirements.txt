@@ -2,5 +2,8 @@ Flask==2.2.5
 Flask-Session==0.4.1
 Flask_SocketIO==5.3.6
 geographiclib==2.0
+geopandas==0.14.1
 haversine==2.8.0
+psycopg2_binary==2.9.9
+Shapely==2.0.2
 Werkzeug==3.0.1

@@ -63,7 +63,7 @@ async function initMap() {
       '<input type="hidden" name="page" class="hidden-field" value="result"></input>' + 
       '<input type="hidden" name="goto" class="hidden-field" value="game_again"></input>' +
       '<input type="hidden" name="try-again" class="hidden-field" value="1"></input>' +
-      '<button name="router" class="btn btn-primary btn-sm" type="submit">Try Again</button>' +
+      '<button name="router" class="bttn bttn-xsmall bttn-primary" type="submit">Try Again</button>' +
       '</form>' +
     '</div>';
   } else if (current_game_answer_user_validation == 'quit') {
@@ -74,13 +74,13 @@ async function initMap() {
       '<input type="hidden" name="goto" class="hidden-field" value="review"></input>' +
       '<input type="hidden" name="try-again" class="hidden-field" value="0"></input>' +
       '<input type="hidden" name="review" class="hidden-field" value="' + current_game_loc_id + '"></input>' + 
-      '<button name="router" class="btn btn-xs-review" type="submit">Review</button>' +
+      '<button name="router" class="bttn bttn-xsmall" type="submit">Review</button>' +
       '</form>' +
     '</div>';
     try_again = 
     '<div class="infowindow-result-footer-try">' +
       '<form name="router">' + 
-      '<button name="router" class="btn btn-primary btn-sm" type="submit" disabled>Try Again</button>' +
+      '<button name="router" class="bttn bttn-xsmall" type="submit" disabled>Try Again</button>' +
       '</form>' +
     '</div>';
   } else if (current_game_answer_user_validation == 'correct!') {
@@ -91,7 +91,7 @@ async function initMap() {
       '<input type="hidden" name="goto" class="hidden-field" value="review"></input>' +
       '<input type="hidden" name="try-again" class="hidden-field" value="0"></input>' +
       '<input type="hidden" name="review" class="hidden-field" value="' + current_game_loc_id + '"></input>' + 
-      '<button name="router" class="btn btn-xs-review" type="submit">Review</button>' +
+      '<button name="router" class="bttn bttn-xsmall" type="submit">Review</button>' +
       '</form>' +
     '</div>';
     try_again = '';
@@ -115,8 +115,8 @@ async function initMap() {
       '<div class="infowindow-result-body">' +
         'Location ID: ' + current_game_loc_id + '<br>' +
         'Attempt(s): ' + current_game_loc_attempts + '<br>' +
-        'Game Time: ' + time_game + ' minutes<br>' + 
-        'Location Time: ' + time_location + ' minutes<br><br>' +
+        'Game Time: ' + time_game + ' seconds<br>' + 
+        'Location Time: ' + time_location + ' seconds<br><br>' +
         'Base Score: ' + base_score + '<br>' +
         'Bonus Score: ' + bonus_score + '<br>' +
       '</div>' +
@@ -127,7 +127,7 @@ async function initMap() {
             '<input type="hidden" name="page" class="hidden-field" value="result"></input>' + 
             '<input type="hidden" name="goto" class="hidden-field" value="game_new"></input>' +
             '<input type="hidden" name="try-again" class="hidden-field" value="0"></input>' +
-            '<button name="router" class="btn btn-primary btn-sm" type="submit">New Search</button>' + 
+            '<button name="router" class="bttn bttn-xsmall bttn-primary" type="submit">New Search</button>' +
           '</form>' +
         '</div>' + 
         '<div class="infowindow-result-footer-quit">' +
@@ -135,7 +135,7 @@ async function initMap() {
             '<input type="hidden" name="page" class="hidden-field" value="result"></input>' + 
             '<input type="hidden" name="goto" class="hidden-field" value="index"></input>' + 
             '<input type="hidden" name="try-again" class="hidden-field" value="0"></input>' +
-            '<button name="router" class="btn btn-link btn-sm" type="submit">Stop Game</button>' + 
+            '<button name="router" class="bttn bttn-xsmall bttn-naked" type="submit">Stop Search</button>' +
           '</form>' +
         '</div>' + 
       '</div>' +

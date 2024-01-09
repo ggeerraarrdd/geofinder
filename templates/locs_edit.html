@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+
+{% block mapscript %}
+<script type="module" src="/static/scripts_locs_edit.js"></script>
+{% endblock %}
+
+{% block main %}
+
+<div class="container-bottom-map" id="map" 
+    map-lat="{{ data.loc_view_lat}}"
+    map-lng="{{ data.loc_view_lng }}" 
+    map-lat-offset="{{ loc_lat_game_offset }}" 
+    map-polygon="{{ polygon }}"  
+    map-zoom="18">
+
+    <script>(g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
+            ({ key: "{{ map_api_key }}", v: "beta" });</script>
+
+</div>
+
+<div class="container-bottom-image-main">
+
+    <div class="container-bottom-image-top">
+        <div class="container-bottom-image-top-left">
+            Location ID: {{ data.id }}<br>
+            {{ data.loc_city }}, {{ data.loc_state }} {{ data.loc_country }}
+        </div>
+        <div class="container-bottom-image-top-right">
+            <div class="container-bottom-image-top-right-playable">
+                {% if data.loc_playable %}
+                Playable
+                {% else %}
+                <span style="color: #ff5645 !important;">Not Playable</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <img src="{{ data.loc_image_source }}" width="400px"><br>
+
+    <div class="container-bottom-image-source">
+        <a href="{{ data.loc_url_source }}" target="_blank" rel="noopener noreferrer">source</a>
+    </div>
+
+    <div class="container-bottom-image-buttons">
+        <div class="container-bottom-image-buttons-left">
+            <div class="container-bottom-image-buttons-new">
+                <form name="submit" action="/locs/edit" method="post">
+                    <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                    <input type="hidden" name="goto" class="hidden-field" value="locs"></input>
+                    <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
+                    <input type="hidden" id="loc-id" name="loc-id" class="hidden-field" value="{{ data.id }}"></input>
+                    <input type="hidden" id="loc-id" name="loc-id" class="hidden-field" value="Loc {{ data.id }} changes saved."></input>
+                    <input type="hidden" id="propertyCoordinates" name="propertyCoordinates" class="hidden-field"></input>
+                    <button name="router" class="btn btn-primary btn-sm" type="submit">Save Edit</button>
+                </form>
+
+            </div>
+            <div class="container-bottom-image-buttons-stop">
+                <form name="undo" action="/locs" method="post">
+                    <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                    <input type="hidden" name="goto" class="hidden-field" value="zero"></input>
+                    <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
+                    <input type="hidden" id="loc-edit" name="loc-edit" class="hidden-field" value="{{ data.id }}"></input>
+                    <button name="router" class="btn btn-link btn-sm" type="undo">Undo</button>
+                </form>
+            </div>
+        </div> 
+        <div class="container-bottom-image-buttons-right">
+            <div class="container-bottom-image-buttons-quit">
+                <form name="go-back" action="/locs/edit" method="post">
+                    <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                    <input type="hidden" name="goto" class="hidden-field" value="zero"></input>
+                    <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
+                    <button name="router" class="btn btn-link btn-sm" type="go-back">Back to Locations</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

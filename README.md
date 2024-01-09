@@ -1,12 +1,12 @@
-# Geo50x
+# Geofinder
 
 An online game that's like _Where's Waldo?_ but for houses
 
 ## Description
 
-_Geo50x_ is an online carto-architectural scavenger hunt. The gameplay is simple: Given a photo of a house somewhere in the world, you are tasked with locating that house on Google Maps. It's that straighforward, although how you will go about searching might not be.
+_Geofinder_ is an online carto-architectural scavenger hunt. The gameplay is simple: Given a photo of a house somewhere in the world, you are tasked with locating that house on Google Maps. It's that straighforward, although how you will go about searching might not be.
 
-_Geo50x_ is inspired by such childhood games as _[Where's Waldo?](https://en.wikipedia.org/wiki/Where%27s_Wally%3F)_ and _[Where in the World is Carmen Sandiego?](https://en.wikipedia.org/wiki/Carmen_Sandiego)_. And the simple pleasures of looking out through vehicle windows and just gazing at the passing landscapes and cityscapes.
+_Geofinder_ is inspired by such childhood games as _[Where's Waldo?](https://en.wikipedia.org/wiki/Where%27s_Wally%3F)_ and _[Where in the World is Carmen Sandiego?](https://en.wikipedia.org/wiki/Carmen_Sandiego)_. And the simple pleasures of looking out through vehicle windows and just gazing at the passing landscapes and cityscapes.
 
 ![Screenshot](static/images/geo50x_5.jpg)
 
@@ -24,7 +24,10 @@ ALL CONTENTS IN THIS REPO ARE FOR EDUCATIONAL PURPOSES ONLY.
 * Flask-Session==0.4.1
 * Flask_SocketIO==5.3.6
 * geographiclib==2.0
+* geopandas==0.14.1
 * haversine==2.8.0
+* psycopg2_binary==2.9.9
+* Shapely==2.0.2
 * Werkzeug==3.0.1
 
 ### Usage
@@ -32,7 +35,7 @@ ALL CONTENTS IN THIS REPO ARE FOR EDUCATIONAL PURPOSES ONLY.
 Clone it!
 
 ```bash
-git clone https://github.com/ggeerraarrdd/geo50x.git
+git clone https://github.com/ggeerraarrdd/geofinder.git
 ```
 
 Go into the project directory and run the command:
@@ -51,32 +54,17 @@ For the embedded maps to work, you need to use your own API Key. Before you can 
 * [Set up your Google Cloud project](https://developers.google.com/maps/documentation/javascript/cloud-setup)
 * [Using API Keys](https://developers.google.com/maps/documentation/javascript/get-api-key)
 
-In your terminal window, execute:
-
-```bash
-export MAP_API_KEY=value
-```
-
-where `value` is your API key.
-
-Check to confirm if environmental variable is saved by executing
-
-```bash
-echo $MAP_API_KEY
-```
-
 ### Database
 
-You can recreate the database using the queries in `sql.txt`. Then populate the `locs` table with data in `geo50data.csv`. Use of the `geoids` table is not yet implemented (as of v1.0.0).
+TBD
+
+### Environment Variables
+
+TBD
 
 ### Logging In
 
-You can use the following credentials to log in to access a Search History with existing data.
-
-```text
-username: carto
-password: carto
-```
+TBD
 
 ## Author(s)
 
@@ -86,23 +74,23 @@ password: carto
 
 ### Release Notes
 
-* See [https://github.com/ggeerraarrdd/geo50x/releases](https://github.com/ggeerraarrdd/geo50x/releases)
+* See [https://github.com/ggeerraarrdd/geofinder/releases](https://github.com/ggeerraarrdd/geofinder/releases)
 
 ### Initial Release
 
-The [initial realease](https://github.com/ggeerraarrdd/geo50x/releases/tag/v1.0.0) of _Geo50x_ was submitted as the final project for [CS50x: Introduction to Computer Science](https://cs50.harvard.edu/x/2023/) (HarvardX, 2023). Read the [project brief](https://cs50.harvard.edu/x/2023/project/) as of September 2023.
+The [initial realease](https://github.com/ggeerraarrdd/geofinder/releases/tag/v1.0.0) of _Geofinder_, as _Geo50x_, was submitted as the final project for [CS50x: Introduction to Computer Science](https://cs50.harvard.edu/x/2023/) (HarvardX, 2023). Read the [project brief](https://cs50.harvard.edu/x/2023/project/) as of September 2023.
 
 ### Future Work
 
-New features development is ongoing.
+Improvements and new features development are ongoing.
 
-* Add functionalities to Search History page such as ~~reviewing submitted locations~~ _(Update Nov 2, 2023: Done)_ and ~~more easily re-try locations attempted but not yet found~~ _(Update Nov 2, 2023: Done)_.
-* Add administration interface for data management.
-* Deploy app on AWS Lightsail.
+* Add functionalities to Search History page such as ~~reviewing submitted locations~~ _(Update Nov 2, 2023: Done)_ and ~~more easily re-try locations attempted but not yet found~~ _(Update Nov 2, 2023: Done)_. 
+* ~~Add administration interface for data management~~. _(Update Jan 8, 2024: Done)_
+* Deploy app on AWS EC2.
 
 ## License
 
-* [MIT License](https://github.com/ggeerraarrdd/large-parks/blob/main/LICENSE)
+* [MIT License](https://github.com/ggeerraarrdd/geofinder/blob/main/LICENSE)
 
 ## Acknowledgments
 

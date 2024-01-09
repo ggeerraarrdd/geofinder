@@ -7,10 +7,10 @@
 {% block main %}
 
 <div class="container-bottom-map" id="map" 
-    current-game-lat-default="{{ data.current_game_lat_default }}" 
-    current-game-long-default="{{ data.current_game_long_default }}"
-    current-game-lat-answer-user="{{ data.current_game_lat_answer_user }}"
-    current-game-long-answer-user="{{ data.current_game_long_answer_user }}" 
+    current-game-lat-default="{{ data.current_game_loc_view_lat }}" 
+    current-game-long-default="{{ data.current_game_loc_view_lng }}"
+    current-game-lat-answer-user="{{ data.current_game_user_submit_lat }}"
+    current-game-long-answer-user="{{ data.current_game_user_submit_lng }}" 
     map-zoom="18" 
     map-marker-title="Click me!"
     current-game-answer-user-validation="{{ data.current_game_answer_user_validation }}" 
@@ -29,3 +29,4 @@
 </div>
 
 {% endblock %}
+

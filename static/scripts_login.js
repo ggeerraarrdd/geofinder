@@ -52,7 +52,7 @@ async function initMap() {
         '<input class="form-control form-control-sm mx-auto w-auto" id="password" name="password" placeholder="Password" type="password">' +
     '</div>' +
     '<div class="infowindow-login-button">' +
-        '<button class="btn btn-primary btn-sm" type="submit">Log In</button>' +
+        '<button class="bttn bttn-small bttn-primary"" type="submit">Log In</button>' +
     '</div>' +
     '</form>'
     ;

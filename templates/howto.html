@@ -30,18 +30,20 @@
                     <div class="infowindow-index-button-right">
                         <form name="submit" action="/game" method="post">
                             <input type="hidden" name="answer-lat" class="hidden-field" value="new-game"></input>
-                            <button class="btn btn-primary btn-sm" style="margin: 0 0 2px 10px;" type="submit">Start Game</button>
+                            <button class="bttn bttn-small bttn-primary" style="margin: 0 0 0 10px;" type="submit">Start Search</button>
                         </form>
                     </div>
                     {% else %}
                     <div class="infowindow-index-button-right">
+                        {% set new_registration_status = "" if new_registrations else "disabled" %}
+                        {% set new_registration_status_button = "bttn-primary" if new_registrations else "" %}
                         <form name="submit" action="/register" method="get">
-                            <button class="btn btn-primary btn-sm" style="margin: 0 0 2px 10px;" type="submit">Register</button>
+                            <button class="bttn bttn-small {{ new_registration_status_button }}" style="margin: 0 0 0 10px;" type="submit" {{ new_registration_status }}>Register</button>
                         </form>
                     </div>
                     <div class="infowindow-index-button-right">
                         <form name="submit" action="/login" method="get">
-                            <button class="btn btn-primary btn-sm" style="margin: 0 0 2px 10px;" type="submit">Log In</button>
+                            <button class="bttn bttn-small bttn-primary" style="margin: 0 0 0 10px;" type="submit">Log In</button>
                         </form>
                     </div>
                     {% endif %}

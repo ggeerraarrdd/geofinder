@@ -9,6 +9,7 @@ let map_lng = parseFloat(document.getElementById('map').getAttribute("map-lng"))
 let map_zoom = parseFloat(document.getElementById('map').getAttribute("map-zoom"));
 let map_marker_title = document.getElementById('map').getAttribute("map-marker-title");
 let result_content = parseFloat(document.getElementById('map').getAttribute("result-content"));
+let button_type = document.getElementById('map').getAttribute("button-type");
 let doubleQuote = ' " ';
 
 async function initMap() {
@@ -45,7 +46,7 @@ async function initMap() {
     '</div>' +
     '<form action="/register" method="post">' +
     '<div class="mb-3">' +
-    '<input autocomplete="off" autofocus class="form-control form-control-sm mx-auto w-auto" id="username" name="username" placeholder="Username" type="text">' +
+    '<input autocomplete="off" autofocus class="form-control form-control-sm mx-auto w-auto" id="username" name="username" placeholder="Username" type="text" maxlength="16">' +
     '</div>' +
     '<div class="mb-3">' +
     '<input class="form-control form-control-sm mx-auto w-auto" id="password" name="password" placeholder="Password" type="password">' +
@@ -53,8 +54,8 @@ async function initMap() {
     '<div class="mb-3">' +
     '<input class="form-control form-control-sm mx-auto w-auto" id="confirmation" name="confirmation" placeholder="Password (again)" type="password">' +
     '</div>' +
-    '<div class="infowindow-login-button">' +
-    '<button class="btn btn-primary btn-sm" type="submit">Register</button>' +
+    '<div class="infowindow-login-button">' + 
+    '<button class="bttn bttn-small ' + button_type + '" type="submit">Register</button>' +
     '<div>' +
     '</form>'
     ;

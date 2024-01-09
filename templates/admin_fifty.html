@@ -1,0 +1,306 @@
+{% extends "layout.html" %}
+
+{% block mapscript %}
+<script type="module" src="/static/map_general.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+{% endblock %}
+
+{% block main %}
+
+<div class="container-bottom-map" id="map" map-lat="41.85732" map-lng="-87.778546" map-zoom="17">
+
+    <script>(g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
+            ({ key: "{{ map_api_key }}", v: "beta" });</script>
+
+</div>
+
+<div class="container-bottom-general-main">
+
+    <div class="container-bottom-general-top">
+    </div>
+
+    <div class="container-bottom-general-bottom">
+
+        <!-- General Content -->
+        <div class="container-bottom-general-content">
+
+            <!-- Page -->
+            <div class="pages">
+
+                <!-- Page - Breadcrumb -->
+                <div class="pages-breadcrumb">
+
+                    <form name="submit" action="/traffic" method="post">
+                        <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                        <input type="hidden" name="goto" class="hidden-field" value="index"></input>
+                        <button name="history" class="bttn bttn-xsmall bttn-naked" type="submit">Start</button>
+                    </form>
+
+                    <form>
+                        <button class="bttn bttn-separator" type="submit" disabled>/</button>
+                    </form>
+
+                    <form name="submit" action="/traffic" method="post">
+                        <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                        <input type="hidden" name="goto" class="hidden-field" value="admin"></input>
+                        <button name="history" class="bttn bttn-xsmall bttn-naked" type="submit">Admin</button>
+                    </form>
+
+                    <form>
+                        <button class="bttn bttn-separator" type="submit" disabled>/</button>
+                    </form>
+
+                    <form name="submit" action="/traffic" method="post">
+                        <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                        <input type="hidden" name="goto" class="hidden-field" value="admin_fifty"></input>
+                        <button name="history" class="bttn bttn-xsmall bttn-naked" type="submit">Geo50x</button>
+                    </form>
+
+                </div>
+                
+                <!-- Page - Title -->
+                <div class="pages-title">
+
+                    <div class="pages-title-left">
+                        Geo50x Dashboard
+                    </div>
+
+                    <div class="pages-title-right">
+                        <form name="refresh" action="/admin/fifty" method="post">
+                            <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                            <input type="hidden" name="goto" class="hidden-field" value="admin_fifty"></input>
+                            <input type="hidden" name="loc-edit" class="hidden-field" value="0"></input>
+                            <button class="bttn bttn-medium bttn-admin" type="submit">Validate Locations</button>
+                        </form>
+                    </div>
+
+                </div>
+
+                <!-- Page - Content - ADMIN - Main - GEO50X CHALLENGE -->
+                <div class="pages-content">
+                    
+                    <!-- Page - Content - ADMIN - Header - GEO50X CHALLENGE -->
+                    <div class="pages-content-header">
+
+                        <!-- Locs Playable Status -->
+                        <div class="pages-content-header-item">
+                            <!-- Item - Icon -->
+                            <div class="pages-content-header-item-icon">
+                                <span class="material-symbols-outlined" style="font-size: 46px;">
+                                    travel_explore
+                                </span>
+                            </div>
+                            <!-- Item - Info -->
+                            <div class="pages-content-header-item-info">
+                                <!-- Item - Info - Value -->
+                                <div class="pages-content-header-item-info-value">
+                                    {% if locs_fifty_status.loc_playable > 0 %}
+                                    <span style="color: #ff5645 !important;">NOT OK</a>
+                                    {% else %}
+                                    OK
+                                    {% endif %}
+                                </div>
+                                <!-- Item - Info - Label -->
+                                <div class="pages-content-header-item-info-label">
+                                    Locs Playable Status
+                                </div>                              
+                            </div>
+                        </div>
+
+                        <!-- Locs URL Status -->
+                        <div class="pages-content-header-item">
+                            <!-- Item - Icon -->
+                            <div class="pages-content-header-item-icon">
+                                <span class="material-symbols-outlined" style="font-size: 46px;">
+                                    domain_verification
+                                </span>
+                            </div>
+                            <!-- Item - Info -->
+                            <div class="pages-content-header-item-info">
+                                <!-- Item - Info - Value -->
+                                <div class="pages-content-header-item-info-value">
+                                    {% if locs_fifty_status.loc_url_valid > 0 %}
+                                    <span style="color: #ff5645 !important;">NOT OK</a>
+                                    {% else %}
+                                    OK
+                                    {% endif %}
+                                </div>
+                                <!-- Item - Info - Label -->
+                                <div class="pages-content-header-item-info-label">
+                                    Locs URL Status
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Locs Image Status -->
+                        <div class="pages-content-header-item">
+                            <!-- Item - Icon -->
+                            <div class="pages-content-header-item-icon">
+                                <span class="material-symbols-outlined" style="font-size: 46px;">
+                                    image
+                                </span>
+                            </div>
+                            <!-- Item - Info -->
+                            <div class="pages-content-header-item-info">
+                                <!-- Item - Info - Value -->
+                                <div class="pages-content-header-item-info-value">
+                                    {% if locs_fifty_status.loc_image_valid > 0 %}
+                                    <span style="color: #ff5645 !important;">NOT OK</a>
+                                    {% else %}
+                                    OK
+                                    {% endif %}
+                                </div>
+                                <!-- Item - Info - Label -->
+                                <div class="pages-content-header-item-info-label">
+                                    Locs Image Status
+                                </div>
+                                
+                            </div>
+                        </div>
+
+                        <!-- Locs Key Status -->
+                        <div class="pages-content-header-item">
+                            <!-- Item - Icon -->
+                            <div class="pages-content-header-item-icon">
+                                <span class="material-symbols-outlined" style="font-size: 46px;">
+                                    key_vertical
+                                </span>
+                            </div>
+                            <!-- Item - Info -->
+                            <div class="pages-content-header-item-info">
+                                <!-- Item - Info - Value -->
+                                <div class="pages-content-header-item-info-value">
+                                    {% if locs_fifty_status.loc_key_shp_valid > 0 %}
+                                    <span style="color: #ff5645 !important;">NOT OK</a>
+                                    {% else %}
+                                    OK
+                                    {% endif %}
+                                </div>
+                                <!-- Item - Info - Label -->
+                                <div class="pages-content-header-item-info-label">
+                                    Locs Key Status
+                                </div>
+                                
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    <!-- Page - Content - ADMIN - Table - GEO50X CHALLENGE -->
+                    <div class="pages-profile-content" style="padding: 0 !important;">
+
+                        {% if locs|length > 0 %}
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="text-start">Loc ID</th>
+                                    <th class="text-start">Loc Internal ID</th>
+                                    <th class="text-start">Place</th>
+                                    <th class="text-start">Source</th>
+                                    <th class="text-start-center">Is Playable<sup>1</sup></th>
+                                    <th class="text-start-center">Is Removed<sup>a</sup></th>
+                                    <th class="text-start-center">Is Active<sup>b</sup></th>
+                                    <th class="text-start-center">Has Image<sup>c</sup></th>
+                                    <th class="text-start-center">Has Valid Key<sup>d</sup></th>
+                                    <th class="text-start"></th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {%- for loc in locs %}
+                                <tr>
+                                    <td class="text-start">{{ loc.id }}</td>
+                                    <td class="text-start">{{ loc.loc_internal_id }}</td>
+                                    <td class="text-start">{{ loc.loc_city }}, {{ loc.loc_state }} {{ loc.loc_country }}</td>
+                                    <td class="text-start"><a href="{{ loc.loc_url_source }}" target="_blank">link</a></td>
+                                    <!-- Is Playable -->
+                                    <td class="text-start-center">
+                                        {% if loc.loc_playable == True %}
+                                        yes
+                                        {% else %}
+                                        <span style="color: #ff5645 !important;">NO</a>
+                                        {% endif %}
+                                    </td>
+                                        <!-- Is Removed -->
+                                        <td class="text-start-center">
+                                            {% if loc.loc_removed == False %}
+                                            no
+                                            {% else %}
+                                            <span style="color: #ff5645 !important;">YES</a>
+                                            {% endif %}
+                                        </td>
+                                    <!-- Is Active -->
+                                    <td class="text-start-center">
+                                        {% if loc.loc_url_valid == True %}
+                                        yes
+                                        {% else %}
+                                        <span style="color: #ff5645 !important;">NO</a>
+                                        {% endif %}
+                                    </td>
+                                    <!-- Has Image -->
+                                    <td class="text-start-center">
+                                        {% if loc.loc_image_valid == True %}
+                                        yes
+                                        {% else %}
+                                        <span style="color: #ff5645 !important;">NO</a>
+                                        {% endif %}
+                                    </td>
+                                    <!-- Has Shapefile -->
+                                    <td class="text-start-center">
+                                        {% if loc.loc_key_shp %}
+                                        yes
+                                        {% else %}
+                                        <span style="color: #ff5645 !important;">NO</a>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-start-center">
+                                        <form name="router" action="/admin/fifty" method="post">
+                                            <input type="hidden" name="page" class="hidden-field" value="locs"></input>
+                                            <input type="hidden" name="goto" class="hidden-field" value="locs-edit"></input>
+                                            <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
+                                            <input type="hidden" name="loc-edit" class="hidden-field" value="{{ loc.id }}"></input>
+                                            <button class="bttn bttn-xsmall bttn-admin" type="submit">view/edit</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+
+                            <tfoot>
+                                <tr>
+                                    <td class="border-0" colspan="10">
+                                        &nbsp;
+                                    </td>
+                                </tr>
+                            </tfoot>
+
+                        </table>
+                        {% else %}
+                        <div class="container-bottom-history-message">
+                            <br>
+                            No upcoming Geofinder locations
+                        </div>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+            
+            </div>
+
+        </div>
+            
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+
+
+
+
+
+

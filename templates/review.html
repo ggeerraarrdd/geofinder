@@ -6,8 +6,8 @@
 
 {% block main %}
 
-<div class="container-bottom-map" id="map" map-lat="{{ location.loc_lat_game }}"
-    map-lng="{{ location.loc_lng_game }}" map-lat-offset="{{ loc_lat_game_offset }}" map-zoom="18" 
+<div class="container-bottom-map" id="map" map-lat="{{ location.loc_view_lat }}"
+    map-lng="{{ location.loc_view_lng }}" map-lat-offset="{{ loc_lat_game_offset }}" map-zoom="18" 
     locations-right="{{ locations_right }}" locations-wrong="{{ locations_wrong }}" 
     locations-none="{{ locations_none }}" locations-quit="{{ locations_quit }}">
 
@@ -30,10 +30,10 @@
         </div>
     </div>
 
-    <img src="{{ location.loc_image_url }}" width="400px"><br>
+    <img src="{{ location.loc_image_source }}" width="400px"><br>
 
     <div class="container-bottom-image-source">
-        <a href="{{ location.loc_source_url }}" target="_blank" rel="noopener noreferrer">source</a>
+        <a href="{{ location.loc_url_source }}" target="_blank" rel="noopener noreferrer">source</a>
     </div>
 
     <div class="container-bottom-image-markers-label">

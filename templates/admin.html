@@ -1,0 +1,218 @@
+{% extends "layout.html" %}
+
+{% block mapscript %}
+<script type="module" src="/static/map_general.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+{% endblock %}
+
+{% block main %}
+
+<div class="container-bottom-map" id="map" map-lat="41.85732" map-lng="-87.778546" map-zoom="17">
+
+    <script>(g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
+            ({ key: "{{ map_api_key }}", v: "beta" });</script>
+
+</div>
+
+<div class="container-bottom-general-main">
+
+    <div class="container-bottom-general-top">
+    </div>
+
+    <div class="container-bottom-general-bottom">
+
+        <!-- General Content -->
+        <div class="container-bottom-general-content">
+
+            <!-- Page -->
+            <div class="pages">
+
+                <!-- Page - Breadcrumb -->
+                <div class="pages-breadcrumb">
+                    
+                    <form name="submit" action="/traffic" method="post">
+                        <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                        <input type="hidden" name="goto" class="hidden-field" value="index"></input>
+                        <button name="history" class="bttn bttn-xsmall bttn-naked" style="margin-right: 5px;" type="submit">Start</button>
+                    </form>
+
+                    <form>
+                        <button class="bttn bttn-separator" type="submit" disabled>/</button>
+                    </form>
+
+                    <form name="submit" action="/traffic" method="post">
+                        <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                        <input type="hidden" name="goto" class="hidden-field" value="admin"></input>
+                        <button name="history" class="bttn bttn-xsmall bttn-naked" type="submit">Admin</button>
+                    </form>
+
+                </div>
+                
+                <!-- Page - Title -->
+                <div class="pages-title">
+
+                    <div class="pages-title-left">
+                        Admin
+                    </div>
+
+                    <div class="pages-title-right">
+                    </div>
+
+                </div>
+
+                <!-- Page - Content - ADMIN - Main - MAIN -->
+                <div class="pages-content">
+                    
+                    <!-- Page - Content - ADMIN - Header - MAIN -->
+                    <div class="pages-content-header">
+
+                        <div class="pages-profile-head-right-item">
+                            <form>
+                                <button name="history" class="bttn bttn-large bttn-admin" type="submit" disabled>
+                                    <span class="material-symbols-outlined" style="font-size: 30px;">map</span> &nbsp;
+                                    Geofinder
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="pages-profile-head-right-item">
+                            <form name="submit" action="/traffic" method="post">
+                                <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="admin_fifty"></input>
+                                <button class="bttn bttn-large bttn-admin" type="submit">
+                                    <span class="material-symbols-outlined" style="font-size: 30px;">award_star</span> &nbsp;
+                                    Geo50x
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="pages-profile-head-right-item">
+                            <form name="submit" action="/traffic" method="post">
+                                <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="admin_users"></input>
+                                <button name="history" class="bttn bttn-large bttn-admin" type="submit">
+                                    <span class="material-symbols-outlined" style="font-size: 30px;">group</span> &nbsp;
+                                    Users
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                    
+                    <!-- Page - Content - ADMIN - Table - MAIN -->
+                    <div class="pages-profile-content" style="padding: 0 !important;">
+
+                        {% if locations|length > 0 %}
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th class="text-start">Loc ID</th>
+                                        <th class="text-start">Search Area</th>
+                                        <th class="text-start-center">Found</th>
+                                        <th class="text-start-center"></th>
+                                        <th class="text-start-center">Attempts</th>
+                                        <th class="text-start-center">Total <br>Time (secs)</th>
+                                        <th class="text-start-center">Avg Time <br>per Attempt</th>
+                                        <th class="text-start-center">Avg Offset <br>per Attempt (ft)</th>
+                                        <th class="text-start-center">Score</th>
+                                        <th class="text-start-center"></th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {%- for h in history %}
+                                    <tr>
+                                        <td class="text-start">{{ h.loc_id }}</td>
+                                        <td class="text-start">{{ h.loc_city }}, {{ h.loc_state }}, {{ h.loc_country }}</td>
+                                        <td class="text-start-center">{{ h.found.upper() }}</td>
+                                        <td class="text-start-center">
+                                            {% if h.found|default("-", True) == "-" %}
+                                            <form name="router" action="/traffic" method="post">
+                                                <input type="hidden" name="page" class="hidden-field" value="history"></input>
+                                                <input type="hidden" name="goto" class="hidden-field" value="game_again"></input>
+                                                <input type="hidden" name="try-again" class="hidden-field" value="1"></input>
+                                                <input type="hidden" name="try-again-loc-id" class="hidden-field" value="{{ h.loc_id }}"></input>
+                                                <button class="bttn bttn-xsmall bttn-admin" type="submit">Try Again</button>
+                                            </form>
+                                            {% else %}
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-start-center">{{ h.total_attempts }}</td>
+                                        <td class="text-start-center">{% if h.found|default("-", True) == "-" %}-{% else %}{{ h.total_duration }}{% endif %}</td>
+                                        <td class="text-start-center">{% if h.found|default("-", True) == "-" %}-{% else %}{{ h.avg_time }}{% endif %}</td>
+                                        <td class="text-start-center">{% if h.found|default("-", True) == "-" %}-{% else %}{% if h.avg_offset == None %}&#248;{% else %}{{ h.avg_offset }}{% endif %}{% endif %}</td>
+                                        <td class="text-start-center">{% if h.found|default("-", True) == "-" %}-{% else %}{{ h.score }}{% endif %}</td>
+                                        <td class="text-start-center">
+                                            {% if h.found|default("-", True) == "Y" or h.found|default("-", True) == "N" %}
+                                            <form name="router" action="/review" method="post">
+                                                <input type="hidden" name="page" class="hidden-field" value="history"></input>
+                                                <input type="hidden" name="goto" class="hidden-field" value="review"></input>
+                                                <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
+                                                <input type="hidden" name="review" class="hidden-field" value="{{ h.loc_id }}"></input>
+                                                <button class="bttn bttn-xsmall bttn-admin" type="submit">Review</button>
+                                            </form>
+                                            {% else %}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+
+                                <tfoot>
+                                    <tr>
+                                        <td class="border-0" colspan="10">
+                                            &nbsp;
+                                        </td>
+                                    </tr>
+                                </tfoot>
+
+                            </table>
+                        {% else %}
+                            <table class="table table-striped">
+
+                                <thead>
+                                    <tr>
+                                        <th class="text-start">Upcoming Geofinder</th>
+                                        <th class="text-start">Loc ID</th>
+                                        <th class="text-start-center">Search Area</th>
+                                        <th class="text-start-center">Source</th>
+                                        <th class="text-start-center">Is Playable</th>
+                                        <th class="text-start-center"></th>
+                                    </tr>
+                                </thead>
+
+                                <tfoot>
+                                    <tr>
+                                        <td class="border-0" colspan="10">
+                                            <div class="container-bottom-history-message">
+                                                <br>No upcoming Geofinder locations
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+
+                            </table>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+            
+            </div>
+
+        </div>
+            
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+
+
+
+
+
+

@@ -1,19 +1,5 @@
 //
-// INDEX
-//
-
-// LEAVE THIS COPY HERE
-//
-// Sources:
-// https://developers.google.com/maps/documentation/javascript/adding-a-google-map
-// https://stackoverflow.com/questions/47104164/call-function-initmap-with-parameters-in-gmaps-api
-// https://stackoverflow.com/questions/44795264/add-double-quotes-to-string-which-is-stored-in-variable
-// 
-// All about InfoWindows
-// https://developers.google.com/maps/documentation/javascript/infowindows
-//
-// Getting Lat/Lng from a Click Event
-// https://developers.google.com/maps/documentation/javascript/examples/event-click-latlng
+// REGISTER
 //
 
 // Initialize and add the map
@@ -22,6 +8,8 @@ let map_lat = parseFloat(document.getElementById('map').getAttribute("map-lat"))
 let map_lng = parseFloat(document.getElementById('map').getAttribute("map-lng"));
 let map_zoom = parseFloat(document.getElementById('map').getAttribute("map-zoom"));
 let map_marker_title = document.getElementById('map').getAttribute("map-marker-title");
+let result_content = parseFloat(document.getElementById('map').getAttribute("result-content"));
+let button_type = document.getElementById('map').getAttribute("button-type");
 let doubleQuote = ' " ';
 
 async function initMap() {
@@ -51,23 +39,35 @@ async function initMap() {
     title: map_marker_title,
   });
 
-  const contentIndex = 
-    '<div class="infowindow-index">' +
-    '<form name="submit" action="/game" method="post">' + 
-      '<input type="hidden" name="current-game-id" class="hidden-field" value="0"></input>' +
-      '<input type="hidden" name="page" class="hidden-field" value="index"></input>' +
-      '<input type="hidden" name="goto" class="hidden-field" value="game"></input>' +
-      '<input type="hidden" name="try-again" class="hidden-field" value="0"></input>' +
-      '<button class="bttn bttn-large bttn-primary" type="submit">Start Search</button>' +
+  // Content for Info Window on register.html
+  const contentRegister = 
+    '<div class=' + doubleQuote + 'infowindow-login">' + 
+    'Explore the world<br>one building at a time!' +
+    '</div>' +
+    '<form action="/admin/users/add" method="post">' +
+    '<div class="mb-3">' +
+    '<input autocomplete="off" autofocus class="form-control form-control-sm mx-auto w-auto" id="username" name="username" placeholder="Username" type="text" maxlength="16">' +
+    '</div>' +
+    '<div class="mb-3">' +
+    '<input class="form-control form-control-sm mx-auto w-auto" id="password" name="password" placeholder="Password" type="password">' +
+    '</div>' +
+    '<div class="mb-3">' +
+    '<input class="form-control form-control-sm mx-auto w-auto" id="confirmation" name="confirmation" placeholder="Password (again)" type="password">' +
+    '</div>' +
+    '<div class="infowindow-login-button">' + 
+    '<button class="bttn bttn-small ' + button_type + '" type="submit">Register</button>' +
+    '<div>' +
     '</form>'
-    '</div>';
+    ;
 
+  // Add Info Window to map
   let infoWindow = new google.maps.InfoWindow({
-    content: contentIndex,
+    content: contentRegister,
     position: position,
   });
 
-  marker.addEventListener("gmp-click", () => {
+  // Add Info Window back if closed
+  marker.addEventListener('gmp-click', () => {
     infoWindow.open({
       anchor: position,
       map,
