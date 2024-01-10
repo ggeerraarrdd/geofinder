@@ -365,17 +365,15 @@
                     <span style="padding: 0 0 5px 0;">Change Nickname</span>
                     <form action="/admin/users/edit" method="post">
                         <div style="display: flex; flex-direction: row; align-items: center; padding: 0 0 50px 0;">
-                            {% set new_nickname_status = "" if profile.username != "carto" or not carto else "disabled" %}
-                            {% set new_nickname_status_message = "" if profile.username != "carto" or not carto else "Nickname protected" %}
                             <div>
                                 <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
                                 <input type="hidden" name="goto" class="hidden-field" value="zero"></input>
                                 <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
                                 <input type="hidden" name="admin-user-id" class="hidden-field" value="{{ profile.id }}"></input>
-                                <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="username" name="username" placeholder="New Nickname" type="text" maxlength="16" {{ new_nickname_status }} required>
+                                <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="username" name="username" placeholder="New Nickname" type="text" maxlength="16" required>
                             </div>
                             <div style="margin: 0 0 0 15px;">
-                                <button class="bttn bttn-xsmall bttn-admin" type="submit" {{ new_nickname_status }}>Save</button>
+                                <button class="bttn bttn-xsmall bttn-admin" type="submit">Save</button>
                             </div>
                             <div style="margin: 0 0 0 15px;">
                                 {% if profile_message_username != "None" %}
@@ -659,16 +657,14 @@
                     <span style="padding: 0 0 5px 0;">Change Password</span>
                     <form action="/admin/users/edit" method="post">
                         <div style="display: flex; flex-direction: row; align-items: center; padding: 0 0 50px 0;">
-                            {% set new_password_status = "" if profile.username != "carto" or not carto else "disabled" %}
-                            {% set new_password_status_message = "" if profile.username != "carto" or not carto else "Password protected" %}
                             <div>
                                 <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="pass_old" name="pass_old" placeholder="Old Password" type="password" disabled></input>
                             </div>
                             <div style="margin: 0 0 0 15px;">
-                                <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="pass_new" name="pass_new" placeholder="New Password" type="password" {{ new_password_status }} required></input>
+                                <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="pass_new" name="pass_new" placeholder="New Password" type="password" required></input>
                             </div>
                             <div style="margin: 0 0 0 15px;">
-                                <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="pass_again" name="pass_again" placeholder="New Password (again)" type="password" {{ new_password_status }} required></input>
+                                <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="pass_again" name="pass_again" placeholder="New Password (again)" type="password" required></input>
                             </div>
                             <div style="margin: 0 0 0 15px;">
                                 <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>

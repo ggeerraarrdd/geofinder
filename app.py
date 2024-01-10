@@ -45,12 +45,6 @@ try:
 except:
     new_registrations = False
 
-# Set carto status
-try:
-    carto = False if os.environ.get("CARTO").upper() == "FALSE" else True
-except:
-    carto = False
-
 
 @app.after_request
 def after_request(response):
@@ -549,8 +543,7 @@ def profile():
                            data=results,
                            profile_message_username=profile_message_username,
                            profile_message_country=profile_message_country,
-                           profile_message_password=profile_message_password,
-                           carto=carto)
+                           profile_message_password=profile_message_password)
 
 
 ####################################################################
@@ -627,23 +620,20 @@ def profile_edit():
                 session["profile_message_country"] = "Country not changed"
         
         if pass_old:
-            if carto == False:
-                user = queries.get_user_info(db_pg, session["username"])
+            user = queries.get_user_info(db_pg, session["username"])
 
-                if len(user) < 1 or not check_password_hash(user["hash"], pass_old):
-                    session["profile_message_password"] = "Wrong password"
+            if len(user) < 1 or not check_password_hash(user["hash"], pass_old):
+                session["profile_message_password"] = "Wrong password"
 
-                if pass_new == pass_again:
-                    new_password = generate_password_hash(pass_again)
-                    try:
-                        queries.get_profile_updated_password(db_pg, new_password, session["user_id"])
-                        session["profile_message_password"] = "New password saved"
-                    except (ValueError, RuntimeError):
-                        session["profile_message_password"] = "New password not saved"
-                else:
-                    session["profile_message_password"] = "New password did not match"
+            if pass_new == pass_again:
+                new_password = generate_password_hash(pass_again)
+                try:
+                    queries.get_profile_updated_password(db_pg, new_password, session["user_id"])
+                    session["profile_message_password"] = "New password saved"
+                except (ValueError, RuntimeError):
+                    session["profile_message_password"] = "New password not saved"
             else:
-                session["profile_message_password"] = "Password protected"
+                session["profile_message_password"] = "New password did not match"
 
         return redirect("/profile")
     
@@ -948,8 +938,7 @@ def admin_users():
                                     data=results,
                                     profile_message_username=profile_message_username,
                                     profile_message_country=profile_message_country,
-                                    profile_message_password=profile_message_password,
-                                    carto=carto)
+                                    profile_message_password=profile_message_password)
         
         else:
 
@@ -1023,12 +1012,11 @@ def admin_users_edit():
                 else:
                     session["profile_message_country"] = "Country not changed"
 
-            print(carto)
-            if carto == False:
+            if pass_new:
                 if pass_new == pass_again:
                     new_password = generate_password_hash(pass_again)
                     try:
-                        queries.get_profile_updated_password(db_pg, new_password, session["user_id"])
+                        queries.get_profile_updated_password(db_pg, new_password, admin_edit_user_id)
                         session["profile_message_password"] = "New password saved"
                     except (ValueError, RuntimeError):
                         session["profile_message_password"] = "New password not saved"
@@ -1074,8 +1062,7 @@ def admin_users_edit():
                                     data=results,
                                     profile_message_username=profile_message_username,
                                     profile_message_country=profile_message_country,
-                                    profile_message_password=profile_message_password,
-                                    carto=carto)
+                                    profile_message_password=profile_message_password)
         
         else:
 
