@@ -8,7 +8,7 @@ _Geofinder_ is an online carto-architectural scavenger hunt. The gameplay is sim
 
 _Geofinder_ is inspired by such childhood games as _[Where's Waldo?](https://en.wikipedia.org/wiki/Where%27s_Wally%3F)_ and _[Where in the World is Carmen Sandiego?](https://en.wikipedia.org/wiki/Carmen_Sandiego)_. And the simple pleasures of looking out through vehicle windows and just gazing at the passing landscapes and cityscapes.
 
-![Screenshot](static/images/geo50x_5.jpg)
+![Screenshot](static/images/geofinder_01.png)
 
 More screenshots below.
 
@@ -20,15 +20,7 @@ ALL CONTENTS IN THIS REPO ARE FOR EDUCATIONAL PURPOSES ONLY.
 
 ### Dependencies
 
-* Flask==2.2.5
-* Flask-Session==0.4.1
-* Flask_SocketIO==5.3.6
-* geographiclib==2.0
-* geopandas==0.14.1
-* haversine==2.8.0
-* psycopg2_binary==2.9.9
-* Shapely==2.0.2
-* Werkzeug==3.0.1
+* See `requirements.txt`
 
 ### Usage
 
@@ -43,8 +35,6 @@ Go into the project directory and run the command:
 ```bash
 flask run
 ```
-
-Open the URL after 'Running on'.
 
 ### Notes on Google Maps
 
@@ -84,9 +74,9 @@ The [initial realease](https://github.com/ggeerraarrdd/geofinder/releases/tag/v1
 
 Improvements and new features development are ongoing.
 
-* Add functionalities to Search History page such as ~~reviewing submitted locations~~ _(Update Nov 2, 2023: Done)_ and ~~more easily re-try locations attempted but not yet found~~ _(Update Nov 2, 2023: Done)_. 
+* Add functionalities to Search History page such as ~~reviewing submitted locations~~ _(Update Nov 2, 2023: Done)_ and ~~more easily re-try locations attempted but not yet found~~ _(Update Nov 2, 2023: Done)_.
 * ~~Add administration interface for data management~~. _(Update Jan 8, 2024: Done)_
-* Deploy app on AWS EC2.
+* ~~Deploy app on AWS EC2~~. _(Update Jan 9, 2024: Done)_
 
 ## License
 
@@ -103,8 +93,7 @@ Improvements and new features development are ongoing.
 
 ## Screenshots
 
-![Screenshot](static/images/geo50x_6.jpg)
-![Screenshot](static/images/geo50x_7.jpg)
-![Screenshot](static/images/geo50x_8.jpg)
-![Screenshot](static/images/geo50x_9.jpg)
-![Screenshot](static/images/geo50x_10.jpg)
+![Screenshot](static/images/geofinder_02.png)
+![Screenshot](static/images/geofinder_03.png)
+![Screenshot](static/images/geofinder_04.png)
+![Screenshot](static/images/geofinder_05.png)
