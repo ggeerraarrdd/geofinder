@@ -1288,7 +1288,10 @@ def login():
         user = queries.get_user_info(db_pg, request.form.get("username"))
 
         # Ensure username exists and password is correct
-        if len(user) < 1 or not check_password_hash(user["hash"], request.form.get("password")):
+        if user:
+            if check_password_hash(user["hash"], request.form.get("password")):
+                return apology("invalid username and/or password", 403)
+        else:
             return apology("invalid username and/or password", 403)
 
         # Remember which user has logged in
@@ -1298,6 +1301,7 @@ def login():
 
         # Redirect user to home page
         return redirect("/")
+    
     else:
         # Ensure session page is set to "login" before login.html is rendered
         session["page"] = "login"
