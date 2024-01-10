@@ -5,6 +5,7 @@ from datetime import datetime
 from math import floor, ceil, exp, radians, degrees, cos, sqrt
 from haversine import haversine, Unit
 import time
+import requests
 
 
 def get_registered(db, new_username, new_password):
@@ -775,43 +776,43 @@ def get_locs_refreshed(db):
     cursor.execute(query)
     rows = cursor.fetchall()
 
-    # # Validate loc_url_source
-    # print("VALIDATE URLS")
-    # for row in rows:
-    #     id, url = row["id"], row["loc_url_source"]
-    #     try:
-    #         response = requests.get(url)
-    #         if response.status_code == 200:
-    #             print(f"{id} is accessible.")
-    #         else:
-    #             # Update is_active if URL is not accessible
-    #             update_query = f"UPDATE locs SET is_active = FALSE WHERE id = {id}; "
-    #             cursor.execute(update_query)
-    #             print(f"{id} is not accessible. The is_active column has been updated.")
-    #     except requests.exceptions.RequestException:
-    #         # Update the column in that row to indicate the URL is not accessible
-    #         update_query = f"UPDATE locs SET is_active = FALSE WHERE id = {id}; "
-    #         cursor.execute(update_query)
-    #         print(f"{id} is not accessible. The is_active column has been updated.")
+    # Validate loc_url_source
+    print("VALIDATE URLS")
+    for row in rows:
+        id, url = row["id"], row["loc_url_source"]
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                print(f"{id} is accessible.")
+            else:
+                # Update is_active if URL is not accessible
+                update_query = f"UPDATE locs SET is_active = FALSE WHERE id = {id}; "
+                cursor.execute(update_query)
+                print(f"{id} is not accessible. The is_active column has been updated.")
+        except requests.exceptions.RequestException:
+            # Update the column in that row to indicate the URL is not accessible
+            update_query = f"UPDATE locs SET is_active = FALSE WHERE id = {id}; "
+            cursor.execute(update_query)
+            print(f"{id} is not accessible. The is_active column has been updated.")
     
-    # # Validate is_playable
-    # print("VALIDATE IMAGES")
-    # for row in rows:
-    #     id, url = row["id"], row["loc_image_source"]
-    #     try:
-    #         response = requests.get(url)
-    #         if response.status_code == 200:
-    #             print(f"{id} is accessible.")
-    #         else:
-    #             # Update is_active if URL is not accessible
-    #             update_query = f"UPDATE locs SET loc_image_valid = FALSE WHERE id = {id}; "
-    #             cursor.execute(update_query)
-    #             print(f"{id} is not accessible. The loc_image_valid column has been updated.")
-    #     except requests.exceptions.RequestException:
-    #         # Update the column in that row to indicate the URL is not accessible
-    #         update_query = f"UPDATE locs SET loc_image_valid = FALSE WHERE id = {id}; "
-    #         cursor.execute(update_query)
-    #         print(f"{id} is not accessible. The accessibility column has been updated.")
+    # Validate is_playable
+    print("VALIDATE IMAGES")
+    for row in rows:
+        id, url = row["id"], row["loc_image_source"]
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                print(f"{id} is accessible.")
+            else:
+                # Update is_active if URL is not accessible
+                update_query = f"UPDATE locs SET loc_image_valid = FALSE WHERE id = {id}; "
+                cursor.execute(update_query)
+                print(f"{id} is not accessible. The loc_image_valid column has been updated.")
+        except requests.exceptions.RequestException:
+            # Update the column in that row to indicate the URL is not accessible
+            update_query = f"UPDATE locs SET loc_image_valid = FALSE WHERE id = {id}; "
+            cursor.execute(update_query)
+            print(f"{id} is not accessible. The accessibility column has been updated.")
 
     # Validate locations
     print("VALIDATE LOCATIONS")
