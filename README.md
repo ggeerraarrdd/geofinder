@@ -35,6 +35,7 @@ Go into the project directory and run the command:
 ```bash
 flask run
 ```
+
 ### Database
 
 _Geofinder_ uses a Postgres database. Once provisioned, use your preferred DBMS to execute the queries in `database/sql.txt` to install PostGIS and to create the database's schema and tables. Then use `database/geofinderdata.csv` to populate the `locs` table.
@@ -51,7 +52,18 @@ For the embedded maps to work, you need to use your own API Key. Before you can 
 
 ### Environment Variables
 
-Tbd
+Set up the following environment variables using your preferred method.
+
+```text
+SECRET_KEY=<Your_Flask_Session_Secret_Key>
+MAP_API_KEY=<Your_Google_Maps_API_Key>
+GEOFINDER_DB_HOST=<Your_Database_Host>
+GEOFINDER_DB_PORT=5432
+GEOFINDER_DB_NAME=<Your_Database_Name>
+GEOFINDER_DB_USER=<Your_Database_Username>
+GEOFINDER_DB_PASSWORD=<Your_Database_Password>
+NEW_REGISTRATIONS=TRUE
+```
 
 ## Author(s)
 
