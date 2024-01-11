@@ -572,7 +572,7 @@ def get_profile_updated_country(db, country, id):
     return 1
 
 
-def get_profile_updated_password(db, country, id):
+def get_profile_updated_password(db, password, id):
 
     conn = psycopg2.connect(db)
     cursor = conn.cursor(cursor_factory=RealDictCursor)
@@ -582,7 +582,7 @@ def get_profile_updated_password(db, country, id):
     query = query + "hash = %s, "
     query = query + "date_updated = CURRENT_TIMESTAMP "
     query = query + "WHERE id = %s; "
-    cursor.execute(query, (country, id))
+    cursor.execute(query, (password, id))
 
     # Commit update
     conn.commit()

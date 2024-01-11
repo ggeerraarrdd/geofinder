@@ -1289,7 +1289,7 @@ def login():
 
         # Ensure username exists and password is correct
         if user:
-            if check_password_hash(user["hash"], request.form.get("password")):
+            if not check_password_hash(user["hash"], request.form.get("password")):
                 return apology("invalid username and/or password", 403)
         else:
             return apology("invalid username and/or password", 403)
