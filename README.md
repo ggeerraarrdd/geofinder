@@ -35,6 +35,11 @@ Go into the project directory and run the command:
 ```bash
 flask run
 ```
+### Database
+
+_Geofinder_ uses a Postgres database. Once provisioned, use your preferred DBMS to execute the queries in `database/sql.txt` to install PostGIS and to create the database's schema and tables. Then use `database/geofinderdata.csv` to populate the `locs` table.
+
+Once the database is set up, register an initial user account using the web app. Then change the account's `status` to `admin` using your DMBS.
 
 ### Notes on Google Maps
 
@@ -44,17 +49,9 @@ For the embedded maps to work, you need to use your own API Key. Before you can 
 * [Set up your Google Cloud project](https://developers.google.com/maps/documentation/javascript/cloud-setup)
 * [Using API Keys](https://developers.google.com/maps/documentation/javascript/get-api-key)
 
-### Database
-
-TBD
-
 ### Environment Variables
 
-TBD
-
-### Logging In
-
-TBD
+Tbd
 
 ## Author(s)
 
@@ -72,11 +69,7 @@ The [initial realease](https://github.com/ggeerraarrdd/geofinder/releases/tag/v1
 
 ### Future Work
 
-Improvements and new features development are ongoing.
-
-* Add functionalities to Search History page such as ~~reviewing submitted locations~~ _(Update Nov 2, 2023: Done)_ and ~~more easily re-try locations attempted but not yet found~~ _(Update Nov 2, 2023: Done)_.
-* ~~Add administration interface for data management~~. _(Update Jan 8, 2024: Done)_
-* ~~Deploy app on AWS EC2~~. _(Update Jan 9, 2024: Done)_
+Development is ongoing.
 
 ## License
 

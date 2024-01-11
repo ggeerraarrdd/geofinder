@@ -1,62 +1,77 @@
--- Create USERS table
-DROP TABLE IF EXISTS users;
-CREATE TABLE users
-	(
-	id 				INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
-	username 		TEXT NOT NULL, 
-	hash 			TEXT NOT NULL
-	);
+-- Install PostGIS
+CREATE EXTENSION postgis;
+CREATE EXTENSION postgis_topology;
+CREATE EXTENSION fuzzystrmatch;
+CREATE EXTENSION postgis_tiger_geocoder;
+CREATE EXTENSION address_standardizer;
 
+-- Create USERS table
+DROP TABLE IF EXISTS "users";
+CREATE TABLE "users"	
+	(
+	"id" 				SERIAL PRIMARY KEY, 
+	"username" 			VARCHAR(16) NOT NULL, 
+	"hash" 				TEXT NOT NULL,
+	"status"			TEXT NOT NULL DEFAULT 'active',
+	"date_add"			TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'US/Central'),
+	"date_updated"		TIMESTAMP WITH TIME ZONE,
+	CONSTRAINT CHECK_STATUS CHECK ("status" IN ('admin', 'active', 'inactive'))
+	);
 
 -- Create GEOIDS table
 DROP TABLE IF EXISTS geoids;
 CREATE TABLE geoids
 	(
-	geoid 			TEXT PRIMARY KEY NOT NULL,
-	name 			TEXT
+	geoid 				VARCHAR(32) PRIMARY KEY,
+	geo_area_name 		TEXT
 	);
-
 
 -- Create LOCS table
 DROP TABLE IF EXISTS locs;
 CREATE TABLE locs 
 	(
-	id 					INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
-	loc_internal_id		TEXT UNIQUE NOT NULL,
-	loc_source_url		TEXT UNIQUE NOT NULL,
-	loc_active			INTEGER DEFAULT 0,
-	loc_lat_game		TEXT NOT NULL,
-	loc_lng_game		TEXT NOT NULL,
-	loc_lat_key			TEXT NOT NULL,
-	loc_lng_key			TEXT NOT NULL,
-	loc_distance_key	INTEGER,
-	loc_key_buffer		INTEGER DEFAULT 50,
-	loc_image_url		TEXT NOT NULL,
-	geoid 				TEXT,
-	loc_city			TEXT,
-	loc_state			TEXT,
-	loc_country			TEXT,
-	loc_date_add		TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	FOREIGN KEY (geoid) REFERENCES geoids(geoid)
+	id 					SERIAL PRIMARY KEY, 
+	loc_internal_id		VARCHAR(32) UNIQUE NOT NULL,
+	loc_playable		BOOL NOT NULL DEFAULT FALSE,
+	loc_removed			BOOL NOT NULL DEFAULT FALSE,
+	loc_url_source		TEXT UNIQUE NOT NULL,
+	loc_url_valid		BOOL NOT NULL DEFAULT FALSE,
+	loc_view_coor		GEOMETRY(Point, 4326),
+	loc_view_lat		TEXT NOT NULL,
+	loc_view_lng		TEXT NOT NULL,
+	loc_key_lat			TEXT NOT NULL,
+	loc_key_lng			TEXT NOT NULL,
+	loc_key_coor		GEOMETRY(Point, 4326),
+	loc_key_shp			GEOMETRY(Geometry, 4326),
+	loc_key_shp_valid	BOOL NOT NULL DEFAULT FALSE,
+	loc_image_source	TEXT NOT NULL,
+	loc_image_valid		BOOL NOT NULL DEFAULT FALSE,
+	geoid 				VARCHAR(32) DEFAULT NULL,
+	loc_city			VARCHAR(32),
+	loc_state			VARCHAR(32),
+	loc_country			VARCHAR(2),
+	loc_date_add		TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'US/Central'),
+	loc_date_updated	TIMESTAMP WITH TIME ZONE
 	);
-
 
 -- Create GAMES table
 DROP TABLE IF EXISTS games;
 CREATE TABLE games 
 	(
-	id						INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	id						SERIAL PRIMARY KEY,
 	user_id					INTEGER NOT NULL,
 	loc_id					INTEGER NOT NULL,
-	game_start				TEXT DEFAULT CURRENT_TIMESTAMP,
-	game_end				TEXT DEFAULT CURRENT_TIMESTAMP,
-	game_lat				TEXT DEFAULT NULL,
-	game_lng				TEXT DEFAULT NULL,
-	game_user_quit			INTEGER DEFAULT 1,
+	game_start				TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'US/Central'),
+	game_end				TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'US/Central'),
+	game_submit_coor		GEOMETRY(Point, 4326),
+	game_submit_lat			TEXT DEFAULT NULL,
+	game_submit_lng			TEXT DEFAULT NULL,
+	game_user_quit			SMALLINT DEFAULT 1,
 	game_answer_off			INTEGER DEFAULT NULL,
-	game_answer_validation	INTEGER DEFAULT 0,
+	game_answer_validation	SMALLINT DEFAULT 0,
 	game_duration			INTEGER DEFAULT NULL,
 	game_score				INTEGER DEFAULT 0,
 	FOREIGN KEY (user_id) REFERENCES users(id),
 	FOREIGN KEY (loc_id) REFERENCES locs(id)
 	);
+	
