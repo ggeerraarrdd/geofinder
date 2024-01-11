@@ -8,7 +8,7 @@ _Geofinder_ is an online carto-architectural scavenger hunt. The gameplay is sim
 
 _Geofinder_ is inspired by such childhood games as _[Where's Waldo?](https://en.wikipedia.org/wiki/Where%27s_Wally%3F)_ and _[Where in the World is Carmen Sandiego?](https://en.wikipedia.org/wiki/Carmen_Sandiego)_. And the simple pleasures of looking out through vehicle windows and just gazing at the passing landscapes and cityscapes.
 
-![Screenshot](static/images/geofinder_01.png)
+![Screenshot](https://geofinder-bucket.s3.amazonaws.com/geofinder_00.png)
 
 More screenshots below.
 
@@ -93,7 +93,8 @@ Improvements and new features development are ongoing.
 
 ## Screenshots
 
-![Screenshot](static/images/geofinder_02.png)
-![Screenshot](static/images/geofinder_03.png)
-![Screenshot](static/images/geofinder_04.png)
-![Screenshot](static/images/geofinder_05.png)
+![Screenshot](https://geofinder-bucket.s3.amazonaws.com/geofinder_01.png)
+![Screenshot](https://geofinder-bucket.s3.amazonaws.com/geofinder_02.png)
+![Screenshot](https://geofinder-bucket.s3.amazonaws.com/geofinder_03.png)
+![Screenshot](https://geofinder-bucket.s3.amazonaws.com/geofinder_04.png)
+![Screenshot](https://geofinder-bucket.s3.amazonaws.com/geofinder_05.png)
