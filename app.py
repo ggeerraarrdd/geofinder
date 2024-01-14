@@ -55,17 +55,38 @@ def after_request(response):
     return response
 
 
-@socketio.on('disconnect')
+# @socketio.on('disconnect')
+# def disconnect():
+
+#     current_game_id = session["current_game_id"]
+#     current_game_start = session['current_game_start']
+
+#     result = queries.get_disconnected(db_pg, 
+#                                       current_game_id, 
+#                                       current_game_start)
+
+#     return 1
+
+
+@app.route('/disconnect', methods=['POST'])
 def disconnect():
 
-    current_game_id = session["current_game_id"]
-    current_game_start = session['current_game_start']
+    data = json.loads(request.data)
+    message = data['message']
 
-    result = queries.get_disconnected(db_pg, 
-                                      current_game_id, 
-                                      current_game_start)
+    if message == "8dc4ed2b-4e99-45f7-a6a2-319ccb31d17d":
+        current_game_id = session["current_game_id"]
+        current_game_start = session['current_game_start']
 
-    return 1
+        result = queries.get_disconnected(db_pg, 
+                                          current_game_id, 
+                                          current_game_start)
+
+        return '', 200
+
+    else:
+
+        return '', 200
 
 
 ####################################################################
