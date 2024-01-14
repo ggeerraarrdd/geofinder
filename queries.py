@@ -320,7 +320,7 @@ def get_disconnected(db, current_game_id, current_game_start):
             if duration_sec >= 10:
                 # Update game_duration
                 query = "UPDATE games SET game_duration = %s WHERE id = %s; "
-                cursor.execute(query, (duration_min, current_game_id))
+                cursor.execute(query, (duration_sec, current_game_id))
 
                 # Commit update
                 conn.commit()

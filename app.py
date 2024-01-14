@@ -1503,7 +1503,7 @@ def traffic_in():
             game_user_quit = 1
             game_answer_off = None
             # game_answer_validation = 0
-            game_duration = duration_min
+            game_duration = duration_sec
             game_score = 0
 
             updates = {
@@ -1514,7 +1514,7 @@ def traffic_in():
                 "game_user_quit": 1,
                 "game_answer_off": None,
                 "game_answer_validation": 0,
-                "game_duration": duration_min,
+                "game_duration": duration_sec,
                 "game_score": game_score
             }
 
