@@ -1,27 +1,24 @@
-{% extends "layout.html" %}
+{% extends "game_layout.html" %}
 
 {% block mapscript %}
-<script type="module" src="/static/scripts_map3.js"></script>
+<script type="module" src="/static/game_map_geo_result.js"></script>
 {% endblock %}
 
 {% block main %}
 
 <div class="container-bottom-map" id="map" 
-    current-game-lat-default="{{ data.current_game_loc_view_lat }}" 
-    current-game-long-default="{{ data.current_game_loc_view_lng }}"
-    current-game-lat-answer-user="{{ data.current_game_user_submit_lat }}"
-    current-game-long-answer-user="{{ data.current_game_user_submit_lng }}" 
     map-zoom="18" 
-    map-marker-title="Click me!"
-    current-game-answer-user-validation="{{ data.current_game_answer_user_validation }}" 
-    current-game-loc-id="{{ data.current_game_loc_id }}" 
-    current-game-loc-attempts="{{ data.current_game_loc_attempt }}"
-    time-game="{{ data.current_game_duration }}" 
-    time-location="{{ data.current_location_duration }}"
-    base-score="{{ data.current_game_score_base}}"
-    bonus-score="{{ data.current_game_score_bonus }}" 
-    game-score="{{ data.current_game_score_total }}"
-    total-score="100">
+    map-marker-title="Click me!" 
+    current-geo-game-geofinder-id="{{ get_geo_game_results.geo_game_geofinder_id }}" 
+    current-geo-game-geofinder-date="{{ get_geo_game_results.geo_game_geofinder_date }}" 
+    current-geo-game-submit-lat="{{ get_geo_game_results.geo_game_submit_lat }}" 
+    current-geo-game-submit-lng="{{ get_geo_game_results.geo_game_submit_lng }}" 
+    current-geo-game-submit-validation="{{ get_geo_game_results.geo_game_submit_validation }}" 
+    current-geo-game-loc-id="{{ get_geo_game_results.geo_game_loc_id }}" 
+    display-geo-game-duration="{{ get_geo_game_results.geo_game_duration_display }}" 
+    display-geo-game-score-base="{{ get_geo_game_results.geo_game_score_base_display }}" 
+    display-geo-game-score-bonus="{{ get_geo_game_results.geo_game_score_bonus_display }}" 
+    display-geo-game-score-total="{{ get_geo_game_results.geo_game_score_total_display }}">
 
     <script>(g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
             ({ key: "{{ map_api_key }}", v: "beta" });</script>

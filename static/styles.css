@@ -277,7 +277,6 @@ p a, p a:visited {
 .container-bottom-genpage-main-content-body-main {
     margin: 0;
     padding: 0;
-    max-width: 750px;
 }
 
 .container-bottom-genpage-main-content-body-main-text {
@@ -351,22 +350,21 @@ li {
     padding: 0 0 5px 0;
     width: 400px;
     display: flex;
+    justify-content: space-between;
 }
 
 .container-bottom-image-top-left {
     margin: 0;
     padding: 0;
-    width: 200px;
     display: flex;
     justify-content: left;
     align-items: center;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .container-bottom-image-top-right {
     margin: 0;
     padding: 0;
-    width: 200px;
     display: flex;
     justify-content: right;
     align-items: center;
@@ -379,6 +377,13 @@ li {
     width: 90px;
     font-size: 20px;
     letter-spacing: 2px;
+}
+
+.container-bottom-image-top-right-date {
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    letter-spacing: 1px;
 }
 
 .container-bottom-image-top-right-playable {
@@ -414,7 +419,11 @@ li {
 .container-bottom-image-markers-label {
     margin: -5px 0 5px 0;
     padding: 0;
-    font-size: 14px;
+    font-size: 16px;
+}
+
+.container-bottom-image-markers-images svg {
+    margin-bottom: 6px;
 }
 
 .container-bottom-image-buttons {
@@ -735,6 +744,7 @@ td {
     padding: 0;
     font-size: 12px;
     display: flex;
+    flex-direction: row;
     align-items: center;
 }
 
@@ -757,6 +767,33 @@ td {
     padding: 0 0 0 5px;
     font-size: 12px;
     display: flex;
+}
+
+.infowindow-geofinder-result-footer {
+    margin: 10px 0 0 0;
+    padding: 0;
+    font-size: 12px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.infowindow-geofinder-result-footer-item {
+    padding: 0 10px 0 0;
+}
+
+.infowindow-geofinder-result-footer-left {
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    display: flex;
+    flex-direction: row;
+}
+
+.infowindow-geofinder-result-footer-right {
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
 }
 
 .gm-ui-hover-effect {
@@ -912,11 +949,11 @@ td {
 .pages-content-header-item {
     margin: 0;
     padding: 0;
-    width: auto;
+    width: 20%;
     height: auto;
     display: flex;
     flex-direction: row;
-    justify-content: space-evenly;
+    justify-content: flex-start;
 }
 
 .pages-content-header-item-icon {
@@ -1027,7 +1064,7 @@ td {
 
 .stripe-type-summary {
     margin: 0;
-    padding: 50px 0 50px 0;
+    padding: 50px;
     width: 100%;
     height: auto;
     border-width: 2px 0 2px 0;
@@ -1147,7 +1184,7 @@ td {
 }
 
 .bttn-xsmall {
-    padding: 2px 6px;
+    padding: 3px 6px;
     border-width: 0.5px;
     font-size: 14px !important;
 }

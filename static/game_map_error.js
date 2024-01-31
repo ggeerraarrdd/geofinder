@@ -1,5 +1,5 @@
 //
-// REGISTER
+// ERROR
 //
 
 // Initialize and add the map
@@ -9,7 +9,7 @@ let map_lng = parseFloat(document.getElementById('map').getAttribute("map-lng"))
 let map_zoom = parseFloat(document.getElementById('map').getAttribute("map-zoom"));
 let map_marker_title = document.getElementById('map').getAttribute("map-marker-title");
 let result_content = parseFloat(document.getElementById('map').getAttribute("result-content"));
-let button_type = document.getElementById('map').getAttribute("button-type");
+let error = document.getElementById('map').getAttribute("error");
 let doubleQuote = ' " ';
 
 async function initMap() {
@@ -39,30 +39,13 @@ async function initMap() {
     title: map_marker_title,
   });
 
-  // Content for Info Window on register.html
-  const contentRegister = 
-    '<div class=' + doubleQuote + 'infowindow-login">' + 
-    'Explore the world<br>one building at a time!' +
-    '</div>' +
-    '<form action="/admin/users/add" method="post">' +
-    '<div class="mb-3">' +
-    '<input autocomplete="off" autofocus class="form-control form-control-sm mx-auto w-auto" id="username" name="username" placeholder="Username" type="text" maxlength="16">' +
-    '</div>' +
-    '<div class="mb-3">' +
-    '<input class="form-control form-control-sm mx-auto w-auto" id="password" name="password" placeholder="Password" type="password">' +
-    '</div>' +
-    '<div class="mb-3">' +
-    '<input class="form-control form-control-sm mx-auto w-auto" id="confirmation" name="confirmation" placeholder="Password (again)" type="password">' +
-    '</div>' +
-    '<div class="infowindow-login-button">' + 
-    '<button class="bttn bttn-small ' + button_type + '" type="submit">Register</button>' +
-    '<div>' +
-    '</form>'
-    ;
+  // Content for Info Window on login.html
+  const contentLogin = 
+    '<img alt = "{code}" src = "' + error + 'http://api.memegen.link/grumpycat/{code}/{message}.jpg&width=400">';
 
   // Add Info Window to map
   let infoWindow = new google.maps.InfoWindow({
-    content: contentRegister,
+    content: contentLogin,
     position: position,
   });
 
@@ -76,9 +59,7 @@ async function initMap() {
 
   infoWindow.open(map);
   
-
 }
-
 
 initMap();
 

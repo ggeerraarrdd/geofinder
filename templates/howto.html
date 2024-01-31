@@ -1,7 +1,7 @@
-{% extends "layout.html" %}
+{% extends "game_layout.html" %}
 
 {%- block mapscript -%}
-<script type="module" src="/static/map_general.js"></script>
+<script type="module" src="/static/game_map_general.js"></script>
 {%- endblock -%}
 
 {% block main %}
@@ -27,22 +27,20 @@
                 
                 <div class="container-bottom-genpage-main-content-top-buttons">
                     {% if session["user_id"] %}
-                    <div class="infowindow-index-button-right">
-                        <form name="submit" action="/game" method="post">
-                            <input type="hidden" name="answer-lat" class="hidden-field" value="new-game"></input>
-                            <button class="bttn bttn-small bttn-primary" style="margin: 0 0 0 10px;" type="submit">Start Search</button>
-                        </form>
-                    </div>
                     {% else %}
                     <div class="infowindow-index-button-right">
                         {% set new_registration_status = "" if new_registrations else "disabled" %}
                         {% set new_registration_status_button = "bttn-primary" if new_registrations else "" %}
-                        <form name="submit" action="/register" method="get">
+                        <form name="submit" action="/nav" method="post">
+                            <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
+                            <input type="hidden" name="bttn" class="hidden-field" value="register"></input>
                             <button class="bttn bttn-small {{ new_registration_status_button }}" style="margin: 0 0 0 10px;" type="submit" {{ new_registration_status }}>Register</button>
                         </form>
                     </div>
                     <div class="infowindow-index-button-right">
-                        <form name="submit" action="/login" method="get">
+                        <form name="submit" action="/nav" method="post">
+                            <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
+                            <input type="hidden" name="bttn" class="hidden-field" value="login"></input>
                             <button class="bttn bttn-small bttn-primary" style="margin: 0 0 0 10px;" type="submit">Log In</button>
                         </form>
                     </div>
@@ -56,20 +54,71 @@
                 <div class="container-bottom-genpage-main-content-body-main">
                     <ol type="1">
                         <li>You are given a photo of the exterior of a house somewhere in the world.</li>
-                        <li>Circled on the map is the search area where you are to find that house.</li>
+                        <li>Circled on a map is the search area where that house is located.</li>
                         <li>You can zoom, pan, tilt and rotate the map. You can even go into Street View mode.</li>
-                        <li>The photo is sourced from an Airbnb short-term rental ad. A link is provided in case the
-                            public listing has additional useful clues.</li>
+                        <li>The photo is sourced from a public Airbnb ad. A link to that ad is provided in case 
+                            it has other useful clues.</li>
                         <li>If you think you have located the house, click it on the map and then the "Submit" button that pops
                             up.</li>
-                        <li>If you get it wrong, you can try again. Or search a different house.</li>
+                        <li>If you get it wrong, you can try again.</li>
                         <li>Have fun exploring the world one house at a time!</li>
                     </ol>
                 </div>
 
                 <div class="container-bottom-genpage-main-content-body-subsection">
-                    <div class="container-bottom-genpage-main-content-body-subsection-title">
-                        SCORING
+                    <div class="container-bottom-genpage-main-content-body-subsection-title" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                        <div>
+                            SCORING - GEOFINDER
+                        </div>
+                        <div>
+                            {% if session["user_id"] %}
+                            <form name="submit" action="/" method="post">
+                                <input type="hidden" name="page" class="hidden-field" value="index"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="geofinder_game"></input>
+                                <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
+                                <input type="hidden" name="nav" class="hidden-field" value="no"></input>
+                                <input type="hidden" name="bttn" class="hidden-field" value="again"></input>
+                                <button class="bttn bttn-small bttn-primary" type="submit">Start Geofinder</button>
+                            </form>
+                            {% else %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="container-bottom-genpage-main-content-body-subsection-body">
+                        <ol type="1">
+                            <li>Your total score is based on how long it takes you to find the house.</li>
+                            <li>The max score is 100.</li>
+                            <ol type="a">
+                                <li>A multiplier is calculated using the formula: <i>e</i><sup>−0.0054(x-1)<sup>2</sup></sup>, where
+                                    <i>x</i> is the time elapsed to find the house.
+                                </li>
+                                <li><i>x</i> starts when you first open the house of the day.</li>
+                            </ol>
+                            <li>Essentially you get the full 100 points if you find the house in 2 minutes or less. You get
+                                1 point if found in 30 minutes.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="container-bottom-genpage-main-content-body-subsection">
+                    <div class="container-bottom-genpage-main-content-body-subsection-title" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                        <div>
+                            SCORING - GEO50X CHALLENGE
+                        </div>
+                        <div>
+                            {% if session["user_id"] %}
+                            <form name="submit" action="/fifty" method="post">
+                                <input type="hidden" name="current-game-id" class="hidden-field" value="0"></input>
+                                <input type="hidden" name="page" class="hidden-field" value="profile_fifty"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="fifty_start"></input>
+                                <input type="hidden" name="nav" class="hidden-field" value="no"></input>
+                                <input type="hidden" name="bttn" class="hidden-field" value="fifty"></input>
+                                <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
+                                <button class="bttn bttn-small bttn-primary" type="submit">Play Challenge</button>
+                            </form>
+                            {% else %}
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="container-bottom-genpage-main-content-body-subsection-body">
                         <ol type="1">
@@ -89,7 +138,7 @@
                             </ol>
                             <li>The max bonus score is 50.</li>
                             <ol type="a">
-                                <li>The bonus score is based on how long it takes you to find the correct house.</li>
+                                <li>The bonus score is based on how long it takes you to find the house.</li>
                                 <li>A multiplier is calculated using the formula: <i>e</i><sup>−0.0054(x-1)<sup>2</sup></sup>, where
                                     <i>x</i> is the time elapsed to find the house.
                                 </li>

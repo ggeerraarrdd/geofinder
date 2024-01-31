@@ -1,7 +1,7 @@
-{% extends "layout.html" %}
+{% extends "game_layout.html" %}
 
 {% block mapscript %}
-<script type="module" src="/static/map_general.js"></script>
+<script type="module" src="/static/game_map_general.js"></script>
 {% endblock %}
 
 {% block main %}
@@ -27,12 +27,6 @@
                 
                 <div class="container-bottom-genpage-main-content-top-buttons">
                     {% if session["user_id"] %}
-                    <div class="infowindow-index-button-right">
-                        <form name="submit" action="/game" method="post">
-                            <input type="hidden" name="answer-lat" class="hidden-field" value="new-game"></input>
-                            <button class="bttn bttn-small bttn-primary" style="margin: 0 0 0 10px;" type="submit">Start Search</button>
-                        </form>
-                    </div>
                     {% else %}
                     <div class="infowindow-index-button-right">
                         {% set new_registration_status = "" if new_registrations else "disabled" %}
@@ -42,7 +36,7 @@
                         </form>
                     </div>
                     <div class="infowindow-index-button-right">
-                        <form name="submit" action="/login" method="get">
+                        <form name="submit" action="/login" method="post">
                             <button class="bttn bttn-small bttn-primary" style="margin: 0 0 0 10px;" type="submit">Log In</button>
                         </form>
                     </div>
@@ -55,28 +49,88 @@
 
                 <!-- Main Section of About Content -->
                 <div class="container-bottom-genpage-main-content-body-main">
-
                     <div style="text-align: center; padding-bottom:20px;">
                         <i>It's like "Where's Waldo?" but for houses!</i>
                     </div>
                     <div class="container-bottom-genpage-main-content-body-main-text">
-                        Geofinder is an online carto-architectural scavenger hunt. The gameplay is simple: Given a photo of a house 
-                        somewhere in the world, you are tasked with locating that house on Google Maps. It's that straighforward, 
-                        although how you will go about searching might not be.
+                        Geofinder is an online scavenger hunt game.
                     </div>
+                    <div class="container-bottom-genpage-main-content-body-main-text">
+                        The gameplay is simple: Given a photo of a house somewhere in the world, your task is to look for 
+                        that house inside a marked area on a map. While that may sound straighforward, how you will go 
+                        about looking might not be.
+                    </div>
+                    <div class="container-bottom-genpage-main-content-body-main-text" style="margin-bottom: -30px;">
+                        Geofinder comes in two modes. 
+                    </div>
+                </div>
+
+                <div class="container-bottom-genpage-main-content-body-subsection">
+                    <div class="container-bottom-genpage-main-content-body-subsection-title" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center;">
+                            <span class="material-symbols-outlined" style="font-size: 26px;">travel_explore</span>&nbsp;DEFAULT MODE
+                        </div>
+                        <div>
+                            {% if session["user_id"] %}
+                            <form name="submit" action="/" method="post">
+                                <input type="hidden" name="page" class="hidden-field" value="index"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="geofinder_game"></input>
+                                <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
+                                <input type="hidden" name="nav" class="hidden-field" value="no"></input>
+                                <input type="hidden" name="bttn" class="hidden-field" value="again"></input>
+                                <button class="bttn bttn-small bttn-primary" type="submit">Start Geofinder</button>
+                            </form>
+                            {% else %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="container-bottom-genpage-main-content-body-main-text" style="margin-bottom: -30px;">
+                        In the Wordle-like default mode, you are given one house a day and have until the end of the day 
+                        (CST time) to find it. Start your daily streak today.
+                    </div>
+                </div>
+
+                <div class="container-bottom-genpage-main-content-body-subsection">
+                    <div class="container-bottom-genpage-main-content-body-subsection-title" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center;">
+                            <span class="material-symbols-outlined" style="font-size: 26px;">award_star</span>&nbsp;CHALLENGE MODE
+                        </div>
+                        <div>
+                            {% if session["user_id"] %}
+                            <form name="submit" action="/fifty" method="post">
+                                <input type="hidden" name="current-game-id" class="hidden-field" value="0"></input>
+                                <input type="hidden" name="page" class="hidden-field" value="profile_fifty"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="fifty_start"></input>
+                                <input type="hidden" name="nav" class="hidden-field" value="no"></input>
+                                <input type="hidden" name="bttn" class="hidden-field" value="fifty"></input>
+                                <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
+                                <button class="bttn bttn-small bttn-primary" type="submit">Play Challenge</button>
+                            </form>
+                            {% else %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="container-bottom-genpage-main-content-body-main-text">
+                        In the Netflix-like challenge mode, aka Geo50x, you are given 50 houses at once. See how many you can find.
+                    </div>
+
+                    <div class="container-bottom-genpage-main-content-body-main-text">
+                        <img src="https://geofinder-bucket.s3.amazonaws.com/geofinder.png" style="padding-top: 20px; max-width: 100%;">
+                        <!-- <iframe src="https://giphy.com/embed/werIbLq7aRKSEqPFqC" width="480" height="270" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/ashleykutcher-ashley-kutcher-lake-house-boy-from-carolina-werIbLq7aRKSEqPFqC">via GIPHY</a></p> -->
+                    </div>
+                
+                    <br>
+                    
                     <div class="container-bottom-genpage-main-content-body-main-text">
                         Geofinder is inspired by such childhood games as <a
                             href="https://en.wikipedia.org/wiki/Where%27s_Wally%3F" target="_blank">Where's Waldo?</a> and <a
                             href="https://en.wikipedia.org/wiki/Carmen_Sandiego"
                             target="_blank">Where in the World Is Carmen Sandiego?</a>. And the simple pleasures of looking out
-                        through vehicle windows and just gazing at the passing landscapes and cityscapes.<br><br>
+                        through vehicle windows and just gazing at the passing landscapes and cityscapes.
                     </div>
-
-                    <img src="https://geofinder-bucket.s3.amazonaws.com/geofinder.png" style="max-width: 100%; margin-top: -10px;">
-                    <!-- <iframe src="https://giphy.com/embed/werIbLq7aRKSEqPFqC" width="480" height="270" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/ashleykutcher-ashley-kutcher-lake-house-boy-from-carolina-werIbLq7aRKSEqPFqC">via GIPHY</a></p> -->
+                    
                 </div>
-
-                
 
                 <!-- Sub Section - Contact -->
                 <div class="container-bottom-genpage-main-content-body-subsection">

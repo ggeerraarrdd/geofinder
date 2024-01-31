@@ -1,5 +1,5 @@
 //
-// INDEX
+// START
 //
 
 // LEAVE THIS COPY HERE
@@ -53,13 +53,13 @@ async function initMap() {
 
   const contentIndex = 
     '<div class="infowindow-index">' +
-    '<form name="submit" action="/game" method="post">' + 
-      '<input type="hidden" name="current-game-id" class="hidden-field" value="0"></input>' +
-      '<input type="hidden" name="page" class="hidden-field" value="index"></input>' +
-      '<input type="hidden" name="goto" class="hidden-field" value="game"></input>' +
-      '<input type="hidden" name="try-again" class="hidden-field" value="0"></input>' +
-      '<button class="bttn bttn-large bttn-primary" type="submit">Start Search</button>' +
-    '</form>'
+      '<form name="submit" action="/" method="post">' + 
+        '<input type="hidden" name="page" class="hidden-field" value="index"></input>' +
+        '<input type="hidden" name="goto" class="hidden-field" value="geofinder_game"></input>' +
+        '<input type="hidden" name="nav" class="hidden-field" value="no"></input>' +
+        '<input type="hidden" name="bttn" class="hidden-field" value="start"></input>' +
+        '<button class="bttn bttn-large bttn-primary" type="submit">Start</button>' +
+      '</form>' +
     '</div>';
 
   let infoWindow = new google.maps.InfoWindow({

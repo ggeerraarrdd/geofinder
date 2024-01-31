@@ -1,7 +1,7 @@
-{% extends "layout.html" %}
+{% extends "game_layout.html" %}
 
 {% block mapscript %}
-<script type="module" src="/static/map_general.js"></script>
+<script type="module" src="/static/game_map_general.js"></script>
 
 {% endblock %}
 
@@ -30,20 +30,24 @@
                 <!-- Stripe - Type: Breadcrumb -->
                 <div class="stripe stripe-type-breadrumb">
 
-                    <form name="submit" action="/traffic" method="post">
+                    <form name="submit" action="/nav" method="post">
                         <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
                         <input type="hidden" name="goto" class="hidden-field" value="index"></input>
-                        <button name="history" class="bttn bttn-xsmall bttn-naked" style="margin-right: 5px;" type="submit">Start</button>
+                        <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
+                        <input type="hidden" name="bttn" class="hidden-field" value="index"></input>
+                        <button name="breadcrumb" class="bttn bttn-xsmall bttn-naked" type="submit">Start</button>
                     </form>
 
                     <form>
                         <button class="bttn bttn-separator" type="submit" disabled>/</button>
                     </form>
 
-                    <form name="submit" action="/traffic" method="post">
+                    <form name="submit" action="/dash/main" method="post">
                         <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
-                        <input type="hidden" name="goto" class="hidden-field" value="profile"></input>
-                        <button name="history" class="bttn bttn-xsmall bttn-naked" style="margin-right: 5px;" type="submit">Profile</button>
+                        <input type="hidden" name="goto" class="hidden-field" value="dash_main"></input>
+                        <input type="hidden" name="nav" class="hidden-field" value="no"></input>
+                        <input type="hidden" name="bttn" class="hidden-field" value="dash_main"></input>
+                        <button name="breadcrumb" class="bttn bttn-xsmall bttn-naked" type="submit">Dashboard</button>
                     </form>
 
                 </div>
@@ -52,23 +56,10 @@
                 <div class="stripe stripe-type-header1">
                     
                     <div>
-                        Profile
+                        Your Dashboard
                     </div>
 
                     <div class="pages-title-right">
-
-                        <form name="submit">
-                            <button name="history" class="bttn bttn-medium bttn-primary bttn-gray" style="margin-right: 25px;" disabled>Play Geofinder</button>
-                        </form>
-
-                        <form name="submit" action="/game" method="post">
-                            <input type="hidden" name="current-game-id" class="hidden-field" value="0"></input>
-                            <input type="hidden" name="page" class="hidden-field" value="profile"></input>
-                            <input type="hidden" name="goto" class="hidden-field" value="game"></input>
-                            <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
-                            <button class="bttn bttn-medium bttn-primary" type="submit">Play Geo50x</button>
-                        </form>
-
                     </div>
 
                 </div>
@@ -78,17 +69,24 @@
 
                     <div style="padding: 25px 40px 0 80px;"> 
                         <span class="material-symbols-outlined" style="font-size: 300px;">
-                            {{ profile.icon }}
+                            {{ main.icon }}
                         </span>
                     </div>
 
                     <div class="stripe-type-profile-info">
+                        <div class="stripe-type-header2" style="padding-top: 0 !important; border-top: 0px !important;">
+                            <div style="width: 100px; margin: 0 60px 0 0;">
+                                Profile
+                            </div>
+                            <div>
+                            </div>
+                        </div>
                         <div class="stripe-type-profile-info-item">
                             <div style="width: 100px; margin: 0 60px 0 0;">
                                 Nickname
                             </div>
                             <div>
-                                {{ profile.username }}
+                                {{ main.username }}
                             </div>
                         </div>
                         <div class="stripe-type-profile-info-item">
@@ -96,7 +94,7 @@
                                 Country
                             </div>
                             <div>
-                                {{ profile.country }}
+                                {{ main.country }}
                             </div>
                         </div>
                         <div class="stripe-type-profile-info-item">
@@ -104,7 +102,7 @@
                                 Join Date
                             </div>
                             <div>
-                                {{ profile.date_add.strftime('%Y-%m-%d') }}
+                                {{ main.date_add.strftime('%Y-%m-%d') }}
                             </div>
                         </div>
                         <div class="stripe-type-profile-info-item" style="border-bottom: 1px solid #330999">
@@ -112,16 +110,44 @@
                                 Last Game
                             </div>
                             <div>
-                                {% if data.last_game is not none %}
-                                    {% if data.days == 0 %}
-                                        Today
-                                    {% elif data.days == 1  %}
-                                        {{ data.last_game }} (1 day ago)
-                                    {% else  %}
-                                        {{ data.last_game }} ({{ data.days }} days ago)
+                                {% if header_geofinder.days is number and header_fifty.days is number %} 
+                                    {% if header_geofinder.days <= header_fifty.days %}
+                                        {% if header_geofinder.days == 0 %} 
+                                            TODAY
+                                        {% elif header_geofinder.days == 1 %} 
+                                            {{ header_geofinder.last_game }} (1 day ago)
+                                        {% else %}
+                                            {{ header_geofinder.last_game }} ({{ header_geofinder.days }} days ago)
+                                        {% endif %}
+                                    {% else %}
+                                        {% if header_fifty.days == 0 %} 
+                                            TODAY
+                                        {% elif header_fifty.days == 1 %} 
+                                            {{ header_fifty.last_game }} (1 day ago)
+                                        {% else %}
+                                            {{ header_fifty.last_game }} ({{ header_fifty.days }} days ago)
+                                        {% endif %}
                                     {% endif %}
-                                {% else  %}
-                                    --
+                                {% else %}
+                                    {% if header_geofinder.days %} 
+                                        {% if header_geofinder.days == 0 %} 
+                                            TODAY
+                                        {% elif header_geofinder.days == 1 %} 
+                                            {{ header_geofinder.last_game }} (1 day ago)
+                                        {% else %}
+                                            {{ header_geofinder.last_game }} ({{ header_geofinder.days }} days ago)
+                                        {% endif %}
+                                    {% elif header_fifty.days %}
+                                        {% if header_fifty.days == 0 %} 
+                                            TODAY
+                                        {% elif header_fifty.days == 1 %} 
+                                            {{ header_fifty.last_game }} (1 day ago)
+                                        {% else %}
+                                            {{ header_fifty.last_game }} ({{ header_fifty.days }} days ago)
+                                        {% endif %}
+                                    {% else %}
+                                        --
+                                    {% endif %}
                                 {% endif %}
                             </div>
                         </div>
@@ -129,18 +155,184 @@
 
                 </div>
                 
+                <!-- Geofinder -->
                 <!-- Stripe - Type: Header2 -->
                 <div class="stripe stripe-type-header2">
 
-                    <div>
-                        Geo50x Challenge
+                    <div style="display: flex; justify-content: flex-start; align-items: center;">
+                        <div>
+                            Geofinder
+                        </div>
+                        <div style="padding-left: 10px;">
+                            <form name="submit" action="/dash/main" method="post">
+                                <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="dash_geofinder"></input>
+                                <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
+                                <input type="hidden" name="bttn" class="hidden-field" value="dash_geofinder"></input>
+                                <button name="history" class="bttn bttn-xsmall bttn-border" type="submit">
+                                    Search History
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
                     <div>
-                        <form name="submit" action="/traffic" method="post">
-                            <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
-                            <input type="hidden" name="goto" class="hidden-field" value="profile_fifty"></input>
-                            <button name="history" class="bttn bttn-small bttn-border" type="submit">Search History</button>
+                        <form name="submit" action="/" method="post">
+                            <input type="hidden" name="page" class="hidden-field" value="index"></input>
+                            <input type="hidden" name="goto" class="hidden-field" value="geofinder_game"></input>
+                            <input type="hidden" name="nav" class="hidden-field" value="no"></input>
+                            <input type="hidden" name="bttn" class="hidden-field" value="start"></input>
+                            <button class="bttn bttn-small bttn-primary" type="submit">
+                                Play Geofinder
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+
+                <!-- Stripe - Type: Summary -->
+                <div class="stripe stripe-type-summary">
+
+                        <!-- Total Found -->
+                        <div class="pages-content-header-item">
+                            <!-- Item - Icon -->
+                            <div class="pages-content-header-item-icon">
+                                <span class="material-symbols-outlined" style="font-size: 46px;">
+                                    travel_explore
+                                </span>
+                            </div>
+                            <!-- Item - Info -->
+                            <div class="pages-content-header-item-info">
+                                <!-- Item - Info - Value -->
+                                <div class="pages-content-header-item-info-value">
+                                    {% if header_geofinder.total_found %}
+                                        {{ header_geofinder.total_found }}
+                                    {% else %}
+                                        --
+                                    {% endif %}
+                                </div>
+                                <!-- Item - Info - Label -->
+                                <div class="pages-content-header-item-info-label">
+                                    Total Found
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Current Streak -->
+                        <div class="pages-content-header-item">
+                            <!-- Item - Icon -->
+                            <div class="pages-content-header-item-icon">
+                                <span class="material-symbols-outlined" style="font-size: 46px;">
+                                    clock_loader_10
+                                </span>
+                            </div>
+                            <!-- Item - Info -->
+                            <div class="pages-content-header-item-info">
+                                <!-- Item - Info - Value -->
+                                <div class="pages-content-header-item-info-value">
+                                    {% if header_geofinder.current_streak %}
+                                        {% if header_geofinder.current_streak < 2 %}
+                                            {{ header_geofinder.current_streak }} day
+                                        {% else %}
+                                            {{ header_geofinder.current_streak }} days
+                                        {% endif %}
+                                    {% else %}
+                                        --
+                                    {% endif %}
+                                </div>
+                                <!-- Item - Info - Label -->
+                                <div class="pages-content-header-item-info-label">
+                                    Current Streak
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Found -->
+                        <div class="pages-content-header-item">
+                            <!-- Item - Icon -->
+                            <div class="pages-content-header-item-icon">
+                                <span class="material-symbols-outlined" style="font-size: 46px;">
+                                    clock_loader_60
+                                </span>
+                            </div>
+                            <!-- Item - Info -->
+                            <div class="pages-content-header-item-info">
+                                <!-- Item - Info - Value -->
+                                <div class="pages-content-header-item-info-value">
+                                    {% if header_geofinder.longest_streak %}
+                                        {% if header_geofinder.longest_streak < 2 %}
+                                            {{ header_geofinder.longest_streak }} day
+                                        {% else %}
+                                            {{ header_geofinder.longest_streak }} days
+                                        {% endif %}
+                                    {% else %}
+                                        --
+                                    {% endif %}
+                                </div>
+                                <!-- Item - Info - Label -->
+                                <div class="pages-content-header-item-info-label">
+                                    Longest Streak
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fastest Time -->
+                        <div class="pages-content-header-item">
+                            <!-- Item - Icon -->
+                            <div class="pages-content-header-item-icon">
+                                <span class="material-symbols-outlined" style="font-size: 46px;">
+                                    sprint
+                                </span>
+                            </div>
+                            <!-- Item - Info -->
+                            <div class="pages-content-header-item-info">
+                                <!-- Item - Info - Value -->
+                                <div class="pages-content-header-item-info-value">
+                                    {% if header_geofinder.fastest_time %}
+                                        {{ header_geofinder.fastest_time }}
+                                    {% else %}
+                                        --
+                                    {% endif %}
+                                </div>
+                                <!-- Item - Info - Label -->
+                                <div class="pages-content-header-item-info-label">
+                                    Fastest Time
+                                </div>
+                            </div>
+                        </div>
+
+                </div>
+
+                <!-- Geo50x -->
+                <!-- Stripe - Type: Header2 -->
+                <div class="stripe stripe-type-header2">
+
+                    <div style="display: flex; justify-content: flex-start; align-items: center;">
+                        <div>
+                            Geo50x Challenge
+                        </div>
+                        <div style="padding-left: 10px;">
+                            <form name="submit" action="/dash/main" method="post">
+                                <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="dash_fifty"></input>
+                                <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
+                                <input type="hidden" name="bttn" class="hidden-field" value="dash_fifty"></input>
+                                <button name="history" class="bttn bttn-xsmall bttn-border" type="submit">
+                                    Search History
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div>
+                        <form name="submit" action="/fifty" method="post">
+                            <input type="hidden" name="current-game-id" class="hidden-field" value="0"></input>
+                            <input type="hidden" name="page" class="hidden-field" value="dash_main"></input>
+                            <input type="hidden" name="goto" class="hidden-field" value="fifty_start"></input>
+                            <input type="hidden" name="nav" class="hidden-field" value="no"></input>
+                            <input type="hidden" name="bttn" class="hidden-field" value="fifty"></input>
+                            <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
+                            <button class="bttn bttn-small bttn-primary" type="submit">Play Geo50x</button>
                         </form>
                     </div>
 
@@ -161,13 +353,12 @@
                         <div class="pages-content-header-item-info">
                             <!-- Item - Info - Value -->
                             <div class="pages-content-header-item-info-value">
-                                {{ data.user_score_percentage }}%
+                                {{ header_fifty.user_score_percentage }}%
                             </div>
                             <!-- Item - Info - Label -->
                             <div class="pages-content-header-item-info-label">
-                                Total {{ data.user_score_total }} pts out of {{ data.user_score_possible }}
+                                Total {{ header_fifty.user_score_total }} pts out of {{ header_fifty.user_score_possible }}
                             </div>
-                            
                         </div>
                     </div>
 
@@ -183,7 +374,7 @@
                         <div class="pages-content-header-item-info">
                             <!-- Item - Info - Value -->
                             <div class="pages-content-header-item-info-value">
-                                {{ data.user_count_loc }}
+                                {{ header_fifty.user_count_loc }}
                             </div>
                             <!-- Item - Info - Label -->
                             <div class="pages-content-header-item-info-label">
@@ -205,7 +396,7 @@
                         <div class="pages-content-header-item-info">
                             <!-- Metrics - Unit - Value -->
                             <div class="pages-content-header-item-info-value">
-                                {{ data.user_duration_average|round }} secs
+                                {{ header_fifty.user_duration_average|round }} secs
                             </div>
                             <!-- Metrics - Unit - Label -->
                             <div class="pages-content-header-item-info-label">
@@ -227,7 +418,7 @@
                         <div class="pages-content-header-item-info">
                             <!-- Metrics - Unit - Value -->
                             <div class="pages-content-header-item-info-value">
-                                {{ data.user_offset_avg }} ft
+                                {{ header_fifty.user_offset_avg }} ft
                             </div>
                             <!-- Metrics - Unit - Label -->
                             <div class="pages-content-header-item-info-label">
@@ -239,110 +430,7 @@
 
                 </div>                   
     
-                <!-- Stripe - Type: Header2 -->
-                <div class="stripe stripe-type-header2 stripe-gray">
-
-                    <div>
-                        Geofinder (Not Yet Live)
-                    </div>
-
-                    <div>
-                        <form name="submit">
-                            <button name="history" class="bttn bttn-small" type="submit" disabled>Search History</button>
-                        </form>
-                    </div>
-
-                </div>
-
-                <!-- Stripe - Type: Summary -->
-                <div class="stripe stripe-type-summary stripe-gray">
-
-                    <!-- Longest Streak -->
-                    <div class="pages-content-header-item">
-                        <!-- Item - Icon -->
-                        <div class="pages-content-header-item-icon">
-                            <span class="material-symbols-outlined" style="font-size: 46px;">
-                                map
-                            </span>
-                        </div>
-                        <!-- Item - Info -->
-                        <div class="pages-content-header-item-info">
-                            <!-- Item - Info - Value -->
-                            <div class="pages-content-header-item-info-value">
-                                -- days
-                            </div>
-                            <!-- Item - Info - Label -->
-                            <div class="pages-content-header-item-info-label">
-                                Longest Streak
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Locations Found -->
-                    <div class="pages-content-header-item">
-                        <!-- Item - Icon -->
-                        <div class="pages-content-header-item-icon">
-                            <span class="material-symbols-outlined" style="font-size: 46px;">
-                                home_pin
-                            </span>
-                        </div>
-                        <!-- Item - Info -->
-                        <div class="pages-content-header-item-info">
-                            <!-- Item - Info - Value -->
-                            <div class="pages-content-header-item-info-value">
-                                --
-                            </div>
-                            <!-- Item - Info - Label -->
-                            <div class="pages-content-header-item-info-label">
-                                Total Found
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Average Time per Attempt -->
-                    <div class="pages-content-header-item">
-                        <!-- Item - Icon -->
-                        <div class="pages-content-header-item-icon">
-                            <span class="material-symbols-outlined" style="font-size: 46px;">
-                                sprint
-                            </span>
-                        </div>
-                        <!-- Item - Info -->
-                        <div class="pages-content-header-item-info">
-                            <!-- Item - Info - Value -->
-                            <div class="pages-content-header-item-info-value">
-                                -- secs
-                            </div>
-                            <!-- Item - Info - Label -->
-                            <div class="pages-content-header-item-info-label">
-                                Fastest Time
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Average Offset per Attempt -->
-                    <div class="pages-content-header-item">
-                        <!-- Item - Icon -->
-                        <div class="pages-content-header-item-icon">
-                            <span class="material-symbols-outlined" style="font-size: 46px;">
-                                directions_walk
-                            </span>
-                        </div>
-                        <!-- Item - Info -->
-                        <div class="pages-content-header-item-info">
-                            <!-- Item - Info - Value -->
-                            <div class="pages-content-header-item-info-value">
-                                -- secs
-                            </div>
-                            <!-- Item - Info - Label -->
-                            <div class="pages-content-header-item-info-label">
-                                Fastest Time
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
+                
                 <!-- Stripe - Type: Header2 -->
                 <div class="stripe stripe-type-header2">
 
@@ -356,43 +444,31 @@
                 <div class="stripe stripe-type-account stripe-last">
 
                     <span style="padding: 0 0 5px 0;">Change Nickname</span>
-                    <form action="/profile/edit" method="post">
+                    <form action="/dash/main" method="post">
                         <div style="display: flex; flex-direction: row; align-items: center; padding: 0 0 50px 0;">
-                            {% if profile.username != "carto" or not carto %}
-                                <div>
-                                    <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
-                                    <input type="hidden" name="goto" class="hidden-field" value="profile"></input>
-                                    <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
-                                    <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="username" name="username" placeholder="New Nickname" type="text" maxlength="16" required>
-                                </div>
-                                <div style="margin: 0 0 0 15px;">
-                                    <button class="bttn bttn-xsmall bttn-admin" type="submit">Save</button>
-                                </div>
-                                <div style="margin: 0 0 0 15px;">
-                                    {% if profile_message_username != "None" %}
-                                        {{ profile_message_username }}
-                                    {% else %}
-                                    {% endif %}
-                                </div>
-                            {% else %}
-                                <div>
-                                    <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
-                                    <input type="hidden" name="goto" class="hidden-field" value="profile"></input>
-                                    <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
-                                    <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="username" name="username" placeholder="New Nickname" type="text" maxlength="16" disabled>
-                                </div>
-                                <div style="margin: 0 0 0 15px;">
-                                    <button class="bttn bttn-xsmall bttn-admin" type="submit" disabled>Save</button>
-                                </div>
-                                <div style="margin: 0 0 0 15px;">
-                                    Username protected
-                                </div>
-                            {% endif %}
+                            <div>
+                                <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="username" name="username" placeholder="New Nickname" type="text" maxlength="16" required>
+                            </div>
+                            <div style="margin: 0 0 0 15px;">
+                                <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="dash_main"></input>
+                                <input type="hidden" name="nav" class="hidden-field" value="no"></input>
+                                <input type="hidden" name="bttn" class="hidden-field" value="profile_username"></input>
+                                <button class="bttn bttn-xsmall" type="submit">
+                                    Save
+                                </button>
+                            </div>
+                            <div style="margin: 0 0 0 15px;">
+                                {% if profile_message_username %}
+                                    {{ profile_message_username }}
+                                {% else %}
+                                {% endif %}
+                            </div>
                         </div>
                     </form>
 
                     <span style="padding: 0 0 5px 0;">Change Country</span>
-                    <form action="/profile/edit" method="post">
+                    <form action="/dash/main" method="post">
                         <div style="display: flex; flex-direction: row; align-items: center; padding: 0 0 50px 0;">
                             <div>
                                 <select autocomplete="off" id="country" name="country" class="form-control form-control-sm mx-auto w-auto" required>
@@ -646,12 +722,15 @@
                             </div>
                             <div>
                                 <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
-                                <input type="hidden" name="goto" class="hidden-field" value="profile"></input>
-                                <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
-                                <button class="bttn bttn-xsmall" style="margin: 0 0 0 15px;" type="submit">Save</button>
+                                <input type="hidden" name="goto" class="hidden-field" value="dash_main"></input>
+                                <input type="hidden" name="nav" class="hidden-field" value="no"></input>
+                                <input type="hidden" name="bttn" class="hidden-field" value="profile_country"></input>
+                                <button class="bttn bttn-xsmall" style="margin: 0 0 0 15px;" type="submit">
+                                    Save
+                                </button>
                             </div>
                             <div style="margin: 0 0 0 15px;">
-                                {% if profile_message_country != "None" %}
+                                {% if profile_message_country %}
                                     {{ profile_message_country }}
                                 {% else %}
                                 {% endif %}
@@ -660,47 +739,32 @@
                     </form>
 
                     <span style="padding: 0 0 5px 0;">Change Password</span>
-                    <form action="/profile/edit" method="post">
+                    <form action="/dash/main" method="post">
                         <div style="display: flex; flex-direction: row; align-items: center; padding: 0 0 50px 0;">
-                            {% if profile.username != "carto" or not carto %}
-                                <div>
-                                    <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="pass_old" name="pass_old" placeholder="Old Password" type="password" required></input>
-                                </div>
-                                <div style="margin: 0 0 0 15px;">
-                                    <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="pass_new" name="pass_new" placeholder="New Password" type="password" required></input>
-                                </div>
-                                <div style="margin: 0 0 0 15px;">
-                                    <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="pass_again" name="pass_again" placeholder="New Password (again)" type="password" required></input>
-                                </div>
-                                <div style="margin: 0 0 0 15px;">
-                                    <button class="bttn bttn-xsmall" type="submit">Save</button>
-                                </div>
-                                <div style="margin: 0 0 0 15px;">
-                                    {% if profile_message_password != "None" %}
-                                        {{ profile_message_password }}
-                                    {% else %}
-                                    {% endif %}
-                                </div>
-                            {% else %}
-                                <div>
-                                    <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="pass_old" name="pass_old" placeholder="Old Password" type="password" disabled></input>
-                                </div>
-                                <div style="margin: 0 0 0 15px;">
-                                    <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="pass_new" name="pass_new" placeholder="New Password" type="password" disabled></input>
-                                </div>
-                                <div style="margin: 0 0 0 15px;">
-                                    <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="pass_again" name="pass_again" placeholder="New Password (again)" type="password" disabled></input>
-                                </div>
-                                <div style="margin: 0 0 0 15px;">
-                                    <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
-                                    <input type="hidden" name="goto" class="hidden-field" value="profile"></input>
-                                    <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
-                                    <button class="bttn bttn-xsmall" type="submit" disabled>Save</button>
-                                </div>
-                                <div style="margin: 0 0 0 15px;">
-                                    Password protected
-                                </div>
-                            {% endif %}
+                            <div>
+                                <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="pass_old" name="pass_old" placeholder="Old Password" type="password" required></input>
+                            </div>
+                            <div style="margin: 0 0 0 15px;">
+                                <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="pass_new" name="pass_new" placeholder="New Password" type="password" required></input>
+                            </div>
+                            <div style="margin: 0 0 0 15px;">
+                                <input autocomplete="off" class="form-control form-control-sm mx-auto w-auto" id="pass_again" name="pass_again" placeholder="New Password (again)" type="password" required></input>
+                            </div>
+                            <div style="margin: 0 0 0 15px;">
+                                <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="dash_main"></input>
+                                <input type="hidden" name="nav" class="hidden-field" value="no"></input>
+                                <input type="hidden" name="bttn" class="hidden-field" value="profile_hash"></input>
+                                <button class="bttn bttn-xsmall" type="submit">
+                                    Save
+                                </button>
+                            </div>
+                            <div style="margin: 0 0 0 15px;">
+                                {% if profile_message_password %}
+                                    {{ profile_message_password }}
+                                {% else %}
+                                {% endif %}
+                            </div>
                         </div>
                     </form>
 

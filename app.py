@@ -1,16 +1,19 @@
 import os
-from flask import Flask, flash, redirect, render_template, request, session
+import json
+from datetime import datetime, timezone
+import pytz
+from flask import Flask, redirect, render_template, request, session
 from flask_session import Session
 from flask_socketio import SocketIO
 from werkzeug.security import check_password_hash, generate_password_hash
-from datetime import datetime
 import shapely.wkb
-import json
-
-import queries
-from helpers import apology, login_required, latitude_offset, longitude_offset
-from geoshapefile import shapefile, get_distance
 from shapely.geometry import Point
+
+from helpers import apology, login_required, get_duration, get_distance, latitude_offset
+from queries import get_registered, get_user_info, get_loc_duration_total, get_disconnected
+import game_geo
+import game_fifty
+import game_dash
 
 
 # Configure application
@@ -24,7 +27,7 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 # Configure session
-app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_PERMANENT"] = True
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
@@ -55,21 +58,30 @@ def after_request(response):
     return response
 
 
-# @socketio.on('disconnect')
-# def disconnect():
-
-#     current_game_id = session["current_game_id"]
-#     current_game_start = session['current_game_start']
-
-#     result = queries.get_disconnected(db_pg, 
-#                                       current_game_id, 
-#                                       current_game_start)
-
-#     return 1
-
-
 @app.route('/disconnect', methods=['POST'])
-def disconnect():
+def disconnect_fifty():
+
+    data = json.loads(request.data)
+    message = data['message']
+
+    if message == "8dc4ed2b-4e99-45f7-a6a2-319ccb31d17d":
+
+        current_game_id = session["get_fifty_game_active"]["fifty_game_id"]
+        current_game_start = session["get_fifty_game_active"]["fifty_game_start"]
+
+        result = get_disconnected(db_pg, 
+                                  current_game_id, 
+                                  current_game_start)
+
+        return '', 200
+
+    else:
+
+        return '', 200
+
+
+@app.route('/disconnect/geofinder', methods=['POST'])
+def disconnect_geofinder():
 
     data = json.loads(request.data)
     message = data['message']
@@ -78,351 +90,1302 @@ def disconnect():
         current_game_id = session["current_game_id"]
         current_game_start = session['current_game_start']
 
-        result = queries.get_disconnected(db_pg, 
-                                          current_game_id, 
-                                          current_game_start)
+        result = get_disconnected(db_pg, 
+                                  current_game_id, 
+                                  current_game_start)
 
         return '', 200
 
     else:
 
         return '', 200
-
-
-####################################################################
-# 
-# INDEX
-#
-####################################################################
-@app.route("/")
-@login_required
-def index():
-    """Show homepage"""
-
-    try:
-        page = session["current_page"]
-        goto = session["current_goto"]
-    except KeyError:
-        page = None
-        goto = "index" 
     
-    # Calculate user summary percent
-    session["user_summary_percent"] = queries.get_summary_percent(db_pg, 
-                                                                  session["user_id"])
+####################################################################
+# 
+# START
+#
+####################################################################
+@app.route("/", methods=["GET", "POST"])
+@login_required
+def game__start():
 
-    # Ensure session page is set to index before index.html is rendered
-    session.pop("page", None)
-    session["page"] = "index"
+    if request.method == "POST":
 
-    return render_template("index.html", 
-                           page="index", 
-                           userid=session["user_id"], 
-                           username=session["username"], 
-                           total1=session["user_summary_percent"],
-                           map_api_key=map_api_key,
-                           new_registrations=new_registrations)
+        page = session["current_page"] = request.form.get("page")
+        goto = session["current_goto"] = request.form.get("goto")
+        nav = session["current_nav"] = request.form.get("nav")
+        bttn = session["current_bttn"] = request.form.get("bttn")
+
+        if (page == "index"):
+
+            if (nav == "no"):
+
+                if (bttn == "start") or (bttn == "again"):
+
+                    # Get today's geofinder
+                    location = game_geo.get_geo_today_location_info(db_pg)
+
+                    # Check if user has found or quit today's geofinder
+                    geo_game_id = game_geo.get_geo_today_location_status(db_pg, 
+                                                                                session["user_id"],
+                                                                                location["geofinder_id"])
+
+                    # ########################################################
+                    # Player has NOT FOUND or QUIT today's geofinder
+                    # ########################################################
+                    if geo_game_id["geo_game_id"] == 0:
+
+                        # Create new entry in geofinder_games table
+                        new_geo_game_id = game_geo.get_geo_game_created(db_pg,
+                                                                            session["user_id"], 
+                                                                            location["geofinder_id"])
+
+                        # Get current_geo_game saved to db to render on geofinder_game.html
+                        new_geo_game = game_geo.get_geo_game_started(db_pg,
+                                                                            new_geo_game_id)
+
+                        # Get offset latitude to position infowindow on map
+                        loc_lat_game_offset = latitude_offset(float(new_geo_game["loc_view_lat"]), 
+                                                              float(new_geo_game["loc_view_lng"]))
+
+                        # Clear package
+                        session.pop("get_geo_game_active", None)
+
+                        # Set GAME package
+                        get_geo_game_active = {
+                            "geo_game_id": new_geo_game_id,
+                            "geo_game_start": new_geo_game["geo_game_start"],
+                            "geo_game_geofinder_id": new_geo_game["geofinder_id"],
+                            "geo_game_geofinder_date": new_geo_game["geofinder_date"], #.strftime('%a, %B %d')
+                            "geo_game_loc_id": new_geo_game["id"],
+                            "geo_game_loc_url_source": new_geo_game["loc_url_source"],
+                            "geo_game_loc_view_lat": new_geo_game["loc_view_lat"],
+                            "geo_game_loc_view_lng": new_geo_game["loc_view_lng"],
+                            "geo_game_loc_key_shp": new_geo_game["loc_key_shp"],
+                            "geo_game_loc_image_source": new_geo_game["loc_image_source"],
+                            "geo_game_loc_city": new_geo_game["loc_city"],
+                            "geo_game_loc_state": new_geo_game["loc_state"],
+                            "geo_game_loc_country": new_geo_game["loc_country"],
+                            "geo_game_loc_lat_game_offset": loc_lat_game_offset
+                        }
+
+                        # Save GAME package to Session
+                        session["get_geo_game_active"] = get_geo_game_active
+                    
+                        return redirect("/geofinder/game")
+                    
+                    # ########################################################
+                    # Player has FOUND or QUIT today's geofinder
+                    # ########################################################    
+                    else:
+
+                        session.pop("get_geo_game_review", None)
+
+                        review = location["geofinder_id"]
+
+                        get_geo_game_review = game_geo.get_geo_game_reviewed(db_pg,
+                                                                                    session["user_id"],
+                                                                                    review)
+
+                        # Save REVIEW package to Session
+                        session["get_geo_game_review"] = get_geo_game_review
+
+                        return redirect("/geofinder/review")
+        
+                else:
+
+                    return redirect("/")
+                
+            elif (nav == "yes"):
+
+                # Clean up session variables
+                session.pop("get_geo_game_active", None)
+                session.pop("get_geo_game_results", None)
+                session.pop("get_geo_game_review", None)
+
+                return redirect("/nav")
+            
+            else:
+
+                return apology("wrong page", 403)
+
+        else:
+
+            return apology("wrong page", 403)
+        
+    else:
+
+        return render_template("game_start.html", 
+                               action="/",
+                               page="index", 
+                               map_api_key=map_api_key,
+                               new_registrations=new_registrations)
 
 
 ####################################################################
 # 
-# GAME
+# GEOFINDER - GAME
 #
 ####################################################################
-@app.route("/game", methods=["GET", "POST"])
+@app.route("/geofinder/game", methods=["GET", "POST"])
 @login_required
-def game():
-    """Start a game"""
+def game__geofinder_game():
 
     if request.method == "POST":
 
         page = session["current_page"] = request.form.get("page")
         goto = session["current_goto"] = request.form.get("goto")
-        try_again = session["try_again"] = request.form.get("try-again")
+        nav = session["current_nav"] = request.form.get("nav")
+        bttn = session["current_bttn"] = request.form.get("bttn")
 
-        if "current_game_id" not in session:
-            session["current_game_id"] = 0
+        if (page == "geofinder_game"):
 
-    else:
+            # Get GAME package from Session
+            get_geo_game_active = session["get_geo_game_active"]
 
-        page = session["current_page"]
-        goto = session["current_goto"]
-        try_again = session["try_again"]
+            # Set RESULTS package
+            get_geo_game_results = {
+                "geo_game_id": get_geo_game_active["geo_game_id"],
+                "geo_game_geofinder_id": get_geo_game_active["geo_game_geofinder_id"],
+                "geo_game_geofinder_date": get_geo_game_active["geo_game_geofinder_date"],
+                "geo_game_start": get_geo_game_active["geo_game_start"],
+                "geo_game_end": None,
+                "geo_game_loc_id": get_geo_game_active["geo_game_loc_id"],
+                "geo_game_loc_url_source": get_geo_game_active["geo_game_loc_url_source"],
+                "geo_game_loc_view_lat": get_geo_game_active["geo_game_loc_view_lat"],
+                "geo_game_loc_view_lng": get_geo_game_active["geo_game_loc_view_lng"],
+                "geo_game_loc_key_shp": get_geo_game_active["geo_game_loc_key_shp"],
+                "geo_game_loc_image_source": get_geo_game_active["geo_game_loc_image_source"],
+                "geo_game_loc_city": get_geo_game_active["geo_game_loc_city"],
+                "geo_game_loc_state": get_geo_game_active["geo_game_loc_state"],
+                "geo_game_loc_country": get_geo_game_active["geo_game_loc_country"],
+                "geo_game_loc_lat_game_offset": get_geo_game_active["geo_game_loc_lat_game_offset"],
+                "geo_game_submit": 0,
+                "geo_game_submit_lat": None,
+                "geo_game_submit_lng": None,
+                "geo_game_submit_off": None,
+                "geo_game_submit_validation": 0,
+                "geo_game_duration_display": None,
+                "geo_game_score_base_display": 0,
+                "geo_game_score_bonus_display": 0,
+                "geo_game_score_total_display": 0,
+            }
 
-        if "current_game_id" not in session:
-            session["current_game_id"] = 0
-
-    # Clean-up session
-    # Leave only user_id and username
-    # And current_game_loc_id - will be cleared if user starts new game
-    session.pop("current_game_id", None)
-    session.pop("current_game_loc_view_lat", None)
-    session.pop("current_game_loc_view_lng", None)
-    session.pop("current_game_loc_key_shp", None)
-    session.pop("current_game_loc_key_lat", None)
-    session.pop("current_game_loc_key_lng", None)
-    session.pop("current_game_user_submit_lat", None)
-    session.pop("current_game_user_submit_lng", None)
-    session.pop("current_game_start", None)
-    session.pop("current_game_map_center", None)
-    session.pop("current_game_map_zoom", None)
-
-    # Get playable location
-    if (session["try_again"] == "1") or (session["try_again"] == 1):
-        # Get specific location to try again
-        location = queries.get_playable_location_again(db_pg, 
-                                                       session["current_game_loc_id"])
-    else:
-        # Get random location as new game
-        location = queries.get_playable_location(db_pg, 
-                                                 session["user_id"])
-
-    # Checks if query returns a playable location
-    if location == None:
-        return redirect("/history")
-    else:
-        # Update session with location info to be played
-        session["current_game_loc_id"] = location["id"]
-        session["current_game_loc_key_shp"] = location["loc_key_shp"]
-        session["current_game_loc_key_lat"] = location["loc_key_lat"]
-        session["current_game_loc_key_lng"] = location["loc_key_lng"]
-
-        # Create new entry in games table
-        current_game_id, current_game_start = queries.start_game(db_pg, 
-                                                                 session["user_id"], 
-                                                                 session["current_game_loc_id"])
-        
-        # Get hour, minute and seconds from current_game_start
-        clock = {
-            "hour": current_game_start.hour,
-            "minute": current_game_start.minute,
-            "second": current_game_start.second
-        }
-
-        # Update session with game info to be played
-        session["current_game_loc_id"] = location["id"]
-        session["current_game_loc_view_lat"] = location["loc_view_lat"]
-        session["current_game_loc_view_lng"] = location["loc_view_lng"]
-        session["current_game_loc_key_shp"] = location["loc_key_shp"]
-        session["current_game_loc_key_lat"] = location["loc_key_lat"]
-        session["current_game_loc_key_lng"] = location["loc_key_lng"]
-        session["current_game_id"] = current_game_id
-        session["current_game_start"] = current_game_start
-
-        # Get offset latitude to position infowindow on map
-        loc_lat_game_offset = latitude_offset(float(location["loc_view_lat"]), 
-                                              float(location["loc_view_lng"]))
-
-        # Ensure session page is set to "game" before game.html is rendered
-        session["page"] = "game"
-
-    return render_template("game.html", 
-                           page="game", 
-                           username=session["username"], 
-                           total1=session["user_summary_percent"],
-                           location=location, 
-                           loc_lat_game_offset=loc_lat_game_offset, 
-                           clock=clock, 
-                           map_api_key=map_api_key)
-
-
-####################################################################
-#
-# RESULT
-#
-####################################################################
-@app.route("/result", methods=["GET", "POST"])
-@login_required
-def result():
-    """Submit game"""
-
-    if request.method == "POST":
-
-        page = session["current_page"] = request.form.get("page")
-        goto = session["current_goto"] = request.form.get("goto")
-
-        if (page == "game") and (goto == "result"):
-
-            # Set current timestamp
-            current_game_end = datetime.now()
-
-            # Get user-submitted answer
-            current_game_user_submit_lat = float(request.form.get("answer-lat"))
-            current_game_user_submit_lng = float(request.form.get("answer-long"))
-            
-            # Update session
-            session["current_game_user_submit_lat"] = current_game_user_submit_lat
-            session["current_game_user_submit_lng"] = current_game_user_submit_lng 
-            session["current_game_map_center"] = request.form.get("answer-map-center")
-            session["current_game_map_zoom"] = request.form.get("answer-map-zoom")
-
-            # Get location answer 
-            current_game_loc_key_lat = session["current_game_loc_key_lat"]
-            current_game_loc_key_lng = session["current_game_loc_key_lng"]
-
-            # Get location key shapefile
-            current_game_loc_key_shapefile = session["current_game_loc_key_shp"]
-
-            # Convert the PostGIS geometry into a Shapely geometry object
-            polygon = shapely.wkb.loads(current_game_loc_key_shapefile, hex=True)
-
-            # Create a point object from user submitted (lat, lng)
-            point = Point([current_game_user_submit_lng, current_game_user_submit_lat])
-
-            # Check if point is inside polygon
-            is_inside = polygon.contains(point)
-
-            # Validate answer as 1 = "correct" or 0 = "incorrect"
-            if is_inside:
-                game_answer_distance = 0
-                game_answer_validation = 1
-                current_game_answer_user_validation = "correct!"
-            else:
-                game_answer_distance = get_distance(point, polygon)
-                game_answer_validation = 0
-                current_game_answer_user_validation = "incorrect"
+            # Set current game end time
+            results_geo_game_end = get_geo_game_results["geo_game_end"] = datetime.now()
 
             # Calcuate game duration in minutes
-            durations = queries.game_answer_duration(session["current_game_start"], 
-                                                     current_game_end)
+            results_duration = get_geo_game_results["geo_game_duration_display"] = get_duration(get_geo_game_results["geo_game_start"], 
+                                                                                               results_geo_game_end)
 
-            # Calcuate game duration for all previous attempts in minutes
-            duration_total = queries.get_loc_duration_total(db_pg, 
-                                                            session["current_game_id"], 
-                                                            session["user_id"], 
-                                                            session["current_game_loc_id"], 
-                                                            durations[0])
+            if (nav == "no"):
 
-            # Calculate game score
-            scores = queries.game_answer_score(db_pg, 
-                                               session["user_id"], 
-                                               session["current_game_loc_id"], 
-                                               game_answer_validation, 
-                                               duration_total)
-            base_score = scores[0]
-            bonus_score = scores[1]
-            game_score = scores[2]
-            attempts = scores[3]
+                if (bttn == "submit"):
 
-            # Set update_current_game arguments
-            updates = {
-                "id": session["current_game_id"], 
-                "game_end": current_game_end,
-                "game_lat": current_game_user_submit_lat,
-                "game_lng": current_game_user_submit_lng,
-                "game_user_quit": 0,
-                "game_answer_off": game_answer_distance,
-                "game_answer_validation": game_answer_validation,
-                "game_duration": durations[0],
-                "game_score": game_score
-            }
+                    # Update RESULTS package
+                    get_geo_game_results["geo_game_submit"] = 1
+                    get_geo_game_results["geo_game_submit_lat"] = float(request.form.get("submit-lat"))
+                    get_geo_game_results["geo_game_submit_lng"] = float(request.form.get("submit-long"))
 
-            # Update games table
-            queries.update_current_game(db_pg, updates)
+                    # Convert the PostGIS geometry into a Shapely geometry object
+                    polygon = shapely.wkb.loads(get_geo_game_results["geo_game_loc_key_shp"], hex=True)
 
-            # Update session with new total score
-            session["user_summary_percent"] = queries.get_summary_percent(db_pg, session["user_id"])
+                    # Create a point object from user submitted (lat, lng)
+                    point = Point([get_geo_game_results["geo_game_submit_lng"], 
+                                get_geo_game_results["geo_game_submit_lat"]])
 
-            # Create dictionary for html page
-            results = {
-                "current_game_loc_view_lat": session["current_game_loc_view_lat"],
-                "current_game_loc_view_lng": session["current_game_loc_view_lng"],
-                "current_game_user_submit_lat": current_game_user_submit_lat,
-                "current_game_user_submit_lng": current_game_user_submit_lng,
-                "answer_validation": game_answer_validation,
-                "current_game_answer_user_validation": current_game_answer_user_validation,
-                "current_game_loc_id": session["current_game_loc_id"],
-                "current_game_loc_attempt": attempts,
-                "current_game_duration": durations[0],
-                "current_location_duration": duration_total,
-                "current_game_score_base": base_score,
-                "current_game_score_bonus": bonus_score,
-                "current_game_score_total": game_score
-            }
+                    # Update RESULTS package
+                    get_geo_game_results["geo_game_submit_off"] = get_distance(point, polygon)
 
-            # Ensure session page is set to "result" before submit.html is rendered
-            session["page"] = "result"
+                    # Check if point is inside polygon
+                    is_inside = polygon.contains(point)
 
-            return render_template("submit.html", 
-                                   data=results, 
-                                   page="result", 
-                                   username=session["username"], 
-                                   total1=session["user_summary_percent"], 
-                                   map_api_key=map_api_key)
-        
+                    # Validate answer as 1 = "correct"
+                    if is_inside:
+
+                        get_geo_game_results["geo_game_submit_validation"] = 1
+
+                        # TODO Calculate scores
+                        get_geo_game_results["geo_game_score_base_display"] = 555
+                        get_geo_game_results["geo_game_score_bonus_display"] = 555
+                        get_geo_game_results["geo_game_score_total_display"] = 555
+
+                    # # Update geofinder_games table
+                    game_geo.get_geo_game_updated(db_pg, get_geo_game_results)
+
+                    # Update n1
+                    session["n1"] = game_dash.get_dash_kpi_geofinder(db_pg, session["user_id"])
+
+                    # Save RESULTS package to Session
+                    session["get_geo_game_results"] = get_geo_game_results
+
+                    return redirect("/geofinder/result")
+
+                elif (bttn == "pause"):
+
+                    if results_duration >= 10:
+
+                        # If user is on geofinder_game page for 10 sec or more
+                        # Update record
+                        game_geo.get_geo_game_updated(db_pg, get_geo_game_results)
+
+                        return redirect("/")
+
+                    elif results_duration >= 0:
+
+                        # If user is on geofinder_game page for under 10 sec
+                        # Delete record
+                        game_geo.get_geo_game_deleted(db_pg, get_geo_game_results["geo_game_id"])
+
+                        return redirect("/")
+
+                    else:
+
+                        # Else redirect to index
+                        # TODO: Better to redirect to error page
+                        return redirect("/")
+
+                elif (bttn == "quit"):
+
+                    # Update RESULTS package
+                    get_geo_game_results["geo_game_submit_validation"] = 2
+
+                    # Update geofinder game record
+                    game_geo.get_geo_game_updated(db_pg, get_geo_game_results)
+
+                    # Update RESULTS package
+                    get_geo_game_results["geo_game_submit_lat"] = get_geo_game_results["geo_game_loc_view_lat"]
+                    get_geo_game_results["geo_game_submit_lng"] = get_geo_game_results["geo_game_loc_view_lng"]
+
+                    # Save RESULTS package to Session
+                    session["get_geo_game_results"] = get_geo_game_results
+
+                    return redirect("/geofinder/result")
+
+                else:
+                    return redirect("/")
+
+            elif (nav == "yes"):
+
+                # NOTE: Clicking any navbar links is like clicking pause button
+
+                if results_duration >= 10:
+
+                    game_geo.get_geo_game_updated(db_pg, get_geo_game_results)
+
+                elif results_duration >= 0:
+
+                    game_geo.get_geo_game_deleted(db_pg, get_geo_game_results["geo_game_id"])
+
+                else:
+
+                    pass
+                
+                # Clean up session variables
+                session.pop("get_geo_game_active", None)
+                session.pop("get_geo_game_results", None)
+
+                return redirect("/nav")
+
+            else:
+
+                return redirect("/")
+    
         else:
 
-            # Ensure current_game_loc_id is cleared
-            session.pop("current_game_loc_id", None)
+            return redirect("/")
+        
+    else:
 
-            # Ensure session page is cleared before redirecting to "/"
-            session.pop("page", None)
+        # Get GAME package from session
+        try:
+            get_geo_game_active = session["get_geo_game_active"]        
+        except:
+            return redirect("/")
+
+        return render_template("game_geo_game.html", 
+                               action="/geofinder/game",
+                               page="geofinder_game", 
+                               map_api_key=map_api_key,
+                               get_geo_game_active=get_geo_game_active)
+
+
+####################################################################
+#
+# GEOFINDER - RESULT
+#
+####################################################################
+@app.route("/geofinder/result", methods=["GET", "POST"])
+@login_required
+def game__geofinder_result():
+
+    if request.method == "POST":
+
+        page = session["current_page"] = request.form.get("page")
+        goto = session["current_goto"] = request.form.get("goto")
+        nav = session["current_nav"] = request.form.get("nav")
+        bttn = session["current_bttn"] = request.form.get("bttn")
+
+        if (page == "geofinder_result"):
+        
+            if (nav == "no"):
+
+                if (bttn == "review"):
+
+                    session.pop("geofinder_review", None)
+
+                    review = request.form.get("review")
+
+                    get_geo_game_review = game_geo.get_geo_game_reviewed(db_pg,
+                                                                                session["user_id"],
+                                                                                review)
+
+                    session["get_geo_game_review"] = get_geo_game_review
+
+                    return redirect("/geofinder/review")
+                
+                elif (bttn == "again"):
+
+                    session.pop("get_geo_game_results", None)
+
+                    return redirect("/geofinder/game")
+                
+                elif (bttn == "pause"):
+
+                    session.pop("get_geo_game_results", None)
+
+                    return redirect("/dash")
+                
+                elif (bttn == "quit"):
+
+                    get_geo_game_results = session["get_geo_game_results"]
+
+                    # Update RESULTS package
+                    get_geo_game_results["geo_game_submit_validation"] = 2
+
+                    # # Update geofinder game record
+                    game_geo.get_geo_game_updated(db_pg, get_geo_game_results)
+
+                    # # Update get_geo_game_results variables
+                    # get_geo_game_results["geo_game_submit_lat"] = get_geo_game_results["geo_game_loc_view_lat"]
+                    # get_geo_game_results["geo_game_submit_lng"] = get_geo_game_results["geo_game_loc_view_lng"]
+
+                    # Save updated RESULT package to Session
+                    session["get_geo_game_results"] = get_geo_game_results
+
+                    return redirect("/geofinder/result")
+                
+                else:
+
+                    return redirect("/")
+            
+            elif (nav == "yes"):
+
+                # Clean up session variables
+                session.pop("get_geo_game_active", None)
+                session.pop("get_geo_game_results", None)
+
+                return redirect("/nav")
+            
+            else:
+
+                return redirect("/")
+        
+        else:
 
             return redirect("/")
             
     else:
 
+        try:
+            get_geo_game_results = session["get_geo_game_results"]
+        except:
+            return redirect("/")
+
+        return render_template("game_geo_result.html", 
+                               action="/geofinder/result",
+                               page="geofinder_result", 
+                               map_api_key=map_api_key,
+                               get_geo_game_results=get_geo_game_results)
+
+
+####################################################################
+# 
+# GEOFINDER - REVIEW
+#
+####################################################################
+@app.route("/geofinder/review", methods=["GET", "POST"])
+@login_required
+def game__geofinder_review():
+
+    if request.method == "POST":
+
+        page = session["current_page"] = request.form.get("page")
+        goto = session["current_goto"] = request.form.get("goto")
+        nav = session["current_nav"] = request.form.get("nav")
+        bttn = session["current_bttn"] = request.form.get("bttn")
+
+        if (page == "geofinder_review"):
+
+            if (nav == "no"):
+
+                return redirect("/")
+            
+            elif (nav == "yes"):
+
+                # Clean up session variables
+                session.pop("get_geo_game_active", None)
+                session.pop("get_geo_game_results", None)
+                session.pop("get_geo_game_review", None)
+
+                return redirect("/nav")
+            
+            else:
+
+                return redirect("/")
+
+        else:
+            
+            return redirect("/")
+            
+    else:
+
+        try:
+            get_geo_game_review = session["get_geo_game_review"]
+        except:
+            return redirect("/dash/geofinder")
+        
+        return render_template("game_geo_review.html", 
+                               action="/geofinder/review",
+                               page="geofinder_review",
+                               map_api_key=map_api_key,
+                               get_geo_game_review=get_geo_game_review)
+    
+
+####################################################################
+# 
+# FIFTY - START
+#
+####################################################################
+@app.route("/fifty", methods=["GET", "POST"])
+@login_required
+def game__fifty_start():
+
+    if request.method == "POST":
+
+        page = request.form.get("page")
+        goto = request.form.get("goto")
+        nav = request.form.get("nav")
+        bttn = request.form.get("bttn")
+
+    else:
+
         page = session["current_page"]
         goto = session["current_goto"]
+        nav = session["current_nav"]
+        bttn = session["current_bttn"]
 
-        if (page == "game") and (goto == "zero"):
+    if (goto == "fifty_start"):
 
-            # Get info on current game
-            current_game_record = queries.get_game_info(db_pg, session["current_game_id"])
+        if (nav == "no"):
 
-            # Get info on location of current game
-            current_game_loc_record = queries.get_locs_info(db_pg, session["current_game_loc_id"])
-
-            # Calcuate game duration for all previous attempts in minutes
-            duration_total = queries.get_loc_duration_total(db_pg, 
-                                                            session["current_game_id"], 
-                                                            session["user_id"], 
-                                                            session["current_game_loc_id"], 
-                                                            current_game_record["game_duration"])
-
-            # Calculate total attempts
-            scores = queries.game_answer_score(db_pg, 
-                                               session["user_id"], 
-                                               session["current_game_loc_id"], 
-                                               current_game_record["game_answer_validation"], 
-                                               duration_total)
-            attempts = scores[3]
-
-            # Create dictionary for html page
-            results = {
-                "current_game_loc_view_lat": session["current_game_loc_view_lat"],
-                "current_game_loc_view_lng": session["current_game_loc_view_lng"],
-                "current_game_user_submit_lat": current_game_loc_record["loc_key_lat"],
-                "current_game_user_submit_lng": current_game_loc_record["loc_key_lng"],
-                "answer_validation": current_game_record["game_answer_validation"],
-                "current_game_answer_user_validation": "quit",
-                "current_game_loc_id": current_game_loc_record["id"],
-                "current_game_loc_attempt": attempts,
-                "current_game_duration": current_game_record["game_duration"],
-                "current_location_duration": duration_total,
-                "current_game_score_base": 0,
-                "current_game_score_bonus": 0,
-                "current_game_score_total": 0
+            # Initiate GAME package
+            get_fifty_game_active = {
+                "fifty_game_id": None,
+                "fifty_game_loc_id": None,
+                "fifty_game_start": None,
+                "fifty_game_loc_url_source": None,
+                "fifty_game_loc_view_lat": None,
+                "fifty_game_loc_view_lng": None,
+                "fifty_game_loc_key_lat": None,
+                "fifty_game_loc_key_lng": None,
+                "fifty_game_loc_key_shp": None,
+                "fifty_game_loc_image_source": None,
+                "fifty_game_loc_city": None,
+                "fifty_game_loc_state": None,
+                "fifty_game_loc_country": None,
+                "fifty_game_loc_lat_game_offset": None,
+                "fifty_game_clock": None,
             }
 
-            # Ensure current_game_loc_id is cleared
-            session.pop("current_game_loc_id", None)
+            if (bttn == "again"):
 
-            return render_template("submit.html", 
-                                   data=results, 
-                                   page="result", 
-                                   username=session["username"], 
-                                   total1=session["user_summary_percent"],
-                                   map_api_key=map_api_key)
+                # Get specific location to try again
+                loc_id_again = request.form.get("loc")
+
+                location = game_fifty.get_fifty_playable_location_again(db_pg, 
+                                                                        loc_id_again)
+                
+            else:
+
+                # Get random location as new game
+                location = game_fifty.get_fifty_playable_location(db_pg, 
+                                                                  session["user_id"])
+
+            # Checks if query returns a playable location
+            if location == None:
+
+                page = session["current_page"]
+                goto = session["current_goto"] = "dash_fifty"
+                nav = session["current_nav"]
+                bttn = session["current_bttn"] = "dash_fifty"
+
+                return redirect("/dash")
+            else:
+                # Update GAME package
+                get_fifty_game_active["fifty_game_loc_id"] = location["id"]
+                get_fifty_game_active["fifty_game_loc_key_shp"] = location["loc_key_shp"]
+                get_fifty_game_active["fifty_game_loc_key_lat"] = location["loc_key_lat"]
+                get_fifty_game_active["fifty_game_loc_key_lng"] = location["loc_key_lng"]
+
+            # Create new entry in games table
+            game_id, game_start = game_fifty.get_fifty_game_started(db_pg, 
+                                                                    session["user_id"], 
+                                                                    location["id"])
+            
+            # Get hour, minute and seconds from current_game_start
+            clock = {
+                "hour": game_start.hour,
+                "minute": game_start.minute,
+                "second": game_start.second
+            }
+
+            # Update GAME package
+            get_fifty_game_active["fifty_game_id"] = game_id
+            get_fifty_game_active["fifty_game_start"] = game_start
+            get_fifty_game_active["fifty_game_loc_url_source"] = location["loc_url_source"]
+            get_fifty_game_active["fifty_game_loc_view_lat"] = location["loc_view_lat"]
+            get_fifty_game_active["fifty_game_loc_view_lng"] = location["loc_view_lng"]
+            get_fifty_game_active["fifty_game_loc_image_source"] = location["loc_image_source"]
+            get_fifty_game_active["fifty_game_loc_city"] = location["loc_city"]
+            get_fifty_game_active["fifty_game_loc_state"] = location["loc_state"]
+            get_fifty_game_active["fifty_game_loc_country"] = location["loc_country"]
+            get_fifty_game_active["fifty_game_clock"] = clock
+
+            # Get offset latitude to position infowindow on map
+            loc_lat_game_offset = latitude_offset(float(location["loc_view_lat"]), 
+                                                  float(location["loc_view_lng"]))
+            
+            # Update GAME package
+            get_fifty_game_active["fifty_game_loc_lat_game_offset"] = loc_lat_game_offset
+
+            # Save GAME package to Session
+            session["get_fifty_game_active"] = get_fifty_game_active
+
+            return redirect("/fifty/game")
+        
+        elif (nav == "yes"):
+
+            return redirect("/")
+        
+        else:
+
+            return redirect("/")
+
+    else:
+
+        redirect("/")
+
+
+####################################################################
+# 
+# FIFTY - GAME
+#
+####################################################################
+@app.route("/fifty/game", methods=["GET", "POST"])
+@login_required
+def game__fifty_game():
+
+    if request.method == "POST":
+
+        page = session["current_page"] = request.form.get("page")
+        goto = session["current_goto"] = request.form.get("goto")
+        nav = session["current_nav"] = request.form.get("nav")
+        bttn = session["current_bttn"] = request.form.get("bttn")
+
+        if (page == "fifty_game"):
+
+            # Retrieve get_geofinder_game from session
+            get_fifty_game_active = session["get_fifty_game_active"]
+
+            # Set package
+            get_fifty_game_results = {
+                "fifty_game_id": get_fifty_game_active["fifty_game_id"],
+                "fifty_game_start": get_fifty_game_active["fifty_game_start"],
+                "fifty_game_end": None,
+                "fifty_game_loc_id": get_fifty_game_active["fifty_game_loc_id"],
+                "fifty_game_loc_url_source": get_fifty_game_active["fifty_game_loc_url_source"],
+                "fifty_game_loc_view_lat": get_fifty_game_active["fifty_game_loc_view_lat"],
+                "fifty_game_loc_view_lng": get_fifty_game_active["fifty_game_loc_view_lng"],
+                "fifty_game_loc_key_shp": get_fifty_game_active["fifty_game_loc_key_shp"],
+                "fifty_game_loc_image_source": get_fifty_game_active["fifty_game_loc_image_source"],
+                "fifty_game_loc_city": get_fifty_game_active["fifty_game_loc_city"],
+                "fifty_game_loc_state": get_fifty_game_active["fifty_game_loc_state"],
+                "fifty_game_loc_country": get_fifty_game_active["fifty_game_loc_country"],
+                "fifty_game_loc_lat_game_offset": get_fifty_game_active["fifty_game_loc_lat_game_offset"],
+                "fifty_game_submit": 0,
+                "fifty_game_submit_lat": None,
+                "fifty_game_submit_lng": None,
+                "fifty_game_submit_off": None,
+                "fifty_game_submit_validation": 0,
+                "fifty_game_submit_attempts": None,
+                "fifty_game_duration_display": None,
+                "fifty_game_duration_total_display": None,
+                "fifty_game_score_base_display": 0,
+                "fifty_game_score_bonus_display": 0,
+                "fifty_game_score_total_display": 0,
+            }
+
+            # Get current game end time
+            game_end = datetime.now(timezone.utc).astimezone(pytz.timezone('US/Central'))
+
+            # Calcuate game duration in minutes
+            game_duration = get_duration(get_fifty_game_results["fifty_game_start"], game_end)
+
+            # Calcuate game duration for all previous attempts in minutes
+            duration_total = get_loc_duration_total(db_pg, 
+                                                    get_fifty_game_results["fifty_game_id"], 
+                                                    session["user_id"], 
+                                                    get_fifty_game_results["fifty_game_loc_id"], 
+                                                    game_duration)
+
+            # Update package
+            get_fifty_game_results["fifty_game_end"] = game_end
+            get_fifty_game_results["fifty_game_duration_display"] = game_duration
+            get_fifty_game_results["fifty_game_duration_total_display"] = duration_total
+
+            if (nav == "no"):
+
+                if (bttn == "submit"):
+
+                    # Update package
+                    get_fifty_game_results["fifty_game_submit"] = 1
+                    get_fifty_game_results["fifty_game_submit_lat"] = float(request.form.get("submit-lat"))
+                    get_fifty_game_results["fifty_game_submit_lng"] = float(request.form.get("submit-long"))
+
+                    # Convert the PostGIS geometry into a Shapely geometry object
+                    polygon = shapely.wkb.loads(get_fifty_game_results["fifty_game_loc_key_shp"], hex=True)
+
+                    # Create a point object from user submitted (lat, lng)
+                    point = Point([get_fifty_game_results["fifty_game_submit_lng"], 
+                                   get_fifty_game_results["fifty_game_submit_lat"]])
+
+                    # Update package
+                    get_fifty_game_results["fifty_game_submit_off"] = get_distance(point, polygon)
+
+                    # Check if point is inside polygon
+                    is_inside = polygon.contains(point)
+
+                    # Validate answer as 1 = "correct"
+                    if is_inside:
+
+                        get_fifty_game_results["fifty_game_submit_validation"] = 1
+                        
+                    # Calculate game score
+                    scores = game_fifty.get_fifty_game_score(db_pg, 
+                                                             session["user_id"], 
+                                                             get_fifty_game_results["fifty_game_loc_id"], 
+                                                             get_fifty_game_results["fifty_game_submit_validation"], 
+                                                             duration_total)
+                    
+                    # Update package
+                    get_fifty_game_results["fifty_game_score_base_display"] = scores["base"]
+                    get_fifty_game_results["fifty_game_score_bonus_display"] = scores["bonus"]
+                    get_fifty_game_results["fifty_game_score_total_display"] = scores["total"]
+                    get_fifty_game_results["fifty_game_submit_attempts"] = scores["attempts"]
+
+                    # Update games table
+                    game_fifty.get_fifty_game_updated(db_pg, get_fifty_game_results)
+
+                    # Update n2
+                    session["n2"] = game_dash.get_dash_kpi_fifty(db_pg, session["user_id"])
+
+                    # For GET "/geofinder/results" to render in "geofinder.results.html"
+                    session["get_fifty_game_results"] = get_fifty_game_results
+
+                    return redirect("/fifty/result")
+    
+                elif (bttn == "new") or (bttn == "stop"):
+
+                    if game_duration >= 10:
+
+                        # If user is on fifty_game page for 10 sec or more
+                        # Update record
+                        game_fifty.get_fifty_game_updated(db_pg, get_fifty_game_results)
+
+                    else:
+
+                        # If user is on fifty_game page for under 10 sec
+                        # Delete record
+                        game_fifty.get_fifty_game_deleted(db_pg, get_fifty_game_results["fifty_game_id"])
+                    
+                    # Clear package from session
+                    session.pop("get_fifty_game_results", None)
+
+                    if (bttn == "new"):
+
+                        return redirect("/fifty")
+                    
+                    elif (bttn == "stop"):
+
+                        return redirect("/dash")
+
+                    else:
+
+                        return redirect("/")
+                
+                elif (bttn == "quit"):
+
+                    # Update get_geo_game_results variables
+                    get_fifty_game_results["fifty_game_submit_validation"] = 2
+
+                    # Update geofinder game record
+                    game_fifty.get_fifty_game_updated(db_pg, get_fifty_game_results)
+
+                    # Get number of attempts
+                    scores = game_fifty.get_fifty_game_score(db_pg, 
+                                                             session["user_id"], 
+                                                             get_fifty_game_results["fifty_game_loc_id"], 
+                                                             get_fifty_game_results["fifty_game_submit_validation"], 
+                                                             duration_total)
+
+                    # Update package
+                    get_fifty_game_results["fifty_game_submit_lat"] = get_fifty_game_results["fifty_game_loc_view_lat"]
+                    get_fifty_game_results["fifty_game_submit_lng"] = get_fifty_game_results["fifty_game_loc_view_lng"]
+                    get_fifty_game_results["fifty_game_submit_attempts"] = scores["attempts"]
+
+                    # Update n2
+                    session["n2"] = game_dash.get_dash_kpi_fifty(db_pg, session["user_id"])
+
+                    # For GET "/geofinder/results" to render in "geofinder.results.html"
+                    session["get_fifty_game_results"] = get_fifty_game_results
+
+                    return redirect("/fifty/result")
+
+                else:
+
+                    redirect("/")
+
+            elif (nav == "yes"):
+                
+                if game_duration >= 10:
+
+                    # If user is on fifty_game page for 10 sec or more
+                    # Update record
+                    game_fifty.get_fifty_game_updated(db_pg, get_fifty_game_results)
+
+                else:
+
+                    # If user is on fifty_game page for under 10 sec
+                    # Delete record
+                    game_fifty.get_fifty_game_deleted(db_pg, get_fifty_game_results["fifty_game_id"])
+                
+                # Clear package from session
+                session.pop("get_fifty_game_results", None)
+
+                return redirect("/nav")
+
+            else:
+
+                redirect("/")
 
         else:
 
-            # Ensure current_game_loc_id is cleared
-            session.pop("current_game_loc_id", None)
+            return redirect("/")
+        
+    else:
+        
+        try:
+            get_fifty_game_active = session["get_fifty_game_active"]
+        except:
+            redirect("/")
+        
+        print(get_fifty_game_active["fifty_game_id"])
+        print(get_fifty_game_active["fifty_game_start"])
 
-            # Ensure session page is cleared before redirecting to "/"
-            session.pop("page", None)
+        return render_template("game_fifty_game.html", 
+                               action="/fifty/game",
+                               page="fifty_game",
+                               map_api_key=map_api_key,
+                               get_fifty_game_active=get_fifty_game_active)
+
+
+####################################################################
+#
+# FIFTY - RESULT
+#
+####################################################################
+@app.route("/fifty/result", methods=["GET", "POST"])
+@login_required
+def game__fifty_result():
+
+    if request.method == "POST":
+
+        page = session["current_page"] = request.form.get("page")
+        goto = session["current_goto"] = request.form.get("goto")
+        nav = session["current_nav"] = request.form.get("nav")
+        bttn = session["current_bttn"] = request.form.get("bttn")
+
+        if (page == "fifty_result") or (page == "dash_fifty"):
+        
+            if (nav == "no"):
+
+                if (bttn == "review"):
+
+                    session.pop("get_fifty_game_review", None)
+
+                    review = request.form.get("review")
+
+                    get_fifty_game_review = game_fifty.get_fifty_game_reviewed(db_pg, 
+                                                                     session["user_id"], 
+                                                                     review)
+
+                    session["get_fifty_game_review"] = get_fifty_game_review 
+
+                    return redirect("/fifty/review")
+                
+                elif (bttn == "stop"):
+
+                    session.pop("get_fifty_game_results", None)
+
+                    return redirect("/dash")
+                
+                else:
+
+                    return redirect("/")
+            
+            elif (nav == "yes"):
+
+                # Clean up session variables
+                session.pop("get_geo_game_active", None)
+                session.pop("get_geo_game_results", None)
+
+                return redirect("/nav")
+            
+            else:
+
+                return redirect("/")
+        
+        else:
 
             return redirect("/")
+            
+    else:
+
+        try:
+            get_fifty_game_results = session["get_fifty_game_results"]
+        except:
+            return redirect("/")
+
+        return render_template("game_fifty_result.html", 
+                               action="/fifty/result",
+                               page="fifty_result", 
+                               map_api_key=map_api_key,
+                               get_fifty_game_results=get_fifty_game_results)
+
+
+####################################################################
+# 
+# FIFTY - REVIEW
+#
+####################################################################
+@app.route("/fifty/review", methods=["GET", "POST"])
+@login_required
+def game__fifty_review():
+
+    if request.method == "POST":
+
+        page = session["current_page"] = request.form.get("page")
+        goto = session["current_goto"] = request.form.get("goto")
+        nav = session["current_nav"] = request.form.get("nav")
+        bttn = session["current_bttn"] = request.form.get("bttn")
+
+        if (page == "fifty_review"):
+
+            if (nav == "no"):
+
+                return redirect("/")
+            
+            elif (nav == "yes"):
+
+                # Clean up session variables
+                session.pop("get_fifty_game_active", None)
+                session.pop("get_fifty_game_results", None)
+                session.pop("get_fifty_game_review", None)
+
+                return redirect("/nav")
+            
+            else:
+
+                return redirect("/")
+
+        else:
+            
+            return redirect("/")
+            
+    else:
+
+        try:
+            get_fifty_game_review = session["get_fifty_game_review"]
+        except:
+            return redirect("/dash/fifty")
+
+        return render_template("game_fifty_review.html", 
+                               action="/fifty/review",
+                               page="fifty_review",
+                               map_api_key=map_api_key,
+                               get_fifty_game_review=get_fifty_game_review)
+    
+
+####################################################################
+# 
+# DASH - START
+#
+####################################################################
+@app.route("/dash", methods=["GET", "POST"])
+@login_required
+def game__dash_start():
+
+    if request.method == "POST":
+
+        return redirect("/")
+    
+    else:
+
+        page = session["current_page"]
+        goto = session["current_goto"]
+        nav = session["current_nav"]
+        bttn = session["current_bttn"]
+
+        if (bttn != "profile_username") and (bttn != "profile_country") and (bttn != "profile_hash"):
+
+            session.pop("profile_message_username", None)
+            session.pop("profile_message_country", None)
+            session.pop("profile_message_password", None)
+
+        # Get values from session
+        try:
+            userid = session["user_id"]
+        except KeyError:
+            return redirect("/")
+
+        if (goto == "dash_geofinder") or (bttn == "dash_geofinder"):
+
+            # Save HEADER and CONTENT packages to Session
+            session["get_dash_geofinder_today"] = datetime.now().strftime('%Y-%m-%d')
+            session["get_dash_geofinder_header"] = game_dash.get_dash_geofinder_header(db_pg, userid)
+            session["get_dash_geofinder_content"] = game_dash.get_dash_geofinder_content(db_pg, userid)
+
+            return redirect("/dash/geofinder")
+
+        elif (goto == "dash_fifty") or (bttn == "dash_fifty"):
+
+            # Save HEADER and CONTENT packages to Session
+            session["get_dash_fifty_header"] = game_dash.get_dash_fifty_header(db_pg, userid) 
+            session["get_dash_fifty_content"] = game_dash.get_dash_fifty_content(db_pg, userid)
+
+            return redirect("/dash/fifty")
+    
+        elif (goto == "dash_main") or (bttn == "dash"):
+
+            # Save HEADER and CONTENT packages to Session
+            session["get_dash_main"] = game_dash.get_dash_main(db_pg, userid)
+            session["get_dash_geofinder_header"] = game_dash.get_dash_geofinder_header(db_pg, userid)
+            session["get_dash_fifty_header"] = game_dash.get_dash_fifty_header(db_pg, userid) 
+
+            return redirect("/dash/main")
+
+        else:
+
+            return redirect("/")
+
+
+####################################################################
+# 
+# DASH - MAIN
+#
+####################################################################
+@app.route("/dash/main", methods=["GET", "POST"])
+@login_required
+def game__dash_main():
+
+    if request.method == "POST":
+
+        page = session["current_page"] = request.form.get("page")
+        goto = session["current_goto"] = request.form.get("goto")
+        nav = session["current_nav"] = request.form.get("nav")
+        bttn = session["current_bttn"] = request.form.get("bttn")
+
+        if (page == "dash_main"):
+
+            if (nav == "no"):
+
+                username = request.form.get("username")
+                country = request.form.get("country")
+                pass_old = request.form.get("pass_old")
+                pass_new = request.form.get("pass_new")
+                pass_again = request.form.get("pass_again")
+
+                session.pop("profile_message_username", None)
+                session.pop("profile_message_country", None)
+                session.pop("profile_message_password", None)
+
+                if (bttn == "profile_username"): 
+
+                    if username:
+                        results = game_dash.get_dash_main_updated_username(db_pg,
+                                                                           username, 
+                                                                           session["user_id"])
+                        
+                        if results == 1:
+                            session["profile_message_username"] = "Username changed"
+                            session["username"] = username
+
+                    else:
+                        session["profile_message_username"] = "Username not changed"
+
+                if (bttn == "profile_country"): 
+
+                    if country:
+                        results = game_dash.get_dash_main_updated_country(db_pg, 
+                                                                               country, 
+                                                                               session["user_id"])
+                        
+                        if results == 1:
+                            session["profile_message_country"] = "Country changed"
+                    
+                    else:
+                        session["profile_message_country"] = "Country not changed"
+                
+                if (bttn == "profile_hash"): 
+
+                    if pass_old:
+
+                        user = get_user_info(db_pg, session["username"])
+
+                        if len(user) < 1 or not check_password_hash(user["hash"], pass_old):
+                            session["profile_message_password"] = "Wrong password"
+
+                        if pass_new == pass_again:
+                            new_password = generate_password_hash(pass_again)
+                            try:
+                                game_dash.get_dash_main_updated_hash(db_pg, new_password, session["user_id"])
+                                session["profile_message_password"] = "New password saved"
+                            except (ValueError, RuntimeError):
+                                session["profile_message_password"] = "New password not saved"
+                        else:
+                            session["profile_message_password"] = "New password did not match"
+
+                    else:
+                        session["profile_message_password"] = "New password not saved"
+                
+                return redirect("/dash")
+            
+            elif (nav == "yes"):
+
+                return redirect("/nav")
+            
+            else:
+
+                return redirect("/")
+
+        else:
+
+            return redirect("/")
+    
+    else:
+
+        try:
+            main = session["get_dash_main"]
+        except:
+            return redirect("/")
+        
+        try:
+            header_geofinder = session["get_dash_geofinder_header"]
+            
+        except:
+            return redirect("/")
+        
+        try:
+            header_fifty = session["get_dash_fifty_header"]
+        except:
+            return redirect("/")
+        
+        try:
+            profile_message_username = session["profile_message_username"]
+        except:
+            profile_message_username = None
+        
+        try:
+            profile_message_country = session["profile_message_country"]
+        except:
+            profile_message_country = None
+        
+        try:
+            profile_message_password = session["profile_message_password"]
+        except:
+            profile_message_password = None
+
+        return render_template("game_dash_main.html", 
+                               action="/dash/main",
+                               page="dash_main", 
+                               map_api_key=map_api_key,
+                               main=main,
+                               header_geofinder=header_geofinder,
+                               header_fifty=header_fifty,
+                               profile_message_username=profile_message_username,
+                               profile_message_country=profile_message_country,
+                               profile_message_password=profile_message_password)
+
+
+####################################################################
+# 
+# DASH - GEOFINDER
+#
+####################################################################
+@app.route("/dash/geofinder", methods=["GET", "POST"])
+@login_required
+def game__dash_geofinder():
+
+    if request.method == "POST":
+
+        page = session["current_page"] = request.form.get("page")
+        goto = session["current_goto"] = request.form.get("goto")
+        nav = session["current_nav"] = request.form.get("nav")
+        bttn = session["current_bttn"] = request.form.get("bttn")
+
+        if (page == "dash_geofinder"):
+
+            if (nav == "no"):
+
+                if (bttn == "review"):
+
+                    review = request.form.get("review")
+
+                    get_geo_game_review = game_geo.get_geo_game_reviewed(db_pg,
+                                                                         session["user_id"],
+                                                                         review)
+
+                    session["get_geo_game_review"] = get_geo_game_review
+
+                    return redirect("/geofinder/review")
+                
+                elif (bttn == "dash") or (bttn == "dash_geofinder"):
+
+                    return redirect("/dash")
+
+                else:     
+                
+                    return redirect("/")
+            
+            elif (nav == "yes"):
+
+                # Clean up session variables
+                session.pop("get_geo_game_active", None)
+                session.pop("get_geo_game_results", None)
+                session.pop("get_geo_game_review", None)
+
+                return redirect("/nav")
+            
+            else:
+
+                return redirect("/")
+
+        else:
+            
+            return redirect("/")
+            
+    else:
+
+        try:
+            today = session["get_dash_geofinder_today"]
+            header = session["get_dash_geofinder_header"]
+            content = session["get_dash_geofinder_content"]
+        except:
+            return redirect("/")
+        
+        return render_template("game_dash_geofinder.html", 
+                               action="/dash/geofinder",
+                               page="dash_geofinder", 
+                               map_api_key=map_api_key,
+                               today=today,
+                               header=header,
+                               content=content)
+    
+
+####################################################################
+# 
+# DASH - FIFTY
+#
+####################################################################
+@app.route("/dash/fifty", methods=["GET", "POST"])
+@login_required
+def game__dash_fifty():
+
+    if request.method == "POST":
+
+        page = session["current_page"] = request.form.get("page")
+        goto = session["current_goto"] = request.form.get("goto")
+        nav = session["current_nav"] = request.form.get("nav")
+        bttn = session["current_bttn"] = request.form.get("bttn")
+
+        if (page == "dash_fifty"):
+
+            if (nav == "no"):
+
+                if (bttn == "review"):
+
+                    session.pop("get_fifty_game_review", None)
+
+                    review = request.form.get("review")
+
+                    get_fifty_game_review = game_fifty.get_fifty_game_reviewed(db_pg, 
+                                                                               session["user_id"], 
+                                                                               review)
+
+                    session["get_fifty_game_review"] = get_fifty_game_review 
+
+                    return redirect("/fifty/review")
+
+                elif (bttn == "dash") or (bttn == "dash_fifty"):
+
+                    return redirect("/dash")
+                
+                else:     
+                
+                    return redirect("/")
+            
+            elif (nav == "yes"):
+
+                # Clean up session variables
+                session.pop("get_geo_game_active", None)
+                session.pop("get_geo_game_results", None)
+                session.pop("get_geo_game_review", None)
+
+                return redirect("/nav")
+            
+            else:
+
+                return redirect("/")
+
+        else:
+            
+            return redirect("/")
+    
+    else:
+
+        try:
+            header = session["get_dash_fifty_header"]
+            content = session["get_dash_fifty_content"]
+        except:
+            return redirect("/")
+
+        return render_template("game_dash_fifty.html", 
+                               action="/dash/fifty",
+                               page="dash_fifty", 
+                               map_api_key=map_api_key,
+                               header=header,
+                               content=content)
 
 
 ####################################################################
@@ -431,35 +1394,43 @@ def result():
 #
 ####################################################################
 @app.route("/about", methods=["GET", "POST"])
-def about():
-    """Get about page."""
+def game__about():
 
-    # Get values from session
-    try:
-        userid = session["user_id"]
-    except KeyError:
-        userid = 0
-    
-    try:
-        username = session["username"]
-    except KeyError:
-        username = None
-    
-    try:
-        total1 = session["user_summary_percent"]
-    except KeyError:
-        total1 = 0
+    if request.method == "POST":
 
-    # Ensure session page is set to "about" before about.html is rendered
-    session["page"] = "about"
+        page = session["current_page"] = request.form.get("page")
+        goto = session["current_goto"] = request.form.get("goto")
+        nav = session["current_nav"] = request.form.get("nav")
+        bttn = session["current_bttn"] = request.form.get("bttn")
+
+        return redirect("/nav")
     
-    return render_template("about.html", 
-                           page="about", 
-                           userid=userid, 
-                           username=username, 
-                           total1=total1,
-                           map_api_key=map_api_key,
-                           new_registrations=new_registrations)
+    else:
+
+        # Get values from session
+        try:
+            userid = session["user_id"]
+        except KeyError:
+            userid = 0
+        
+        try:
+            username = session["username"]
+        except KeyError:
+            username = None
+        
+        try:
+            total1 = session["user_summary_percent"]
+        except KeyError:
+            total1 = 0
+
+        # Ensure session page is set to "about" before about.html is rendered
+        session["page"] = "about"
+        
+        return render_template("about.html", 
+                            action="/about",
+                            page="about", 
+                            map_api_key=map_api_key,
+                            new_registrations=new_registrations)
 
 
 ####################################################################
@@ -468,814 +1439,99 @@ def about():
 #
 ####################################################################
 @app.route("/howto", methods=["GET", "POST"])
-def howto():
-    """Get how to page"""
-
-    # Get values from session
-    try:
-        userid = session["user_id"]
-    except KeyError:
-        userid = 0
-    
-    try:
-        username = session["username"]
-    except KeyError:
-        username = None
-    
-    try:
-        total1 = session["user_summary_percent"]
-    except KeyError:
-        total1 = 0
-
-    # Ensure session page is set to "howto" before howto.html is rendered
-    session["page"] = "howto"
-    
-    return render_template("howto.html", 
-                           page="howto", 
-                           userid=userid, 
-                           username=username, 
-                           total1=total1, 
-                           map_api_key=map_api_key,
-                           new_registrations=new_registrations)
-
-
-####################################################################
-# 
-# PROFILE
-#
-####################################################################
-@app.route("/profile", methods=["GET", "POST"])
-@login_required
-def profile():
-    """Get how to page"""
-
-    # Get values from session
-    try:
-        userid = session["user_id"]
-    except KeyError:
-        userid = 0
-    
-    try:
-        username = session["username"]
-    except KeyError:
-        username = None
-    
-    try:
-        total1 = session["user_summary_percent"]
-    except KeyError:
-        total1 = 0
-
-    profile = queries.get_profile_user(db_pg,
-                                       userid)
-    
-    results = queries.get_profile_summary(db_pg, 
-                                          userid)
-
-    try:
-        profile_message_username = session["profile_message_username"]
-    except KeyError:
-        profile_message_username = "None"
-
-    try:
-        profile_message_country = session["profile_message_country"]
-    except KeyError:
-        profile_message_country = "None"
-    
-    try:
-        profile_message_password = session["profile_message_password"]
-    except KeyError:
-        profile_message_password = "None"
-
-    # Ensure session messages cleared
-    session.pop("profile_message_username", None)
-    session.pop("profile_message_country", None)
-    session.pop("profile_message_password", None)
-    
-    # Ensure session page is set to "howto" before howto.html is rendered
-    session["page"] = "profile"
-    
-    return render_template("profile.html", 
-                           page="profile", 
-                           userid=userid, 
-                           username=username, 
-                           total1=total1, 
-                           map_api_key=map_api_key,
-                           profile=profile,
-                           data=results,
-                           profile_message_username=profile_message_username,
-                           profile_message_country=profile_message_country,
-                           profile_message_password=profile_message_password)
-
-
-####################################################################
-# 
-# PROFILE - GEO50X
-#
-####################################################################
-@app.route("/profile/fifty", methods=["GET", "POST"])
-@login_required
-def profile_fifty():
-    """Show user history of games """
+def game__howto():
 
     if request.method == "POST":
 
-        return redirect("/")
-    
-    else:
-
-        summaries = queries.get_profile_summary(db_pg, session["user_id"])
-
-        locs_playable_count, history = queries.get_history(db_pg, session["user_id"])
-
-        # Ensure session page is set to "history" before history.html is rendered
-        session["page"] = "profile_fifty"
-
-        return render_template("profile_fifty.html", 
-                               page="profile_fifty", 
-                               summary=summaries,
-                               locs_playable_count=locs_playable_count, 
-                               history=history, 
-                               userid=session["user_id"], 
-                               username=session["username"], 
-                               total1=summaries["user_score_percentage"], 
-                               map_api_key=map_api_key)
-
-
-####################################################################
-# 
-# PROFILE - EDIT
-#
-####################################################################
-@app.route("/profile/edit", methods=["GET", "POST"])
-@login_required
-def profile_edit():
-    """Show user history of games """
-
-    if request.method == "POST":
-
-        username = request.form.get("username")
-        country = request.form.get("country")
-        pass_old = request.form.get("pass_old")
-        pass_new = request.form.get("pass_new")
-        pass_again = request.form.get("pass_again")
-
-        if username:
-            results = queries.get_profile_updated_username(db_pg, 
-                                                           username, 
-                                                           session["user_id"])
-            
-            if results == 1:
-                session["profile_message_username"] = "Username changed"
-                session["username"] = username
-            else:
-                session["profile_message_username"] = "Username not changed"
-
-        if country:
-            results = queries.get_profile_updated_country(db_pg, 
-                                                          country, 
-                                                          session["user_id"])
-            
-            if results == 1:
-                session["profile_message_country"] = "Country changed"
-            else:
-                session["profile_message_country"] = "Country not changed"
-        
-        if pass_old:
-            user = queries.get_user_info(db_pg, session["username"])
-
-            if len(user) < 1 or not check_password_hash(user["hash"], pass_old):
-                session["profile_message_password"] = "Wrong password"
-
-            if pass_new == pass_again:
-                new_password = generate_password_hash(pass_again)
-                try:
-                    queries.get_profile_updated_password(db_pg, new_password, session["user_id"])
-                    session["profile_message_password"] = "New password saved"
-                except (ValueError, RuntimeError):
-                    session["profile_message_password"] = "New password not saved"
-            else:
-                session["profile_message_password"] = "New password did not match"
-
-        return redirect("/profile")
-    
-    else:
-
-        return redirect("/")
-    
-
-####################################################################
-# 
-# ADMIN - DASHBOARD - MAIN
-#
-####################################################################
-@app.route("/admin", methods=["GET", "POST"])
-@login_required
-def admin_dashboard():
-    """Show user history of games """
-
-    if request.method == "POST":
-
-        if session["status"] == "admin":
- 
-            loc_id = int(request.form.get("loc-edit"))
-
-            if loc_id > 0:
-
-                location = queries.get_locs_single(db_pg, loc_id)
-
-                if location["loc_key_shp"]:
-
-                    # Convert the PostGIS geometry into a Shapely geometry object
-                    geometry = shapely.wkb.loads(location["loc_key_shp"], hex=True)
-
-                    # Extract the polygon coordinates
-                    polygon_coordinates = list(geometry.exterior.coords)
-                    
-                    # Convert the polygon coordinates into a format suitable for the Google Maps API
-                    polygon = []
-                    for coordinate in polygon_coordinates:
-                        polygon.append({"lat": coordinate[1], "lng": coordinate[0]})
-                    
-                    # Convert the Google Maps polygon to JSON
-                    google_maps_polygon = json.dumps(polygon)    
-
-                else:
-                    google_maps_polygon = queries.get_locs_corners(float(location["loc_key_lat"]), 
-                                                                float(location["loc_key_lng"]))
-                    
-                    google_maps_polygon = json.dumps(google_maps_polygon)   
-
-                # Ensure session page is set to "locs-edit" before locs_edit.html is rendered
-                session["page"] = "locs-edit"
-            
-                return render_template("locs_edit.html", 
-                                        data=location, 
-                                        polygon=google_maps_polygon,
-                                        page="locs-edit", 
-                                        userid=session["user_id"], 
-                                        username=session["username"], 
-                                        total1=session["user_summary_percent"], 
-                                        map_api_key=map_api_key)
-            
-            elif loc_id == 0:
-
-                result = queries.get_locs_refreshed(db_pg)
-
-                return redirect("/locs")
-
-            else:
-
-                return redirect("/")
-        
-        else:
-
-            return redirect("/")
-    
-    else:
-
-        if session["status"] == "admin":
-
-            keys = queries.get_locs(db_pg)
-
-            # Ensure session page is set to "history" before history.html is rendered
-            session["page"] = "history"
-
-            return render_template("admin.html", 
-                                keys=keys,
-                                page="keys", 
-                                userid=session["user_id"], 
-                                username=session["username"], 
-                                total1=session["user_summary_percent"], 
-                                map_api_key=map_api_key)
-        
-        else:
-
-            return redirect("/")
-        
-
-####################################################################
-# 
-# ADMIN - DASHBOARD - GEO50x
-#
-####################################################################
-@app.route("/admin/fifty", methods=["GET", "POST"])
-@login_required
-def admin_fifty():
-    """Show user history of games """
-
-    if request.method == "POST":
-
-        if session["status"] == "admin":
- 
-            loc_id = int(request.form.get("loc-edit"))
-
-            if loc_id > 0:
-
-                location = queries.get_locs_single(db_pg, loc_id)
-
-                if location["loc_key_shp"]:
-
-                    # Convert the PostGIS geometry into a Shapely geometry object
-                    geometry = shapely.wkb.loads(location["loc_key_shp"], hex=True)
-
-                    # Extract the polygon coordinates
-                    polygon_coordinates = list(geometry.exterior.coords)
-                    
-                    # Convert the polygon coordinates into a format suitable for the Google Maps API
-                    polygon = []
-                    for coordinate in polygon_coordinates:
-                        polygon.append({"lat": coordinate[1], "lng": coordinate[0]})
-                    
-                    # Convert the Google Maps polygon to JSON
-                    google_maps_polygon = json.dumps(polygon)    
-
-                else:
-                    google_maps_polygon = queries.get_locs_corners(float(location["loc_key_lat"]), 
-                                                                float(location["loc_key_lng"]))
-                    
-                    google_maps_polygon = json.dumps(google_maps_polygon)   
-
-                # Ensure session page is set to "locs-edit" before locs_edit.html is rendered
-                session["page"] = "admin_fifty_edit"
-            
-                return render_template("admin_fifty_edit.html", 
-                                        data=location, 
-                                        polygon=google_maps_polygon,
-                                        page="admin_fifty_edit", 
-                                        userid=session["user_id"], 
-                                        username=session["username"], 
-                                        total1=session["user_summary_percent"], 
-                                        map_api_key=map_api_key)
-            
-            elif loc_id == 0:
-
-                result = queries.get_locs_refreshed(db_pg)
-
-                return redirect("/admin/fifty")
-
-            else:
-
-                return redirect("/")
-        
-        else:
-
-            return redirect("/")
-    
-    else:
-
-        if session["status"] == "admin":
-
-            locs_fifty = queries.get_locs(db_pg)
-
-            locs_fifty_status = queries.get_locs_fifty_status(db_pg)
-
-            # Ensure session page is set to "admin_fifty" before admin_fifty.html.html is rendered
-            session["page"] = "admin_fifty"
-
-            return render_template("admin_fifty.html", 
-                                    locs=locs_fifty,
-                                    page="admin_fifty", 
-                                    locs_fifty_status=locs_fifty_status,
-                                    userid=session["user_id"], 
-                                    username=session["username"], 
-                                    total1=session["user_summary_percent"], 
-                                    map_api_key=map_api_key)
-        
-        else:
-
-            return redirect("/")
-        
-
-####################################################################
-# 
-# ADMIN - DASHBOARD - GEO50x - EDIT
-#
-####################################################################
-@app.route("/admin/fifty/edit", methods=["GET", "POST"])
-@login_required
-def admin_fifty_edit():
-    """Show user history of games """
-
-    if request.method == "POST":
-
-        if session["status"] == "admin":
- 
-            loc_id = request.form.get("loc-id")
-            property_coordinates = request.form.get("propertyCoordinates")
-
-            if loc_id: 
-
-                if property_coordinates:
-
-                    # Convert string to list
-                    property_coordinates = eval("[" + property_coordinates + "]")
-
-                    # Convert to list of dicts
-                    property_coordinates = [{"lat": lat, "lng": lng} for lat, lng in property_coordinates]
-
-                    result = shapefile(db_pg, property_coordinates, int(loc_id))
-
-                    return redirect("/admin/fifty")
-
-                else:
-
-                    return redirect("/admin/fifty")
-            
-            else: 
-    
-                return redirect("/admin/fifty")
-        
-        else:
-
-            return redirect("/")
-    
-    else:
-
-        if session["status"] == "admin":
-
-            return redirect("/")
-        
-        else:
-
-            return redirect("/")
-        
-
-####################################################################
-# 
-# ADMIN - DASHBOARD - USERS
-#
-####################################################################
-@app.route("/admin/users", methods=["GET", "POST"])
-@login_required
-def admin_users():
-    """Show user history of games """
-
-    if request.method == "POST":
-
-        profile_message_username = ""
-        profile_message_country = ""
-        profile_message_password = ""
-        
-        if session["status"] == "admin":
- 
-            userid = request.form.get("admin-user-id")
-
-            profile = queries.get_profile_user(db_pg,
-                                               userid)
-
-            results = queries.get_profile_summary(db_pg, 
-                                                  userid)
-
-            try:
-                profile_message_username = session["profile_message_username"]
-            except KeyError:
-                profile_message_username = "None"
-
-            try:
-                profile_message_country = session["profile_message_country"]
-            except KeyError:
-                profile_message_country = "None"
-
-            try:
-                profile_message_password = session["profile_message_password"]
-            except KeyError:
-                profile_message_password = "None"
-
-            # Ensure session messages cleared
-            session.pop("profile_message_username", None)
-            session.pop("profile_message_country", None)
-            session.pop("profile_message_password", None)
-
-            # Ensure session page is set to "howto" before howto.html is rendered
-            session["page"] = "profile"
-
-            return render_template("admin_users_edit.html", 
-                                    page="profile", 
-                                    userid=session["user_id"], 
-                                    username=session["username"], 
-                                    total1=session["user_summary_percent"], 
-                                    map_api_key=map_api_key,
-                                    profile=profile,
-                                    data=results,
-                                    profile_message_username=profile_message_username,
-                                    profile_message_country=profile_message_country,
-                                    profile_message_password=profile_message_password)
-        
-        else:
-
-            return redirect("/")
-    
-    else:
-
-        if session["status"] == "admin":
-
-            header = queries.get_header_admin_users(db_pg)
-            users = queries.get_table_admin_users(db_pg)
-
-            # Ensure session page is set to "admin_fifty" before admin_fifty.html.html is rendered
-            session["page"] = "admin_users"
-
-            return render_template("admin_users.html", 
-                                    page="admin_fifty", 
-                                    userid=session["user_id"], 
-                                    username=session["username"], 
-                                    total1=session["user_summary_percent"], 
-                                    map_api_key=map_api_key,
-                                    header=header,
-                                    users=users)
-        
-        else:
-
-            return redirect("/")
-
-
-####################################################################
-# 
-# ADMIN - DASHBOARD - USERS - EDIT
-#
-####################################################################
-@app.route("/admin/users/edit", methods=["GET", "POST"])
-@login_required
-def admin_users_edit():
-
-    if request.method == "POST":
-
-        if session["status"] == "admin":
-
-            profile_message_username = ""
-            profile_message_country = ""
-            profile_message_password = ""
-
-            admin_edit_user_id = request.form.get("admin-user-id")
-            username = request.form.get("username")
-            country = request.form.get("country")
-            # pass_old = request.form.get("pass_old")
-            pass_new = request.form.get("pass_new")
-            pass_again = request.form.get("pass_again")
-
-            if username:
-                results = queries.get_profile_updated_username(db_pg, 
-                                                               username, 
-                                                               admin_edit_user_id)
-                
-                if results == 1:
-                    session["profile_message_username"] = "Username changed"
-                else:
-                    session["profile_message_username"] = "Username not changed"
-
-            if country:
-                results = queries.get_profile_updated_country(db_pg, 
-                                                              country, 
-                                                              admin_edit_user_id)
-                
-                if results == 1:
-                    session["profile_message_country"] = "Country changed"
-                else:
-                    session["profile_message_country"] = "Country not changed"
-
-            if pass_new:
-                if pass_new == pass_again:
-                    new_password = generate_password_hash(pass_again)
-                    try:
-                        queries.get_profile_updated_password(db_pg, new_password, admin_edit_user_id)
-                        session["profile_message_password"] = "New password saved"
-                    except (ValueError, RuntimeError):
-                        session["profile_message_password"] = "New password not saved"
-                else:
-                    session["profile_message_password"] = "New password did not match"
-
-            profile = queries.get_profile_user(db_pg,
-                                               admin_edit_user_id)
-
-            results = queries.get_profile_summary(db_pg, 
-                                                  admin_edit_user_id)
-
-            try:
-                profile_message_username = session["profile_message_username"]
-            except KeyError:
-                profile_message_username = "None"
-
-            try:
-                profile_message_country = session["profile_message_country"]
-            except KeyError:
-                profile_message_country = "None"
-
-            try:
-                profile_message_password = session["profile_message_password"]
-            except KeyError:
-                profile_message_password = "None"
-
-            # Ensure session messages cleared
-            session.pop("profile_message_username", None)
-            session.pop("profile_message_country", None)
-            session.pop("profile_message_password", None)
-
-            # Ensure session page is set to "howto" before howto.html is rendered
-            session["page"] = "profile"
-
-            return render_template("admin_users_edit.html", 
-                                    page="profile", 
-                                    userid=session["user_id"], 
-                                    username=session["username"], 
-                                    total1=session["user_summary_percent"], 
-                                    map_api_key=map_api_key,
-                                    profile=profile,
-                                    data=results,
-                                    profile_message_username=profile_message_username,
-                                    profile_message_country=profile_message_country,
-                                    profile_message_password=profile_message_password)
-        
-        else:
-
-            return redirect("/")
-    
-    else:
-
-        return redirect("/")
-        
-
-####################################################################
-# 
-# ADMIN - DASHBOARD - USERS - ADD
-#
-####################################################################
-@app.route("/admin/users/add", methods=["GET", "POST"])
-@login_required
-def admin_users_add():
-
-    if request.method == "POST":
-
-        if session["status"] == "admin":
-
-            # Ensure username was submitted
-            if not request.form.get("username"):
-                return apology("must provide username", 400)
-            # Ensure password was submitted
-            elif not request.form.get("password"):
-                return apology("must provide password", 400)
-            else:
-                # Ensure password and confirmation match
-                new_password = request.form.get("password")
-                confirmation = request.form.get("confirmation")
-                if new_password == confirmation:
-                    new_username = request.form.get("username")
-                    new_password = generate_password_hash(confirmation)
-                    try:
-                        queries.get_registered(db_pg, new_username, new_password)
-                    except (ValueError, RuntimeError):
-                        return apology("username is already taken", 400)
-                    return redirect("/admin/users")
-                else:
-                    return apology("password did not match", 400)
-        
-        else:
-
-            return redirect("/")
+        session["current_page"] = request.form.get("page")
+        session["current_goto"] = request.form.get("goto")
+        session["current_nav"] = request.form.get("nav")
+        session["current_bttn"] = request.form.get("bttn")
+
+        return redirect("/nav")
     
     else:
         
-        if session["status"] == "admin":
-
-            # Ensure session page is set to "register" before register.html is rendered
-            session["page"] = "register"
-
-            return render_template("admin_users_add.html", 
-                                   page="register", 
-                                   userid=session["user_id"], 
-                                   username=session["username"], 
-                                   total1=session["user_summary_percent"], 
-                                   map_api_key=map_api_key,
-                                   button="bttn-admin")
-    
-        else:
-
-            return redirect("/")
-        
-
-####################################################################
-# 
-# HISTORY
-#
-####################################################################
-@app.route("/history", methods=["GET", "POST"])
-@login_required
-def history():
-    """Show user history of games """
-
-    if request.method == "POST":
-
-        return redirect("/")
-    
-    else:
-
-        locs_playable_count, history = queries.get_history(db_pg, session["user_id"])
-
-        # Ensure session page is set to "history" before history.html is rendered
-        session["page"] = "history"
-
-        return render_template("history.html", 
-                            page="history", 
-                            locs_playable_count=locs_playable_count, 
-                            history=history, userid=session["user_id"], 
-                            username=session["username"], 
-                            total1=session["user_summary_percent"], 
-                            map_api_key=map_api_key)
-
-
-####################################################################
-# 
-# REVIEW
-#
-####################################################################
-@app.route("/review", methods=["GET", "POST"])
-@login_required
-def review():
-    """Review game"""
-
-    if request.method == "POST":
-
-        page = session["current_page"] = request.form.get("page")
-        goto = session["current_goto"] = request.form.get("goto")
-        review = request.form.get("review")
-
-        loc_info, locations_right, locations_wrong, locations_none, locations_quit, time_clock = queries.get_history_review(db_pg, session["user_id"], review)
-
-        # Get offset latitude to position infowindow on map
-        loc_lat_game_offset = latitude_offset(float(loc_info["loc_view_lat"]), float(loc_info["loc_view_lng"]))
-
-        locations_shift = []
-        shift = 221
-        for i in range(locations_none["count"]):
-            lat, lng = longitude_offset(float(loc_info["loc_view_lat"]), float(loc_info["loc_view_lng"]), shift)
-            
-            latlng = {"game_lat": str(lat), "game_lng": str(lng)}
-            locations_shift.append(latlng)
-            
-            i += 1
-            shift += 20
-
-        return render_template("review.html", 
-                               location=loc_info, 
-                               locations_right=locations_right, 
-                               locations_wrong=locations_wrong, 
-                               locations_none=locations_shift,
-                               locations_quit=locations_quit, 
-                               time_clock=time_clock["time_clock"], 
-                               username=session["username"], 
-                               total1=session["user_summary_percent"], 
-                               loc_lat_game_offset=loc_lat_game_offset, 
-                               map_api_key=map_api_key)
-            
-    else:
-
-        return redirect("/")
+        return render_template("howto.html", 
+                               action="/howto",
+                               page="howto", 
+                               map_api_key=map_api_key,
+                               new_registrations=new_registrations)
 
 
 ####################################################################
 # 
 # REGISTER 
-# Adapted from submitted solution to Finance problem
 #
 ####################################################################
 @app.route("/register", methods=["GET", "POST"])
-def register():
-    """Register user"""
+def game__register():
 
     if request.method == "POST":
 
-        # Ensure username was submitted
-        if not request.form.get("username"):
-            return apology("must provide username", 400)
-        # Ensure password was submitted
-        elif not request.form.get("password"):
-            return apology("must provide password", 400)
-        else:
-            # Ensure password and confirmation match
-            new_password = request.form.get("password")
-            confirmation = request.form.get("confirmation")
-            if new_password == confirmation:
-                new_username = request.form.get("username")
-                new_password = generate_password_hash(confirmation)
-                try:
-                    queries.get_registered(db_pg, new_username, new_password)
-                except (ValueError, RuntimeError):
-                    return apology("username is already taken", 400)
-                return redirect("/")
+        page = session["current_page"] = request.form.get("page")
+        goto = session["current_goto"] = request.form.get("goto")
+        nav = session["current_nav"] = request.form.get("nav")
+        bttn = session["current_bttn"] = request.form.get("bttn")
+
+        if (page == "register"):
+
+            if (nav == "no"):
+
+                # Ensure username was submitted
+                if not request.form.get("username"):
+
+                    return apology("must provide username", 400)
+                
+                # Ensure password was submitted
+                elif not request.form.get("password"):
+
+                    return apology("must provide password", 400)
+                
+                else:
+
+                    # Ensure password and confirmation match
+                    new_password = request.form.get("password")
+                    confirmation = request.form.get("confirmation")
+
+                    if new_password == confirmation:
+
+                        new_username = request.form.get("username")
+                        new_password = generate_password_hash(confirmation)
+
+                        results = get_registered(db_pg, new_username, new_password)
+
+                        if results != 1:
+                            return apology("username is already taken", 400)
+                        else:
+                            return redirect("/")
+                    
+                    else:
+
+                        return apology("password did not match", 400)
+            
+            elif (nav == "yes"):
+
+                return redirect("/nav")
+            
             else:
-                return apology("password did not match", 400)
+
+                return redirect("/")
+        
+        else:
+
+            return redirect("/")
             
     else:
 
         if new_registrations:
 
-            # Ensure session page is set to "register" before register.html is rendered
-            session["page"] = "register"
-
             return render_template("register.html", 
-                                page="register", 
-                                map_api_key=map_api_key,
-                                button="bttn-primary",
-                                new_registrations=new_registrations)
+                                   action="/register", 
+                                   page="register", 
+                                   map_api_key=map_api_key,
+                                   button="bttn-primary",
+                                   new_registrations=new_registrations)
         
         else:
 
@@ -1285,49 +1541,76 @@ def register():
 ####################################################################
 # 
 # LOGIN
-# Adapted from Finance template
+# Adapted from CS50x pset Finance 
 #
 ####################################################################
 @app.route("/login", methods=["GET", "POST"])
-def login():
-    """Log user in"""
+def game__login():
 
-    # Forget any user_id
-    session.clear()
-
+    page = session["current_page"] = request.form.get("page")
+    goto = session["current_goto"] = request.form.get("goto")
+    nav = session["current_nav"] = request.form.get("nav")
+    bttn = session["current_bttn"] = request.form.get("bttn")
+    
     if request.method == "POST":
 
-        # Ensure username was submitted
-        if not request.form.get("username"):
-            return apology("must provide username", 403)
+        if (page == "login"):
 
-        # Ensure password was submitted
-        elif not request.form.get("password"):
-            return apology("must provide password", 403)
+            if (nav == "no"):
 
-        # Query database for username
-        user = queries.get_user_info(db_pg, request.form.get("username"))
+                if (bttn == "login"):
 
-        # Ensure username exists and password is correct
-        if user:
-            if not check_password_hash(user["hash"], request.form.get("password")):
-                return apology("invalid username and/or password", 403)
+                    # Forget any user_id
+                    session.clear()
+
+                    # Ensure username was submitted
+                    if not request.form.get("username"):
+                        return apology("must provide username", 403)
+
+                    # Ensure password was submitted
+                    elif not request.form.get("password"):
+                        return apology("must provide password", 403)
+
+                    # Query database for username
+                    user = get_user_info(db_pg, request.form.get("username"))
+
+                    # Ensure username exists and password is correct
+                    if user:
+                        if not check_password_hash(user["hash"], request.form.get("password")):
+                            return apology("invalid username and/or password", 403)
+                    else:
+                        return apology("invalid username and/or password", 403)
+
+                    # Remember which user has logged in
+                    session["user_id"] = user["id"]
+                    session["username"] = user["username"]
+                    session["status"] = user["status"]
+                    session["n1"] = game_dash.get_dash_kpi_geofinder(db_pg, user["id"])
+                    session["n2"] = game_dash.get_dash_kpi_fifty(db_pg, user["id"])
+
+                    # Redirect user to home page
+                    return redirect("/")
+                
+                else:
+
+                    redirect ("/")
+            
+            elif (nav == "yes"):
+
+                return redirect("/nav")
+            
+            else:
+
+                return redirect("/")
+        
         else:
-            return apology("invalid username and/or password", 403)
 
-        # Remember which user has logged in
-        session["user_id"] = user["id"]
-        session["username"] = user["username"]
-        session["status"] = user["status"]
-
-        # Redirect user to home page
-        return redirect("/")
+            return redirect("/")
     
     else:
-        # Ensure session page is set to "login" before login.html is rendered
-        session["page"] = "login"
 
         return render_template("login.html", 
+                               action="/login",
                                page="login", 
                                map_api_key=map_api_key,
                                new_registrations=new_registrations)
@@ -1335,12 +1618,56 @@ def login():
 
 ####################################################################
 # 
-# LOGOUT function unchaged from Finance template
+# Error
+#
+####################################################################
+@app.route("/error", methods=["GET", "POST"])
+def game__error():
+
+    page = session["current_page"] = request.form.get("page")
+    goto = session["current_goto"] = request.form.get("goto")
+    nav = session["current_nav"] = request.form.get("nav")
+    bttn = session["current_bttn"] = request.form.get("bttn")
+    
+    if request.method == "POST":
+
+        if (page == "error"):
+
+            if (nav == "no"):
+
+                redirect ("/")
+            
+            elif (nav == "yes"):
+
+                return redirect("/nav")
+            
+            else:
+
+                return redirect("/")
+        
+        else:
+
+            return redirect("/")
+
+    else:
+
+        error = session["error_message"]
+        
+        return render_template("game_error.html", 
+                               action="/error",
+                               page="error", 
+                               map_api_key=map_api_key,
+                               new_registrations=new_registrations,
+                               error=error)
+    
+
+####################################################################
+# 
+# LOGOUT 
 #
 ####################################################################
 @app.route("/logout", methods=["GET", "POST"])
-def logout():
-    """Log user out"""
+def game__logout():
 
     # Forget any user_id
     session.clear()
@@ -1348,325 +1675,118 @@ def logout():
     # Redirect user to login form
     return redirect("/")
 
-
 ####################################################################
 #
-# TRAFFIC
+# NAVIGATION
 #
 ####################################################################
-@app.route("/traffic", methods=["GET", "POST"])
-def traffic():
-
-    page = session["current_page"] = request.form.get("page")
-    goto = session["current_goto"] = request.form.get("goto")
-
-    try:
-        try_again = session["try_again"] = request.form.get("try-again")
-    except KeyError:
-        try_again = session["try_again"] = 0
-
-    # Set current_game_loc_id if Try Again clicked from Search History page
-    if request.form.get("try-again-loc-id"):
-        try_again_loc_id = session["current_game_loc_id"] = request.form.get("try-again-loc-id")
-    else:
-        try_again_loc_id = 0
-
-    if "current_game_id" not in session:
-        session["current_game_id"] = 0
-
-    if session.get("user_id") is None:
-        return redirect("/tout")
-    
-    else:
-        return redirect("/tin")
-
-
-####################################################################
-#
-# TRAFFIC - OUT
-#
-####################################################################
-@app.route("/tout", methods=["GET", "POST"])
-def traffic_out():
-
-    page = session["current_page"]
-    goto = session["current_goto"]
+@app.route("/nav", methods=["GET", "POST"])
+def game__navigation():
 
     if request.method == "POST":
-
+    
         return redirect("/")
     
     else:
 
-        if (page != "game") or (page != "result"):
+        if session.get("user_id") is None:
+            return redirect("/nav/out")
+    
+        else:
+            return redirect("/nav/in")
 
-            if goto == "about":
+
+####################################################################
+#
+# NAVIGATION - OUT
+#
+####################################################################
+@app.route("/nav/out", methods=["GET", "POST"])
+def game__navigation_out():
+
+    if request.method == "POST":
+    
+        return redirect("/")
+    
+    else:
+
+        page = session["current_page"]
+        goto = session["current_goto"]
+        nav = session["current_nav"]
+        bttn = session["current_bttn"]
+
+        if (nav == "no"):
+
+            return redirect("/")
+        
+        elif (nav == "yes"):
+
+            if (bttn == "about"):
                 return redirect("/about")
             
-            if goto == "howto":
+            if (bttn == "howto"):
                 return redirect("/howto")
             
-            if goto == "index":
-                 return redirect("/")
-            
-            # Disabled if no user
-            # if goto == "history":
-            #     return redirect("/history")
-
-            # Disabled if no user
-            # if goto == "profile":
-            #     return redirect("/profile")
-
-            # if goto == "profile_fifty":
-            #     return redirect("/profile/fifty")
-            
-            if goto == "register":
+            if (bttn == "register"):
                 return redirect("/register")
             
-            if goto == "login":
+            if (bttn == "login"):
                 return redirect("/login")
             
-            # Disabled if no user
-            # if goto == "logout":
-            #     return redirect("/logout")
-        
-        else:
-
             return redirect("/")
     
+        else:
+            
+            return redirect("/")
+
 
 ####################################################################
 #
-# TRAFFIC - IN
+# NAVIGATION - IN
 #
 ####################################################################
-@app.route("/tin", methods=["GET", "POST"])
+@app.route("/nav/in", methods=["GET", "POST"])
 @login_required
-def traffic_in():
-    """Request from user for new location or to stop game"""
-
-    page = session["current_page"]
-    goto = session["current_goto"]
+def game__navigation_in():
 
     if request.method == "POST":
     
         return redirect("/")
-
+    
     else:
 
-        if (page != "game") and (page != "result"):
+        page = session["current_page"]
+        goto = session["current_goto"]
+        nav = session["current_nav"]
+        bttn = session["current_bttn"]
 
-            if (page == "history") and (goto == "game_again"):
+        if (nav == "yes"):
 
-                return redirect("/game")
-            
-            else:
-
-                if goto == "about":
-                    return redirect("/about")
-                
-                if goto == "howto":
-                    return redirect("/howto")
-                
-                if goto == "locs":
-                    return redirect("/locs")
-                
-                if goto == "admin":
-                    return redirect("/admin")
-                
-                if goto == "admin_fifty":
-                    return redirect("/admin/fifty")
-                
-                if goto == "admin_users":
-                    return redirect("/admin/users")
-                
-                if goto == "admin_users_add":
-                    return redirect("/admin/users/add")
-                
-                if goto == "index":
-                    return redirect("/")
-                 
-                if goto == "profile":
-                    return redirect("/profile")
-                
-                if goto == "profile_fifty":
-                    return redirect("/profile/fifty")
-                               
-                if goto == "history":
-                    return redirect("/history")
-
-                if goto == "register":
-                    return redirect("/register")
-                
-                # Not rendered if session has user_id
-                # if goto == "login":
-                #     return redirect("/login")
-                
-                if goto == "logout":
-                    return redirect("/logout")
-                
-                return redirect("/")
-
-        elif page == "game":
-
-            # Set current game end time
-            # TODO All times default to CST
-            now = datetime.now()
-
-            # Calculate time difference in seconds
-            duration_sec, duration_min = queries.game_answer_duration(session["current_game_start"], now)
-
-            # Set update_current_game arguments
-            id = session["current_game_id"] 
-            game_end = now
-            game_lat = None
-            game_lng = None
-            game_user_quit = 1
-            game_answer_off = None
-            # game_answer_validation = 0
-            game_duration = duration_sec
-            game_score = 0
-
-            updates = {
-                "id": session["current_game_id"], 
-                "game_end": now,
-                "game_lat": None,
-                "game_lng": None,
-                "game_user_quit": 1,
-                "game_answer_off": None,
-                "game_answer_validation": 0,
-                "game_duration": duration_sec,
-                "game_score": game_score
-            }
-
-            if goto == "zero":
-
-                # Current game location abandoned and NO longer playable in future games
-                updates["game_answer_validation"] = 2
-
-                # Update record
-                queries.update_current_game(db_pg, updates)
-
-                # After game record has been updated, redirect to start new game location
-                return redirect("/result")
-
-            else:
-
-                # TODO: Decide on duration seconds
-                if duration_sec >= 10:
-                    # If user is on game page for x sec or more, counted as an attempt
-                    # Update record
-                    queries.update_current_game(db_pg, updates)
-
-                elif duration_sec >= 0:
-                    # If user is on game page for under x sec, not counted as an attempt
-                    # Delete record
-                    queries.get_current_game_deleted(db_pg, id)
-
-                else:
-                    # Else redirect to index
-                    # TODO: Better to redirect to error page
-                    return redirect("/")
-
-                # Ensure current_game_loc_id is cleared
-                session.pop("current_game_loc_id", None)
-
-                # After game record has been updated or deleted, redirect to requested page
-
-                if goto == "game":
-                    return redirect("/game")
-            
-                if goto == "about":
-                    return redirect("/about")
-                
-                if goto == "howto":
-                    return redirect("/howto")
-                
-                if goto == "locs":
-                    return redirect("/locs")
-                
-                if goto == "admin":
-                    return redirect("/admin")
-                
-                if goto == "admin_fifty":
-                    return redirect("/admin/fifty")
-                
-                if goto == "admin_users":
-                    return redirect("/admin/users")
-                
-                if goto == "admin_users_add":
-                    return redirect("/admin/users/add")
-                
-                if goto == "index":
-                    return redirect("/")
-
-                if goto == "profile":
-                    return redirect("/profile")
-                
-                if goto == "profile_fifty":
-                    return redirect("/profile/fifty")
-                                
-                if goto == "history":
-                    return redirect("/history")
-                
-                if goto == "logout":
-                    return redirect("/logout")
-                
-                return redirect("/")
-
-        elif page == "result":
-
-            # If user "Quit Game", redirects to index
-            # No current game to close
-            
-            if goto == "game_again":
-                session["try_again"] = 1
-                return redirect("/game")
-
-            if goto == "zero":
-                return redirect("/")
-            
-            if goto == "game_new":
-                return redirect("/game")
-            
-            if goto == "about":
+            # Redirect based on button - order left to right
+            if (bttn == "about"):
                 return redirect("/about")
             
-            if goto == "howto":
+            if (bttn == "howto"):
                 return redirect("/howto")
             
-            if goto == "locs":
-                return redirect("/locs")
-            
-            if goto == "admin":
-                    return redirect("/admin")
-            
-            if goto == "admin_fifty":
-                    return redirect("/admin/fifty")
-            
-            if goto == "admin_users":
-                    return redirect("/admin/users")
-            
-            if goto == "admin_users_add":
-                    return redirect("/admin/users/add")
-            
-            if goto == "index":
+            if (bttn == "index"):
                 return redirect("/")
-
-            if goto == "profile":
-                return redirect("/profile")
             
-            if goto == "profile_fifty":
-                return redirect("/profile/fifty")
-                        
-            if goto == "history":
-                return redirect("/history")
+            if (bttn == "dash_geofinder"):
+                return redirect("/dash")
             
-            if goto == "logout":
+            if (bttn == "dash_fifty"):
+                return redirect("/dash")
+            
+            if (bttn == "dash"):
+                return redirect("/dash")
+            
+            if (bttn == "logout"):
                 return redirect("/logout")
-            
-            return redirect("/")
 
-        else:
             return redirect("/")
         
+        else:
+
+            return redirect("/")
+

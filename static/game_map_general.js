@@ -1,5 +1,5 @@
 //
-// GENERAL - ABOUT, HOWTO, HISTORY
+// GENERAL - ABOUT, HOWTO, DASHBOARDS
 //
 
 // Initialize and add the map

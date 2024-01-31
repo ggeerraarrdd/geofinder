@@ -1,21 +1,28 @@
-from flask import redirect, render_template, session
+from flask import redirect, session
 from functools import wraps
+from datetime import timezone
 from geographiclib.geodesic import Geodesic
+from haversine import haversine, Unit
+from shapely.ops import nearest_points
+from math import floor
 
 
 def apology(message, code=400):
-    """Render message as an apology to user."""
-    def escape(s):
-        """
-        Escape special characters.
 
-        https://github.com/jacebrowning/memegen#special-characters
-        """
-        for old, new in [("-", "--"), (" ", "-"), ("_", "__"), ("?", "~q"),
-                         ("%", "~p"), ("#", "~h"), ("/", "~s"), ("\"", "''")]:
-            s = s.replace(old, new)
-        return s
-    return render_template("apology.html", top=code, bottom=escape(message)), code
+    session.pop("error_message", None)
+
+    """
+    Escape special characters.
+
+    https://github.com/jacebrowning/memegen#special-characters
+    """
+    for old, new in [("-", "--"), (" ", "-"), ("_", "__"), ("?", "~q"),
+                        ("%", "~p"), ("#", "~h"), ("/", "~s"), ("\"", "''")]:
+        message = message.replace(old, new)
+    
+    session["error_message"] = f'http://api.memegen.link/grumpycat/{code}/{message}.jpg&width=300"'
+    
+    return redirect("/error")
 
 
 def login_required(f):
@@ -31,6 +38,33 @@ def login_required(f):
         
         return f(*args, **kwargs)
     return decorated_function
+
+
+def get_distance(point, polygon):
+    
+    # Get nearest polygon point
+    point1, p2 = nearest_points(polygon, point)
+    
+    # Get coordinate1
+    coordinate1 = (point.y, point.x)
+
+    # Get coordinate2
+    coordinate2 = (point1.y, point1.x)
+
+    # Calculate distance
+    game_answer_distance = haversine(coordinate1, coordinate2, unit=Unit.FEET)
+    game_answer_distance = floor(game_answer_distance)
+
+    return game_answer_distance
+
+
+def get_duration(game_start, game_end):
+
+    # Calculate time difference in seconds
+    game_duration = game_end.replace(tzinfo=timezone.utc) - game_start.replace(tzinfo=timezone.utc)
+    duration_sec = game_duration.seconds
+
+    return duration_sec
 
 
 def latitude_offset(lat, long):
@@ -69,3 +103,4 @@ def longitude_offset(lat, long, j):
     lon2 = g['lon2']
 
     return(lat2, lon2)
+

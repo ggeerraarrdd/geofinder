@@ -1,5 +1,5 @@
 //
-// LOGIN
+// REGISTER
 //
 
 // Initialize and add the map
@@ -9,6 +9,7 @@ let map_lng = parseFloat(document.getElementById('map').getAttribute("map-lng"))
 let map_zoom = parseFloat(document.getElementById('map').getAttribute("map-zoom"));
 let map_marker_title = document.getElementById('map').getAttribute("map-marker-title");
 let result_content = parseFloat(document.getElementById('map').getAttribute("result-content"));
+let button_type = document.getElementById('map').getAttribute("button-type");
 let doubleQuote = ' " ';
 
 async function initMap() {
@@ -38,28 +39,36 @@ async function initMap() {
     title: map_marker_title,
   });
 
-  // Content for Info Window on login.html
-  const contentLogin = 
-    '<div class="infowindow-login">' + 
-    'Explore the world<br>one house at a time!' +
+  // Content for Info Window on register.html
+  const contentRegister = 
+    '<div class=' + doubleQuote + 'infowindow-login">' + 
+      'Explore the world<br>one building at a time!' +
     '</div>' +
-
-    '<form action="/login" method="post">' +
-    '<div class="mb-3">' +
-        '<input autocomplete="off" autofocus class="form-control form-control-sm mx-auto w-auto" id="username" name="username" placeholder="Username" type="text">' +
-    '</div>' +
-    '<div class="mb-3">' +
+    '<form action="/register" method="post">' +
+      '<div class="mb-3">' +
+        '<input autocomplete="off" autofocus class="form-control form-control-sm mx-auto w-auto" id="username" name="username" placeholder="Username" type="text" maxlength="16">' +
+      '</div>' +
+      '<div class="mb-3">' +
         '<input class="form-control form-control-sm mx-auto w-auto" id="password" name="password" placeholder="Password" type="password">' +
-    '</div>' +
-    '<div class="infowindow-login-button">' +
-        '<button class="bttn bttn-small bttn-primary"" type="submit">Log In</button>' +
-    '</div>' +
+      '</div>' +
+      '<div class="mb-3">' +
+        '<input class="form-control form-control-sm mx-auto w-auto" id="confirmation" name="confirmation" placeholder="Password (again)" type="password">' +
+      '</div>' +
+      '<div class="infowindow-login-button">' + 
+        '<input type="hidden" name="page" class="hidden-field" value="register"></input>' +
+        '<input type="hidden" name="goto" class="hidden-field" value="index"></input>' +
+        '<input type="hidden" name="nav" class="hidden-field" value="no"></input>' +
+        '<input type="hidden" name="bttn" class="hidden-field" value="register"></input>' +
+        '<button class="bttn bttn-small ' + button_type + '" type="submit">' +
+          'Register' + 
+        '</button>' +
+      '<div>' +
     '</form>'
     ;
 
   // Add Info Window to map
   let infoWindow = new google.maps.InfoWindow({
-    content: contentLogin,
+    content: contentRegister,
     position: position,
   });
 
@@ -73,7 +82,9 @@ async function initMap() {
 
   infoWindow.open(map);
   
+
 }
+
 
 initMap();
 
