@@ -896,9 +896,6 @@ def game__fifty_game():
             get_fifty_game_active = session["get_fifty_game_active"]
         except:
             redirect("/")
-        
-        print(get_fifty_game_active["fifty_game_id"])
-        print(get_fifty_game_active["fifty_game_start"])
 
         return render_template("game_fifty_game.html", 
                                action="/fifty/game",

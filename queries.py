@@ -148,8 +148,6 @@ def get_disconnected(db, current_game_id, current_game_start):
     cursor.close()
     conn.close()
 
-    print(results)
-
     return results
 
 
@@ -209,8 +207,6 @@ def get_disconnected_geo(db, current_game_id, current_game_start):
 
     cursor.close()
     conn.close()
-
-    print(results)
     
     return results
 
