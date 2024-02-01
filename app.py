@@ -4,7 +4,6 @@ from datetime import datetime, timezone
 import pytz
 from flask import Flask, redirect, render_template, request, session
 from flask_session import Session
-from flask_socketio import SocketIO
 from werkzeug.security import check_password_hash, generate_password_hash
 import shapely.wkb
 from shapely.geometry import Point
@@ -19,8 +18,6 @@ import game_dash
 # Configure application
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
-
-socketio = SocketIO(app)
 
 # View HTML changes without rerunning server
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -87,8 +84,8 @@ def disconnect_geofinder():
     message = data['message']
 
     if message == "8dc4ed2b-4e99-45f7-a6a2-319ccb31d17d":
-        current_game_id = session["current_game_id"]
-        current_game_start = session['current_game_start']
+        current_game_id = session["get_geo_game_active"]["geo_game_id"]
+        current_game_start = session["get_geo_game_active"]["geo_game_start"]
 
         result = get_disconnected(db_pg, 
                                   current_game_id, 
