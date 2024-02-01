@@ -4,7 +4,12 @@ An online game that's like _Where's Waldo?_ but for houses
 
 ## Description
 
-_Geofinder_ is an online carto-architectural scavenger hunt. The gameplay is simple: Given a photo of a house somewhere in the world, you are tasked with locating that house on Google Maps. It's that straighforward, although how you will go about searching might not be.
+_Geofinder_ is an online scavenger hunt game. Its gameplay is simple: Given a photo of a house somewhere in the world, your task is to look for that house inside a marked area on a map. While that may sound straighforward, how you will go about looking might not be.
+
+_Geofinder_ comes in two modes.
+
+1. In the Wordle-like **default mode**, you are given one house a day and have until the end of the day (CST time) to find it.
+2. In the Netflix-like **challenge mode**, aka Geo50x, you are given 50 houses at once.
 
 _Geofinder_ is inspired by such childhood games as _[Where's Waldo?](https://en.wikipedia.org/wiki/Where%27s_Wally%3F)_ and _[Where in the World is Carmen Sandiego?](https://en.wikipedia.org/wiki/Carmen_Sandiego)_. And the simple pleasures of looking out through vehicle windows and just gazing at the passing landscapes and cityscapes.
 
@@ -38,9 +43,7 @@ flask run
 
 ### Database
 
-_Geofinder_ uses a Postgres database. Once provisioned, use your preferred DBMS to execute the queries in `database/sql.txt` to install PostGIS and to create the database's schema and tables. Then use `database/geofinderdata.csv` to populate the `locs` table.
-
-Once the database is set up, register an initial user account using the web app. Then change the account's `status` to `admin` using your DMBS.
+Tbd
 
 ### Notes on Google Maps
 
@@ -103,3 +106,4 @@ Development is ongoing.
 ![Screenshot](static/images/geofinder_03.png)
 ![Screenshot](static/images/geofinder_04.png)
 ![Screenshot](static/images/geofinder_05.png)
+![Screenshot](static/images/geofinder_06.png)
