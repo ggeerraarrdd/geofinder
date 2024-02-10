@@ -8,7 +8,7 @@ let map_lat = parseFloat(document.getElementById('map').getAttribute("map-lat"))
 let map_lng = parseFloat(document.getElementById('map').getAttribute("map-lng"));
 let map_zoom = parseFloat(document.getElementById('map').getAttribute("map-zoom"));
 let map_marker_title = document.getElementById('map').getAttribute("map-marker-title");
-let result_content = parseFloat(document.getElementById('map').getAttribute("result-content"));
+let login_msg = document.getElementById('map').getAttribute("login-msg");
 let doubleQuote = ' " ';
 
 async function initMap() {
@@ -40,25 +40,35 @@ async function initMap() {
 
   // Content for Info Window on login.html
   const contentLogin = 
-    '<div class="infowindow-login">' + 
-    'Explore the world<br>one house at a time!' +
-    '</div>' +
+    '<div style="display: flex; flex-direction: column; align-items: center;">' +
 
-    '<form action="/login" method="post">' +
-      '<div class="mb-3">' +
-          '<input autocomplete="off" autofocus class="form-control form-control-sm mx-auto w-auto" id="username" name="username" placeholder="Username" type="text">' +
+      '<div class="infowindow-login">' + 
+        'Explore the world<br>one house at a time!' +
       '</div>' +
-      '<div class="mb-3">' +
-          '<input class="form-control form-control-sm mx-auto w-auto" id="password" name="password" placeholder="Password" type="password">' +
+      
+      '<div class="infowindow-login-msg">' +
+        '<span style="color: white;">o</span>' + login_msg + '<span style="color: white;">o</span>' + 
       '</div>' +
-      '<div class="infowindow-login-button">' +
-          '<input type="hidden" name="page" class="hidden-field" value="login"></input>' +
-          '<input type="hidden" name="goto" class="hidden-field" value="index"></input>' +
-          '<input type="hidden" name="nav" class="hidden-field" value="no"></input>' +
-          '<input type="hidden" name="bttn" class="hidden-field" value="login"></input>' +
-          '<button class="bttn bttn-small bttn-primary"" type="submit">Log In</button>' +
+
+      '<div>' + 
+        '<form action="/login" method="post">' +
+          '<div class="mb-3">' +
+              '<input autocomplete="off" autofocus class="form-control form-control-sm mx-auto w-auto" id="username" name="username" placeholder="Username" type="text" required>' +
+          '</div>' +
+          '<div class="mb-3">' +
+              '<input class="form-control form-control-sm mx-auto w-auto" id="password" name="password" placeholder="Password" type="password" required>' +
+          '</div>' +
+          '<div class="infowindow-login-button">' +
+              '<input type="hidden" name="page" class="hidden-field" value="login"></input>' +
+              '<input type="hidden" name="goto" class="hidden-field" value="index"></input>' +
+              '<input type="hidden" name="nav" class="hidden-field" value="no"></input>' +
+              '<input type="hidden" name="bttn" class="hidden-field" value="login"></input>' +
+              '<button class="bttn bttn-small bttn-primary"" type="submit">Log In</button>' +
+          '</div>' +
+        '</form>' +
       '</div>' +
-    '</form>'
+
+    '</div>'
     ;
 
   // Add Info Window to map

@@ -616,8 +616,8 @@ td {
 /* InfoWindow - LOGIN
 */
 .infowindow-login {
-    margin: 0 0 30px 0;
-    padding: 40px 40px 30px 40px;
+    margin: 0;
+    padding: 40px 40px 0 40px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -625,6 +625,14 @@ td {
     font-size: 26px;
     font-family: 'Yatra One';
     color: #330999;
+}
+
+.infowindow-login-msg {
+    margin: 0;
+    padding: 30px 0 30px 0;
+    font-family: 'Gabarito';
+    font-size: 16px;
+    color: #ff5645;
 }
 
 .infowindow-login-button {
@@ -742,10 +750,13 @@ td {
 .infowindow-result-footer {
     margin: 10px 0 0 0;
     padding: 0;
+    width: 100%;
+    height: auto;
     font-size: 12px;
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
 }
 
 .infowindow-result-footer-try {

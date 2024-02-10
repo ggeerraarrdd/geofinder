@@ -35,8 +35,8 @@
                 <!-- Navbar - Left -->
                 <div class="container-top-left">
                     <!-- About -->
-                    <form name="submit" action="{{ action }}" method="post">
-                        <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                    <form name="submit" action="/nav" method="post">
+                        <input type="hidden" name="page" class="hidden-field" value="nav"></input>
                         <input type="hidden" name="goto" class="hidden-field" value="about"></input>
                         <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
                         <input type="hidden" name="bttn" class="hidden-field" value="about"></input>
@@ -47,8 +47,8 @@
                         <button name="history" class="bttn bttn-separator-extra" type="submit" disabled></button>
                     </form>
                     <!-- How To Play -->
-                    <form name="submit" action="{{ action }}" method="post">
-                        <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                    <form name="submit" action="/nav" method="post">
+                        <input type="hidden" name="page" class="hidden-field" value="nav"></input>
                         <input type="hidden" name="goto" class="hidden-field" value="howto"></input>
                         <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
                         <input type="hidden" name="bttn" class="hidden-field" value="howto"></input>
@@ -59,8 +59,8 @@
                 <!-- Navbar - Middle -->
                 <div class="container-top-middle">
                     <!-- Index -->
-                    <form name="submit" action="{{ action }}" method="post">
-                        <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                    <form name="submit" action="/nav" method="post">
+                        <input type="hidden" name="page" class="hidden-field" value="nav"></input>
                         <input type="hidden" name="goto" class="hidden-field" value="index"></input>
                         <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
                         <input type="hidden" name="bttn" class="hidden-field" value="index"></input>
@@ -74,12 +74,12 @@
                     <div class="container-top-right-history">
                         {% if session["user_id"] %}
                             <!-- Dash - Geofinder -->
-                            <form name="submit" action="{{ action }}" method="post">
-                                <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
-                                <input type="hidden" name="goto" class="hidden-field" value="dash_geofinder"></input>
+                            <form name="submit" action="/nav" method="post">
+                                <input type="hidden" name="page" class="hidden-field" value="nav"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="geo_page_dash"></input>
                                 <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
-                                <input type="hidden" name="bttn" class="hidden-field" value="dash_geofinder"></input>
-                                <button name="history" class="bttn bttn-small bttn-naked" type="submit">
+                                <input type="hidden" name="bttn" class="hidden-field" value="geo_page_dash"></input>
+                                <button name="history" class="bttn bttn-small bttn-naked" type="submit" disabled>
                                     <span class="material-symbols-outlined" style="line-height: 3; font-size: 26px;">travel_explore</span>&nbsp;{{ session["n1"] }}
                                 </button>
                             </form>
@@ -88,11 +88,11 @@
                                 <button name="history" class="bttn bttn-separator-extra " type="submit" disabled></button>
                             </form>
                             <!-- Dash - Geo50x -->
-                            <form name="submit" action="{{ action }}" method="post">
-                                <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
-                                <input type="hidden" name="goto" class="hidden-field" value="dash_fifty"></input>
+                            <form name="submit" action="/nav" method="post">
+                                <input type="hidden" name="page" class="hidden-field" value="nav"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="fifty_page_dash"></input>
                                 <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
-                                <input type="hidden" name="bttn" class="hidden-field" value="dash_fifty"></input>
+                                <input type="hidden" name="bttn" class="hidden-field" value="fifty_page_dash"></input>
                                 <button name="history" class="bttn bttn-small bttn-naked" type="submit">
                                     <span class="material-symbols-outlined" style="line-height: 3; font-size: 22px;">award_star</span>&nbsp;{{ session["n2"]|round }}
                                 </button>
@@ -102,11 +102,11 @@
                                 <button name="history" class="bttn bttn-separator-extra " type="submit" disabled></button>
                             </form>
                             <!-- Dash -->
-                            <form name="submit" action="{{ action }}" method="post">
-                                <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
-                                <input type="hidden" name="goto" class="hidden-field" value="dash"></input>
+                            <form name="submit" action="/nav" method="post">
+                                <input type="hidden" name="page" class="hidden-field" value="nav"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="profile_page_main"></input>
                                 <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
-                                <input type="hidden" name="bttn" class="hidden-field" value="dash"></input>
+                                <input type="hidden" name="bttn" class="hidden-field" value="profile_page_main"></input>
                                 <button name="history" class="bttn bttn-small bttn-naked" style="margin-right: 5px !important;" type="submit">
                                     {{ session.username }}
                                 </button>
@@ -116,8 +116,8 @@
                                 <button name="history" class="bttn bttn-separator-extra" type="submit" disabled></button>
                             </form>
                             <!-- Log Out -->
-                            <form name="submit" action="{{ action }}" method="post">
-                                <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                            <form name="submit" action="/nav" method="post">
+                                <input type="hidden" name="page" class="hidden-field" value="nav"></input>
                                 <input type="hidden" name="goto" class="hidden-field" value="logout"></input>
                                 <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
                                 <input type="hidden" name="bttn" class="hidden-field" value="logout"></input>
@@ -125,9 +125,9 @@
                             </form>
                         {% else %}
                             <!-- Register -->
-                            <form name="submit" action="{{ action }}" method="post">
+                            <form name="submit" action="/nav" method="post">
                                 {% set new_registration_status = "" if new_registrations else "disabled" %}
-                                <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                                <input type="hidden" name="page" class="hidden-field" value="nav"></input>
                                 <input type="hidden" name="goto" class="hidden-field" value="register"></input>
                                 <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
                                 <input type="hidden" name="bttn" class="hidden-field" value="register"></input>
@@ -138,8 +138,8 @@
                                 <button name="history" class="bttn bttn-separator-extra" type="submit" disabled></button>
                             </form>
                             <!-- Log In -->
-                            <form name="submit" action="{{ action }}" method="post">
-                                <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                            <form name="submit" action="/nav" method="post">
+                                <input type="hidden" name="page" class="hidden-field" value="nav"></input>
                                 <input type="hidden" name="goto" class="hidden-field" value="login"></input>
                                 <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
                                 <input type="hidden" name="bttn" class="hidden-field" value="login"></input>

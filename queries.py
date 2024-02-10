@@ -224,8 +224,7 @@ def game_answer_duration(game_start, game_end):
 
 # Used by /fifty/game
 def get_loc_duration_total(db, current_game_id, user_id, loc_id, current_game_duration):
-
-    # Create connection and cursor
+    
     conn = psycopg2.connect(db)
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 

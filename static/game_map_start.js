@@ -57,8 +57,8 @@ async function initMap() {
         '<input type="hidden" name="page" class="hidden-field" value="index"></input>' +
         '<input type="hidden" name="goto" class="hidden-field" value="geofinder_game"></input>' +
         '<input type="hidden" name="nav" class="hidden-field" value="no"></input>' +
-        '<input type="hidden" name="bttn" class="hidden-field" value="start"></input>' +
-        '<button class="bttn bttn-large bttn-primary" type="submit">Start</button>' +
+        '<input type="hidden" name="bttn" class="hidden-field" value="temp"></input>' +
+        '<button class="bttn bttn-large bttn-primary" type="submit">Play</button>' +
       '</form>' +
     '</div>';
 

@@ -1,4 +1,4 @@
-{% extends "game_layout.html" %}
+{% extends "layout.html" %}
 
 {% block mapscript %}
 <script type="module" src="/static/game_map_general.js"></script>
@@ -31,7 +31,7 @@
                 <div class="stripe stripe-type-breadrumb">
 
                     <form name="submit" action="/nav" method="post">
-                        <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
+                        <input type="hidden" name="page" class="hidden-field" value="profile_page_main"></input>
                         <input type="hidden" name="goto" class="hidden-field" value="index"></input>
                         <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
                         <input type="hidden" name="bttn" class="hidden-field" value="index"></input>
@@ -42,11 +42,11 @@
                         <button class="bttn bttn-separator" type="submit" disabled>/</button>
                     </form>
 
-                    <form name="submit" action="/dash/main" method="post">
-                        <input type="hidden" name="page" class="hidden-field" value="{{ page }}"></input>
-                        <input type="hidden" name="goto" class="hidden-field" value="dash_main"></input>
-                        <input type="hidden" name="nav" class="hidden-field" value="no"></input>
-                        <input type="hidden" name="bttn" class="hidden-field" value="dash_main"></input>
+                    <form name="submit" action="/nav" method="post">
+                        <input type="hidden" name="page" class="hidden-field" value="profile_page_main"></input>
+                        <input type="hidden" name="goto" class="hidden-field" value="profile_page_main"></input>
+                        <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
+                        <input type="hidden" name="bttn" class="hidden-field" value="profile_page_main"></input>
                         <button name="breadcrumb" class="bttn bttn-xsmall bttn-naked" type="submit">Dashboard</button>
                     </form>
 
@@ -129,7 +129,7 @@
                                         {% endif %}
                                     {% endif %}
                                 {% else %}
-                                    {% if header_geofinder.days %} 
+                                    {% if header_geofinder.days is number %} 
                                         {% if header_geofinder.days == 0 %} 
                                             TODAY
                                         {% elif header_geofinder.days == 1 %} 
@@ -137,7 +137,7 @@
                                         {% else %}
                                             {{ header_geofinder.last_game }} ({{ header_geofinder.days }} days ago)
                                         {% endif %}
-                                    {% elif header_fifty.days %}
+                                    {% elif header_fifty.days is number %}
                                         {% if header_fifty.days == 0 %} 
                                             TODAY
                                         {% elif header_fifty.days == 1 %} 
@@ -169,7 +169,7 @@
                                 <input type="hidden" name="goto" class="hidden-field" value="dash_geofinder"></input>
                                 <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
                                 <input type="hidden" name="bttn" class="hidden-field" value="dash_geofinder"></input>
-                                <button name="history" class="bttn bttn-xsmall bttn-border" type="submit">
+                                <button name="history" class="bttn bttn-xsmall" type="submit" disabled>
                                     Search History
                                 </button>
                             </form>
@@ -182,7 +182,7 @@
                             <input type="hidden" name="goto" class="hidden-field" value="geofinder_game"></input>
                             <input type="hidden" name="nav" class="hidden-field" value="no"></input>
                             <input type="hidden" name="bttn" class="hidden-field" value="start"></input>
-                            <button class="bttn bttn-small bttn-primary" type="submit">
+                            <button class="bttn bttn-small" type="submit" disabled>
                                 Play Geofinder
                             </button>
                         </form>
@@ -191,7 +191,7 @@
                 </div>
 
                 <!-- Stripe - Type: Summary -->
-                <div class="stripe stripe-type-summary">
+                <div class="stripe stripe-type-summary stripe-gray">
 
                         <!-- Total Found -->
                         <div class="pages-content-header-item">
@@ -374,7 +374,7 @@
                         <div class="pages-content-header-item-info">
                             <!-- Item - Info - Value -->
                             <div class="pages-content-header-item-info-value">
-                                {{ header_fifty.user_count_loc }}
+                                {{ header_fifty.user_loc_found }}
                             </div>
                             <!-- Item - Info - Label -->
                             <div class="pages-content-header-item-info-label">
@@ -389,18 +389,22 @@
                         <!-- Metrics - Icon -->
                         <div class="pages-content-header-item-icon">
                             <span class="material-symbols-outlined" style="font-size: 46px;">
-                                timer
+                                route
                             </span>
                         </div>
                         <!-- Metrics - Unit -->
                         <div class="pages-content-header-item-info">
                             <!-- Metrics - Unit - Value -->
                             <div class="pages-content-header-item-info-value">
-                                {{ header_fifty.user_duration_average|round }} secs
+                                {% if header_fifty.user_offset_avg == 0 %}
+                                    --
+                                {% else %}
+                                    {{ header_fifty.user_offset_avg }} ft
+                                {% endif %}
                             </div>
                             <!-- Metrics - Unit - Label -->
                             <div class="pages-content-header-item-info-label">
-                                Avg Time per Attempt
+                                Avg Offset per Attempt
                             </div>
                             
                         </div>
@@ -411,18 +415,18 @@
                         <!-- Metrics - Icon -->
                         <div class="pages-content-header-item-icon">
                             <span class="material-symbols-outlined" style="font-size: 46px;">
-                                route
+                                sprint
                             </span>
                         </div>
                         <!-- Metrics - Unit -->
                         <div class="pages-content-header-item-info">
                             <!-- Metrics - Unit - Value -->
                             <div class="pages-content-header-item-info-value">
-                                {{ header_fifty.user_offset_avg }} ft
+                                {{ header_fifty.user_duration_fastest}}
                             </div>
                             <!-- Metrics - Unit - Label -->
                             <div class="pages-content-header-item-info-label">
-                                Avg Offset per Attempt
+                                Fastest Time
                             </div>
                             
                         </div>

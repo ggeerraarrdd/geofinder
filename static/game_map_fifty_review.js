@@ -12,6 +12,7 @@ let locations_right = document.getElementById('map').getAttribute("locations-rig
 let locations_wrong = document.getElementById('map').getAttribute("locations-wrong");
 let locations_none= document.getElementById('map').getAttribute("locations-none");
 let locations_quit = document.getElementById('map').getAttribute("locations-quit");
+let locations_key = document.getElementById('map').getAttribute("locations-key");
 let doubleQuote = ' " ';
 
 async function initMap() {
@@ -139,7 +140,31 @@ async function initMap() {
         var gameLng = parseFloat(Object.values(loc)[1]);
         
         const pin = new PinElement({
-            glyphColor: "black",
+            background: "yellow",
+            glyphColor: "yellow",
+            scale: 1.4,
+        });
+
+        // Use the gameLat and gameLng values to create a marker or perform other actions
+        const marker = new AdvancedMarkerElement({
+            map: map,
+            position: { lat: parseFloat(gameLat), lng: parseFloat(gameLng) },
+            content: pin.element,
+        });
+    }
+
+    // Attempted locations - key
+    const key = locations_key.replace(/'/g, '"');
+    const key_json = JSON.parse(key);
+
+    for (var i = 0; i < key_json.length; i++) {
+        var loc = key_json[i];
+        var gameLat = parseFloat(Object.values(loc)[0]);
+        var gameLng = parseFloat(Object.values(loc)[1]);
+        
+        const pin = new PinElement({
+            background: "yellow",
+            glyphColor: "yellow",
             scale: 1.4,
         });
 

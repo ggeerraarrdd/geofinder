@@ -4,27 +4,26 @@
 
 // Initialize and add the map
 let map;
-let lat_default = parseFloat(document.getElementById('map').getAttribute("current-game-lat-default"));
-let long_default = parseFloat(document.getElementById('map').getAttribute("current-game-long-default"));
 let map_zoom = parseFloat(document.getElementById('map').getAttribute("map-zoom"));
 let map_marker_title = document.getElementById('map').getAttribute("map-marker-title");
-let current_game_lat_answer_user = parseFloat(document.getElementById('map').getAttribute("current-game-lat-answer-user"));
-let current_game_long_answer_user = parseFloat(document.getElementById('map').getAttribute("current-game-long-answer-user"));
-let current_game_answer_user_validation = parseFloat(document.getElementById('map').getAttribute("current-game-answer-user-validation"));
-let current_game_loc_id = parseFloat(document.getElementById('map').getAttribute("current-game-loc-id"));
-let current_game_loc_attempts = parseFloat(document.getElementById('map').getAttribute("current-game-loc-attempts"));
-let time_game = parseFloat(document.getElementById('map').getAttribute("time-game"));
-let time_location = parseFloat(document.getElementById('map').getAttribute("time-location"));
+let loc_id = parseFloat(document.getElementById('map').getAttribute("loc-id"));
+let loc_view_lat = parseFloat(document.getElementById('map').getAttribute("loc-view-lat"));
+let loc_view_lng = parseFloat(document.getElementById('map').getAttribute("loc-view-lng"));
+let submit_lat_display = parseFloat(document.getElementById('map').getAttribute("submit-lat-display"));
+let submit_lng_display = parseFloat(document.getElementById('map').getAttribute("submit-lng-display"));
+let submit_validation = parseFloat(document.getElementById('map').getAttribute("submit-validation"));
+let submit_attempts = parseFloat(document.getElementById('map').getAttribute("submit-attempts"));
+let duration_total = document.getElementById('map').getAttribute("duration-total");
 let base_score = parseFloat(document.getElementById('map').getAttribute("base-score"));
 let bonus_score = parseFloat(document.getElementById('map').getAttribute("bonus-score"));
 let game_score = parseFloat(document.getElementById('map').getAttribute("game-score"));
-let total_score = parseFloat(document.getElementById('map').getAttribute("total-score"));
 let doubleQuote = ' " ';
 
 
 async function initMap() {
+
   // The game default location
-  const position = { lat: current_game_lat_answer_user, lng: current_game_long_answer_user };
+  const position = { lat: submit_lat_display, lng: submit_lng_display };
   
   // Request needed libraries.
   //@ts-ignore
@@ -57,51 +56,78 @@ async function initMap() {
   let body
   let try_again
 
-  if (current_game_answer_user_validation == 0) {
+  if (submit_validation == 0) {
     // Incorrect
-    message = 'incorrect'; 
-    review = '';
-    body =
-      'Attempts: ' + current_game_loc_attempts  + '<br>' +
-      'Game Time: ' + time_game + ' secs<br>' +
-      'Total Time: ' + time_location + ' secs<br><br>' +
-      'Base Score: ' + base_score  + '<br>' +
-      'Bonus Score: ' + bonus_score  + '<br>';
-    try_again = 
-    '<div class="infowindow-result-footer-try">' +
-      '<form name="router" action="/fifty" method="post">' + 
-      '<input type="hidden" name="page" class="hidden-field" value="fifty_result"></input>' + 
-      '<input type="hidden" name="goto" class="hidden-field" value="fifty_start"></input>' +
-      '<input type="hidden" name="try-again" class="hidden-field" value="1"></input>' +
-      '<input type="hidden" name="nav" class="hidden-field" value="no"></input>' +
-      '<input type="hidden" name="bttn" class="hidden-field" value="again"></input>' +
-      '<input type="hidden" name="loc" class="hidden-field" value="' + current_game_loc_id + '"></input>' + 
-      '<button name="router" class="bttn bttn-xsmall bttn-primary" type="submit">' +
-        'Try Again' +
-      '</button>' +
-      '</form>' +
-    '</div>';
-  } else if (current_game_answer_user_validation == 2) {
+    if (submit_attempts < 6) {
+      message = 'incorrect'; 
+      review = '';
+      body =
+        'Attempts: ' + submit_attempts  + '<br>' +
+        'Current Total Time: ' + duration_total + '<br><br>' +
+        'Base Score: ' + base_score  + '<br>' +
+        'Bonus Score: ' + bonus_score  + '<br>';
+      try_again = 
+        '<div class="infowindow-result-footer-try">' +
+          '<form name="router" action="/fifty/results" method="post">' + 
+          '<input type="hidden" name="page" class="hidden-field" value="fifty_page_results"></input>' + 
+          '<input type="hidden" name="goto" class="hidden-field" value="fifty_page_game"></input>' +
+          '<input type="hidden" name="bttn" class="hidden-field" value="again"></input>' +
+          '<input type="hidden" name="loc" class="hidden-field" value="' + loc_id + '"></input>' + 
+          '<button name="router" class="bttn bttn-xsmall bttn-primary" type="submit">' +
+            'Try Again' +
+          '</button>' +
+          '</form>' +
+        '</div>';
+    } else {
+      message = 'incorrect'; 
+      review = 
+        '<div class="infowindow-result-title-right-review">' +
+          '<form name="router" action="/fifty/results" method="post">' + 
+            '<input type="hidden" name="page" class="hidden-field" value="fifty_page_results"></input>' + 
+            '<input type="hidden" name="goto" class="hidden-field" value="fifty_page_review"></input>' +
+            '<input type="hidden" name="bttn" class="hidden-field" value="review"></input>' +
+            '<input type="hidden" name="loc" class="hidden-field" value="' + loc_id + '"></input>' + 
+            '<input type="hidden" name="time" class="hidden-field" value="' + duration_total + '"></input>' + 
+            '<input type="hidden" name="score" class="hidden-field" value="' + game_score + '"></input>' + 
+            '<button name="router" class="bttn bttn-xsmall" type="submit">' +
+              'Review' + 
+            '</button>' +
+          '</form>' +
+        '</div>';
+      body =
+        'Attempts: max 6<br>' +
+        'Total Time: ∅<br><br>' +
+        'Base Score: ' + base_score  + '<br>' +
+        'Bonus Score: ' + bonus_score  + '<br>';
+      try_again = 
+        '<div class="infowindow-result-footer-try">' +
+          '<form>' + 
+          '<button name="router" class="bttn bttn-xsmall" type="submit" disabled>' +
+            'Try Again' +
+          '</button>' +
+          '</form>' +
+        '</div>';
+    }
+  } else if (submit_validation == 2) {
     // Quit
     message = 'quit'; 
     review = 
     '<div class="infowindow-result-title-right-review">' +
-      '<form name="router" action="/fifty/result" method="post">' + 
-        '<input type="hidden" name="page" class="hidden-field" value="fifty_result"></input>' + 
-        '<input type="hidden" name="goto" class="hidden-field" value="fifty_review"></input>' +
-        '<input type="hidden" name="try-again" class="hidden-field" value="0"></input>' +
-        '<input type="hidden" name="nav" class="hidden-field" value="no"></input>' +
+      '<form name="router" action="/fifty/results" method="post">' + 
+        '<input type="hidden" name="page" class="hidden-field" value="fifty_page_results"></input>' + 
+        '<input type="hidden" name="goto" class="hidden-field" value="fifty_page_review"></input>' +
         '<input type="hidden" name="bttn" class="hidden-field" value="review"></input>' +
-        '<input type="hidden" name="review" class="hidden-field" value="' + current_game_loc_id + '"></input>' + 
+        '<input type="hidden" name="loc" class="hidden-field" value="' + loc_id + '"></input>' + 
+        '<input type="hidden" name="time" class="hidden-field" value="' + duration_total + '"></input>' + 
+        '<input type="hidden" name="score" class="hidden-field" value="' + game_score + '"></input>' + 
         '<button name="router" class="bttn bttn-xsmall" type="submit">' +
           'Review' + 
         '</button>' +
       '</form>' +
     '</div>';
     body =
-      'Attempts: ' + current_game_loc_attempts + '<br>' +
-      'Game Time: ' + time_game + ' secs<br>' +
-      'Total Time: ' + time_location + ' secs<br><br>' +
+      'Attempts: ' + submit_attempts + '<br>' +
+      'Total Time: ' + duration_total + '<br><br>' +
       'Base Score: ' + base_score + '<br>' +
       'Bonus Score: ' + bonus_score + '<br>';
     try_again = 
@@ -110,27 +136,26 @@ async function initMap() {
       '<button name="router" class="bttn bttn-xsmall" type="submit" disabled>Try Again</button>' +
       '</form>' +
     '</div>';
-  } else if (current_game_answer_user_validation == 1) {
+  } else if (submit_validation == 1) {
     // Correct
     message = 'correct!';
     review = 
     '<div class="infowindow-result-title-right-review">' +
-      '<form name="router" action="/fifty/result" method="post">' + 
-        '<input type="hidden" name="page" class="hidden-field" value="fifty_result"></input>' + 
-        '<input type="hidden" name="goto" class="hidden-field" value="review"></input>' +
-        '<input type="hidden" name="try-again" class="hidden-field" value="0"></input>' +
-        '<input type="hidden" name="review" class="hidden-field" value="' + current_game_loc_id + '"></input>' + 
-        '<input type="hidden" name="nav" class="hidden-field" value="no"></input>' +
+      '<form name="router" action="/fifty/results" method="post">' + 
+        '<input type="hidden" name="page" class="hidden-field" value="fifty_page_results"></input>' + 
+        '<input type="hidden" name="goto" class="hidden-field" value="fifty_page_review"></input>' +
         '<input type="hidden" name="bttn" class="hidden-field" value="review"></input>' +
+        '<input type="hidden" name="loc" class="hidden-field" value="' + loc_id + '"></input>' + 
+        '<input type="hidden" name="time" class="hidden-field" value="' + duration_total + '"></input>' + 
+        '<input type="hidden" name="score" class="hidden-field" value="' + game_score + '"></input>' + 
         '<button name="router" class="bttn bttn-xsmall" type="submit">' +
           'Review' + 
         '</button>' +
       '</form>' +
     '</div>';
     body =
-      'Attempts: ' + current_game_loc_attempts + '<br>' +
-      'Game Time: ' + time_game + ' secs<br>' +
-      'Total Time: ' + time_location + ' secs<br><br>' +
+      'Attempts: ' + submit_attempts + '<br>' +
+      'Total Time: ' + duration_total + '<br><br>' +
       'Base Score: ' + base_score + '<br>' +
       'Bonus Score: ' + bonus_score + '<br>';
     try_again = '';
@@ -159,37 +184,38 @@ async function initMap() {
               '<span class="material-symbols-outlined" style="line-height: normal; font-size: 22px;">travel_explore</span>' +
             '</div>' +
             '<div>' +
-              'Geo50x #: ' + current_game_loc_id +
+              'Geo50x #: ' + loc_id +
             '</div>' +
           '</div>' +
           body +
       '</div>' +
       '<div class="infowindow-result-footer">' + 
-        try_again + 
-        '<div class="infowindow-result-footer-new">' +
-          '<form name="router" action="/fifty" method="post">' +  
-            '<input type="hidden" name="page" class="hidden-field" value="fifty_result"></input>' + 
-            '<input type="hidden" name="goto" class="hidden-field" value="fifty_start"></input>' +
-            '<input type="hidden" name="try-again" class="hidden-field" value="0"></input>' +
-            '<input type="hidden" name="nav" class="hidden-field" value="no"></input>' + 
-            '<input type="hidden" name="bttn" class="hidden-field" value="new"></input>' +
-            '<button name="router" class="bttn bttn-xsmall bttn-primary" type="submit">' + 
-              'New Search' + 
-            '</button>' +
-          '</form>' +
-        '</div>' + 
+
+        '<div style="display: flex; flex-direction: row;">' +
+          try_again + 
+          '<div class="infowindow-result-footer-new">' +
+            '<form name="router" action="/fifty/results" method="post">' +  
+              '<input type="hidden" name="page" class="hidden-field" value="fifty_page_results"></input>' + 
+              '<input type="hidden" name="goto" class="hidden-field" value="fifty_page_game"></input>' +
+              '<input type="hidden" name="bttn" class="hidden-field" value="new"></input>' +
+              '<button name="router" class="bttn bttn-xsmall bttn-primary" type="submit">' + 
+                'New Search' + 
+              '</button>' +
+            '</form>' +
+          '</div>' + 
+        '</div>' +
+        
         '<div class="infowindow-result-footer-quit">' +
-          '<form name="submit" action="/fifty/result" method="post">' +  
-            '<input type="hidden" name="page" class="hidden-field" value="fifty_result"></input>' + 
-            '<input type="hidden" name="goto" class="hidden-field" value="dashboard_fifty"></input>' + 
-            '<input type="hidden" name="try-again" class="hidden-field" value="0"></input>' +
-            '<input type="hidden" name="nav" class="hidden-field" value="no"></input>' + 
-            '<input type="hidden" name="bttn" class="hidden-field" value="stop"></input>' +
-            '<button name="router" class="bttn bttn-xsmall bttn-naked" type="submit">' +
-              'Stop Search' + 
+          '<form name="submit" action="/fifty/results" method="post">' +  
+            '<input type="hidden" name="page" class="hidden-field" value="fifty_page_results"></input>' + 
+            '<input type="hidden" name="goto" class="hidden-field" value="fifty_page_dash"></input>' + 
+            '<input type="hidden" name="bttn" class="hidden-field" value="history"></input>' +
+            '<button name="router" class="bttn bttn-xsmall" type="submit">' +
+              'Search History' + 
             '</button>' +
           '</form>' +
         '</div>' + 
+
       '</div>' +
     '</div>'
     ;

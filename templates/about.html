@@ -1,4 +1,4 @@
-{% extends "game_layout.html" %}
+{% extends "layout.html" %}
 
 {% block mapscript %}
 <script type="module" src="/static/game_map_general.js"></script>
@@ -78,7 +78,9 @@
                                 <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
                                 <input type="hidden" name="nav" class="hidden-field" value="no"></input>
                                 <input type="hidden" name="bttn" class="hidden-field" value="again"></input>
-                                <button class="bttn bttn-small bttn-primary" type="submit">Start Geofinder</button>
+                                <button class="bttn bttn-small" type="submit" disabled>
+                                    Start Geofinder
+                                </button>
                             </form>
                             {% else %}
                             {% endif %}
@@ -97,13 +99,10 @@
                         </div>
                         <div>
                             {% if session["user_id"] %}
-                            <form name="submit" action="/fifty" method="post">
-                                <input type="hidden" name="current-game-id" class="hidden-field" value="0"></input>
-                                <input type="hidden" name="page" class="hidden-field" value="profile_fifty"></input>
-                                <input type="hidden" name="goto" class="hidden-field" value="fifty_start"></input>
-                                <input type="hidden" name="nav" class="hidden-field" value="no"></input>
-                                <input type="hidden" name="bttn" class="hidden-field" value="fifty"></input>
-                                <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
+                            <form name="submit" action="/about" method="post">
+                                <input type="hidden" name="page" class="hidden-field" value="about"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="fifty_page_game"></input>
+                                <input type="hidden" name="bttn" class="hidden-field" value="new"></input>
                                 <button class="bttn bttn-small bttn-primary" type="submit">Play Challenge</button>
                             </form>
                             {% else %}

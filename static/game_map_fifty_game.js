@@ -64,17 +64,17 @@ async function initMap() {
     const contentZoom = map.getZoom();
     const contentString = 
       '<div class="infowindow-game">' + 
-      '<form name="submit" action="/fifty/game" method="post">' + 
-      '<input type="hidden" name="submit-lat" class="hidden-field" value="' + contentLat + '"></input>' +
-      '<input type="hidden" name="submit-long" class="hidden-field" value="' + contentLong + '"></input>' +
-      '<input type="hidden" name="submit-map-center" class="hidden-field" value="' + contentCenter + '"></input>' +
-      '<input type="hidden" name="submit-map-zoom" class="hidden-field" value="' + contentZoom + '"></input>' +
-      '<input type="hidden" name="page" class="hidden-field" value="fifty_game"></input>' +
-      '<input type="hidden" name="goto" class="hidden-field" value="fifty_result"></input>' +
-      '<input type="hidden" name="nav" class="hidden-field" value="no"></input>' +
-      '<input type="hidden" name="bttn" class="hidden-field" value="submit"></input>' +
-      '<button class="bttn bttn-small bttn-primary" type="submit">Submit</button>' +
-      '</form>' +
+        '<form name="submit" action="/fifty/game" method="post">' + 
+          '<input type="hidden" name="page" class="hidden-field" value="fifty_page_game"></input>' +
+          '<input type="hidden" name="goto" class="hidden-field" value="fifty_page_result"></input>' +
+          '<input type="hidden" name="nav" class="hidden-field" value="no"></input>' +
+          '<input type="hidden" name="bttn" class="hidden-field" value="fifty_page_game_submit"></input>' +
+          '<input type="hidden" name="submit-lat" class="hidden-field" value="' + contentLat + '"></input>' +
+          '<input type="hidden" name="submit-long" class="hidden-field" value="' + contentLong + '"></input>' +
+          '<input type="hidden" name="submit-map-center" class="hidden-field" value="' + contentCenter + '"></input>' +
+          '<input type="hidden" name="submit-map-zoom" class="hidden-field" value="' + contentZoom + '"></input>' +
+          '<button class="bttn bttn-small bttn-primary" type="submit">Submit</button>' +
+        '</form>' +
       '</div>';
     // Create a new InfoWindow.
     infoWindow = new google.maps.InfoWindow({
