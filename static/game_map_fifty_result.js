@@ -52,6 +52,7 @@ async function initMap() {
 
   // Content for Info Window on submit.html
   let message
+  let score
   let review
   let body
   let try_again
@@ -60,12 +61,13 @@ async function initMap() {
     // Incorrect
     if (submit_attempts < 6) {
       message = 'incorrect'; 
+      score = 'Score: na'; 
       review = '';
       body =
         'Attempts: ' + submit_attempts  + '<br>' +
         'Current Total Time: ' + duration_total + '<br><br>' +
-        'Base Score: ' + base_score  + '<br>' +
-        'Bonus Score: ' + bonus_score  + '<br>';
+        'Base Score: na<br>' +
+        'Bonus Score: na<br>';
       try_again = 
         '<div class="infowindow-result-footer-try">' +
           '<form name="router" action="/fifty/results" method="post">' + 
@@ -80,6 +82,7 @@ async function initMap() {
         '</div>';
     } else {
       message = 'incorrect'; 
+      score = 'Score: na'; 
       review = 
         '<div class="infowindow-result-title-right-review">' +
           '<form name="router" action="/fifty/results" method="post">' + 
@@ -111,6 +114,7 @@ async function initMap() {
   } else if (submit_validation == 2) {
     // Quit
     message = 'quit'; 
+    score = 'Score: 0 pts'; 
     review = 
     '<div class="infowindow-result-title-right-review">' +
       '<form name="router" action="/fifty/results" method="post">' + 
@@ -139,6 +143,7 @@ async function initMap() {
   } else if (submit_validation == 1) {
     // Correct
     message = 'correct!';
+    score = 'Score: ' + game_score + ' pts'; 
     review = 
     '<div class="infowindow-result-title-right-review">' +
       '<form name="router" action="/fifty/results" method="post">' + 
@@ -174,8 +179,8 @@ async function initMap() {
           message  +
         '</div>' + 
         '<div class="infowindow-result-title-right">' + 
-        'Score: ' + game_score + ' pts' + 
-        review + 
+          score + 
+          review + 
         '</div>' +
       '</div>' +
         '<div class="infowindow-result-body">' +
