@@ -94,7 +94,7 @@
                                 <li>A multiplier is calculated using the formula: <i>e</i><sup>−0.0054(x-1)<sup>2</sup></sup>, where
                                     <i>x</i> is the time elapsed to find the house.
                                 </li>
-                                <li><i>x</i> starts when you first open the house of the day.</li>
+                                <li><i>x</i> starts when you first open the location of the day.</li>
                             </ol>
                             <li>Essentially you get the full 100 points if you find the house in 2 minutes or less. You get
                                 1 point if found in 30 minutes.</li>
@@ -121,18 +121,15 @@
                     </div>
                     <div class="container-bottom-genpage-main-content-body-subsection-body">
                         <ol type="1">
-                            <li>Your total score is the combination of your base and bonus scores.</li>
+                            <li>Your score for each location is calculated when you have successfuly located the house, abandoned the search, or have submitted 6 incorrect coordinates.</li>
+                            <li>Your score is the combination of your base and bonus scores.</li>
                             <li>The max base score is 50.</li>
                             <ol type="a">
-                                <li>You get the max base score if you find the correct house.</li>
-                                <li>You get 0 if you submit the wrong house.</li>
-                                <li>You are allowed multiple attempts.</li>
+                                <li>You get the full base score if you correctly located the house on your first attempt.</li>
+                                <li>You are allowed 6 attempts.</li>
                                 <ol type="i">
-                                    <li>On the second attempt, the max base score is lowered to 40.</li>
-                                    <li>On the the third attempt, 30.</li>
-                                    <li>Further attempts will not lower the max base score.</li>
-                                    <li>If you leave the game page such as stoping the game, navigating to another page or closing the window/tab within 
-                                        10 seconds, the current game will not be counted as an attempt.</li>
+                                    <li>For every incorrect attempt, your base score is lowered by 10.</li>
+                                    <li>You get 0 after you have exhausted all attempts.
                                 </ol>
                             </ol>
                             <li>The max bonus score is 50.</li>
@@ -141,12 +138,12 @@
                                 <li>A multiplier is calculated using the formula: <i>e</i><sup>−0.0054(x-1)<sup>2</sup></sup>, where
                                     <i>x</i> is the time elapsed to find the house.
                                 </li>
-                                <li><i>x</i> is cumulative, so times in previous attempts are included.</li>
+                                <li><i>x</i> is calculated from the moment you view a location for the first time.</li>
                                 <li>Essentially you get the full 50 bonus points if you find the house in 2 minutes or less. You get
                                     1 point if found in 30 minutes. After 30 minutes, no bonus.</li>
                             </ol>
                             <li>So if you find the house on your first attempt and in 2 minutes or less, you get 100 points.</li>
-                            <li>If you quit a location, the answer will be revealed as the anchor of the results info window. No further 
+                            <li>If you abandoned the search for a location, the answer will be revealed as the anchor of the results info window. No further 
                                 attempts will be allowed and your total score will be recorded as 0 for that location.</li>
                         </ol>
                     </div>

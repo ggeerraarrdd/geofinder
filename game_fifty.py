@@ -377,8 +377,14 @@ def get_fifty_game_score(db, user_id, location_id, validation, duration):
             base = 50
         elif attempts == 2:
             base = 40
-        else:
+        elif attempts == 3:
             base = 30
+        elif attempts == 4:
+            base = 20
+        elif attempts == 5:
+            base = 10
+        else:
+            base = 0
 
         # Calculate bonus
         bonus_multiplier = exp(-0.0054*(ceil(duration/60)-1)**2)
