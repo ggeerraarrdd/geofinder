@@ -27,46 +27,70 @@ ALL CONTENTS IN THIS REPO ARE FOR EDUCATIONAL PURPOSES ONLY.
 
 * See `requirements.txt`
 
+### Installation
+
+1. **Clone the repository:**
+
+    ```bash
+    git clone https://github.com/ggeerraarrdd/geofinder.git
+    ```
+
+2. **Navigate into the project directory:**
+
+    ```bash
+    cd geofinder # For example
+    ```
+
+3. **Create and activate a virtual environment:**
+
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    ```
+
+4. **Install the dependencies:**
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+5. **Set up a PostgreSQL Database:**
+
+    TODO
+
+6. **Set up a Google Maps API Key:**
+
+    For the embedded map to work, you need to set up an API Key. Before you can create one, you will need to create a Google Cloud project, for which you need a Google Cloud account.
+
+    * [Set up a Google Cloud account](https://cloud.google.com)
+    * [Set up your Google Cloud project](https://developers.google.com/maps/documentation/javascript/cloud-setup)
+    * [Using API Keys](https://developers.google.com/maps/documentation/javascript/get-api-key)
+
+7. **Create an `.env` file and set the environment variables:**
+
+    Create a file named `.env` in the `app` directory of the project and add the following variables:
+
+    TODO
+
 ### Usage
 
-Clone it!
+1. **Go into the app directory and run the command:**
 
-```bash
-git clone https://github.com/ggeerraarrdd/geofinder.git
-```
+    ```bash
+    flask run
+    ```
 
-Go into the project directory and run the command:
+2. **Open the film series website:**
 
-```bash
-flask run
-```
+    Copy and open the URL displayed after 'Running on' in the terminal.
 
-### Database
+3. **Register an account:**
 
-Tbd
+    TODO
 
-### Notes on Google Maps
+4. **Login:**
 
-For the embedded maps to work, you need to use your own API Key. Before you can create one, you will need to create a Google Cloud project, for which you need a Google Cloud account.
-
-* [Set up a Google Cloud account](https://cloud.google.com)
-* [Set up your Google Cloud project](https://developers.google.com/maps/documentation/javascript/cloud-setup)
-* [Using API Keys](https://developers.google.com/maps/documentation/javascript/get-api-key)
-
-### Environment Variables
-
-Set up the following environment variables using your preferred method.
-
-```text
-SECRET_KEY=<Your_Flask_Session_Secret_Key>
-MAP_API_KEY=<Your_Google_Maps_API_Key>
-GEOFINDER_DB_HOST=<Your_Database_Host>
-GEOFINDER_DB_PORT=5432
-GEOFINDER_DB_NAME=<Your_Database_Name>
-GEOFINDER_DB_USER=<Your_Database_Username>
-GEOFINDER_DB_PASSWORD=<Your_Database_Password>
-NEW_REGISTRATIONS=TRUE
-```
+    TODO
 
 ## Author(s)
 
