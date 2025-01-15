@@ -13,7 +13,7 @@ _Geofinder_ comes in two modes.
 
 _Geofinder_ is inspired by such childhood games as _[Where's Waldo?](https://en.wikipedia.org/wiki/Where%27s_Wally%3F)_ and _[Where in the World is Carmen Sandiego?](https://en.wikipedia.org/wiki/Carmen_Sandiego)_. And the simple pleasures of looking out through vehicle windows and just gazing at the passing landscapes and cityscapes.
 
-![Screenshot](static/images/geofinder_00.png)
+![Screenshot](docs/images/geofinder_00.png)
 
 More screenshots below.
 
@@ -101,9 +101,9 @@ Development is ongoing.
 
 ## Screenshots
 
-![Screenshot](static/images/geofinder_01.png)
-![Screenshot](static/images/geofinder_02.png)
-![Screenshot](static/images/geofinder_03.png)
-![Screenshot](static/images/geofinder_04.png)
-![Screenshot](static/images/geofinder_05.png)
-![Screenshot](static/images/geofinder_06.png)
+![Screenshot](docs/images/geofinder_01.png)
+![Screenshot](docs/images/geofinder_02.png)
+![Screenshot](docs/images/geofinder_03.png)
+![Screenshot](docs/images/geofinder_04.png)
+![Screenshot](docs/images/geofinder_05.png)
+![Screenshot](docs/images/geofinder_06.png)

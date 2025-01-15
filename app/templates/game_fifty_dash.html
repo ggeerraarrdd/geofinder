@@ -1,0 +1,556 @@
+{% extends "layout.html" %}
+
+{% block mapscript %}
+<script type="module" src="/static/game_map_general.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+{% endblock %}
+
+{% block main %}
+
+<div class="container-bottom-map" id="map" map-lat="41.85732" map-lng="-87.778546" map-zoom="17">
+
+    <script>(g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
+            ({ key: "{{ map_api_key }}", v: "beta" });</script>
+
+</div>
+
+<div class="container-bottom-general-main">
+
+    <div class="container-bottom-general-top">
+    </div>
+
+    <div class="container-bottom-general-bottom">
+
+        <!-- General Content -->
+        <div class="container-bottom-general-content">
+
+            <!-- Page -->
+            <div class="pages">
+
+                <!-- Page - Breadcrumb -->
+                <div class="pages-breadcrumb">
+                    
+                    <form name="submit" action="/nav" method="post">
+                        <input type="hidden" name="page" class="hidden-field" value="fifty_page_dash"></input>
+                        <input type="hidden" name="goto" class="hidden-field" value="index"></input>
+                        <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
+                        <input type="hidden" name="bttn" class="hidden-field" value="fifty_page_dash"></input>
+                        <button name="breadcrumb" class="bttn bttn-xsmall bttn-naked" type="submit">Start</button>
+                    </form>
+
+                    <form>
+                        <button class="bttn bttn-separator" type="submit" disabled>/</button>
+                    </form>
+
+                    <form name="submit" action="/nav" method="post">
+                        <input type="hidden" name="page" class="hidden-field" value="fifty_page_dash"></input>
+                        <input type="hidden" name="goto" class="hidden-field" value="fifty_page_dash"></input>
+                        <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
+                        <input type="hidden" name="bttn" class="hidden-field" value="fifty_page_dash"></input>
+                        <button name="breadcrumb" class="bttn bttn-xsmall bttn-naked" type="submit">Dashboard</button>
+                    </form>
+
+                    <form>
+                        <button class="bttn bttn-separator" type="submit" disabled>/</button>
+                    </form>
+
+                    <form name="submit" action="/nav" method="post">
+                        <input type="hidden" name="page" class="hidden-field" value="fifty_page_dash"></input>
+                        <input type="hidden" name="goto" class="hidden-field" value="fifty_page_dash"></input>
+                        <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
+                        <input type="hidden" name="bttn" class="hidden-field" value="fifty_page_dash"></input>
+                        <button name="breadcrumb" class="bttn bttn-xsmall bttn-naked" type="submit">Search History: Geo50x</button>
+                    </form>
+
+                </div>
+                
+                <!-- Page - Title -->
+                <div class="pages-title">
+
+                    <div class="pages-title-left">
+                        Geo50x Challenge
+                    </div>
+
+                    <div class="pages-title-right">
+                        <div class="cpages-title-right-found">
+                            {% set available = content|sum(attribute='fifty_game_loc_available') %}
+                            {% if available > 0 %}
+                                <form name="submit" action="/fifty/dash" method="post">
+                                    <input type="hidden" name="page" class="hidden-field" value="fifty_page_dash"></input>
+                                    <input type="hidden" name="goto" class="hidden-field" value="fifty_page_game"></input>
+                                    <input type="hidden" name="nav" class="hidden-field" value="no"></input>
+                                    <input type="hidden" name="bttn" class="hidden-field" value="start"></input>
+                                    <button class="bttn bttn-medium bttn-primary" type="submit">
+                                        Play Challenge
+                                    </button>
+                                </form>
+                            {% else %}
+                                You have completed the challenge!
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Page - Content - PROFILE - Main - GEO50X -->
+                <div class="pages-content">
+                    
+                    <!-- Page - Content - PROFILE - Header - GEO50X -->
+                    <div class="pages-content-header">
+
+                        <!-- Score Percentage -->
+                        <div class="pages-content-header-item">
+                            <!-- Item - Icon -->
+                            <div class="pages-content-header-item-icon">
+                                <span class="material-symbols-outlined" style="font-size: 46px;">
+                                    award_star
+                                </span>
+                            </div>
+                            <!-- Item - Info -->
+                            <div class="pages-content-header-item-info">
+                                <!-- Item - Info - Value -->
+                                <div class="pages-content-header-item-info-value">
+                                    {{ header.user_score_percentage }}%
+                                </div>
+                                <!-- Item - Info - Label -->
+                                <div class="pages-content-header-item-info-label">
+                                    Total {{ header.user_score_total }} pts out of {{ header.user_score_possible }}
+                                </div> 
+                            </div>
+                        </div>
+
+                        <!-- Locations Found -->
+                        <div class="pages-content-header-item">
+                            <!-- Item - Icon -->
+                            <div class="pages-content-header-item-icon">
+                                <span class="material-symbols-outlined" style="font-size: 46px;">
+                                    home_pin
+                                </span>
+                            </div>
+                            <!-- Item - Info -->
+                            <div class="pages-content-header-item-info">
+                                <!-- Item - Info - Value -->
+                                <div class="pages-content-header-item-info-value">
+                                    {{ header.user_loc_found }}
+                                </div>
+                                <!-- Item - Info - Label -->
+                                <div class="pages-content-header-item-info-label">
+                                    Found out of 50
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Average Offset per Attempt -->
+                        <div class="pages-content-header-item">
+                            <!-- Item - Icon -->
+                            <div class="pages-content-header-item-icon">
+                                <span class="material-symbols-outlined" style="font-size: 46px;">
+                                    route
+                                </span>
+                            </div>
+                            <!-- Item - Info -->
+                            <div class="pages-content-header-item-info">
+                                <!-- Item - Info - Value -->
+                                <div class="pages-content-header-item-info-value">
+                                    {% if header.user_offset_avg == 0 %}
+                                        --
+                                    {% else %}
+                                        {{ header.user_offset_avg }} ft
+                                    {% endif %}
+                                </div>
+                                <!-- Item - Info - Label -->
+                                <div class="pages-content-header-item-info-label">
+                                    Avg Offset
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fastest Time -->
+                        <div class="pages-content-header-item">
+                            <!-- Item - Icon -->
+                            <div class="pages-content-header-item-icon">
+                                <span class="material-symbols-outlined" style="font-size: 46px;">
+                                    sprint
+                                </span>
+                            </div>
+                            <!-- Item - Info -->
+                            <div class="pages-content-header-item-info">
+                                <!-- Item - Info - Value -->
+                                <div class="pages-content-header-item-info-value">
+                                    {{ header.user_duration_fastest}}
+                                </div>
+                                <!-- Item - Info - Label -->
+                                <div class="pages-content-header-item-info-label">
+                                    Fastest Time
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    <!-- Page - Content - PROFILE - Table - GEO50X -->
+                    <div class="pages-profile-content" style="padding: 0 !important;">
+
+                        {% if content|length > 0 %}
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="text-start">#</th>
+                                    <th class="text-start-center"></th>
+                                    <th class="text-start">Search Area</th>
+                                    <th class="text-start-center">Found</th>
+                                    <th class="text-start-center">Attempts<br>(max 6)</th>
+                                    <th class="text-start-center">Avg Offset <br>per Location (ft)</th>
+                                    <th class="text-start-center">Total <br>Time</th>
+                                    <th class="text-start-center">Score</th>
+                                    <th class="text-start-center"></th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {%- for c in content %}
+                                <tr>
+                                    <!-- # -->
+                                    <td class="text-start">
+                                        {{ c.id }}
+                                    </td>
+
+                                    <!-- Found - Button -->
+                                    <td class="text-start-center">
+                                        {% if c.fifty_game_submit_total is not none %}
+                                            {% if c.fifty_game_submit_total == 0 %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                    <form name="router" action="/fifty/dash" method="post">
+                                                        <input type="hidden" name="page" class="hidden-field" value="fifty_page_dash"></input>
+                                                        <input type="hidden" name="goto" class="hidden-field" value="fifty_page_game"></input>
+                                                        <input type="hidden" name="bttn" class="hidden-field" value="again"></input>
+                                                        <input type="hidden" name="loc" class="hidden-field" value="{{ c.id }}"></input>
+                                                        <button class="bttn bttn-xsmall bttn-primary" type="submit">Start</button>
+                                                    </form>
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                {% else %}
+                                                {% endif %}
+                                            {% elif c.fifty_game_submit_total < 6 %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                    <form name="router" action="/fifty/dash" method="post">
+                                                        <input type="hidden" name="page" class="hidden-field" value="fifty_page_dash"></input>
+                                                        <input type="hidden" name="goto" class="hidden-field" value="fifty_page_game"></input>
+                                                        <input type="hidden" name="bttn" class="hidden-field" value="again"></input>
+                                                        <input type="hidden" name="loc" class="hidden-field" value="{{ c.id }}"></input>
+                                                        <button class="bttn bttn-xsmall bttn-primary" type="submit">Try Again</button>
+                                                    </form>
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                {% else %}
+                                                {% endif %}
+                                            {% else %}
+                                            {% endif %}
+                                        {% else %}
+                                            <form name="router" action="/fifty/dash" method="post">
+                                                <input type="hidden" name="page" class="hidden-field" value="fifty_page_dash"></input>
+                                                <input type="hidden" name="goto" class="hidden-field" value="fifty_page_game"></input>
+                                                <input type="hidden" name="bttn" class="hidden-field" value="again"></input>
+                                                <input type="hidden" name="loc" class="hidden-field" value="{{ c.id }}"></input>
+                                                <button class="bttn bttn-xsmall bttn-primary" type="submit">Start</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+
+                                    <!-- Search Area -->
+                                    <td class="text-start">
+                                        {{ c.loc_city }}, {{ c.loc_state }}, {{ c.loc_country }}
+                                    </td>
+
+                                    <!-- Found -->
+                                    <td class="text-start-center">
+                                        {% if c.fifty_game_submit_total is not none %}
+                                            {% if c.fifty_game_submit_total == 0 %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                    No
+                                                {% else %}
+                                                {% endif %}
+                                            {% elif c.fifty_game_submit_total < 6 %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                    --
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                    Yes
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                    No
+                                                {% else %}
+                                                {% endif %}
+                                            {% else %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                    No
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                    Yes
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                    No
+                                                {% else %}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% else %}
+                                        {% endif %}
+                                    </td>
+                                    
+                                    <!-- Total Attempts -->
+                                    <td class="text-start-center">
+                                        {% if c.fifty_game_submit_total is not none %}
+                                            {% if c.fifty_game_submit_total == 0 %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                    {{ c.fifty_game_submit_total }}
+                                                {% else %}
+                                                {% endif %}
+                                            {% elif c.fifty_game_submit_total < 6 %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                    {{ c.fifty_game_submit_total }}
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                    {{ c.fifty_game_submit_total }}
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                    {{ c.fifty_game_submit_total }}
+                                                {% else %}
+                                                {% endif %}
+                                            {% else %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                    {{ c.fifty_game_submit_total }}
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                    {{ c.fifty_game_submit_total }}
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                    {{ c.fifty_game_submit_total }}
+                                                {% else %}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% else %}
+                                        {% endif %}
+                                    </td>
+
+                                    <!-- Average Offset per Submit -->
+                                    <td class="text-start-center">
+                                        {% if c.fifty_game_submit_total is not none %}
+                                            {% if c.fifty_game_submit_total == 0 %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                    ∅
+                                                {% else %}
+                                                {% endif %}
+                                            {% elif c.fifty_game_submit_total < 6 %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                    --
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                    {{ c.fifty_game_submit_off_avg }}
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                    ∅
+                                                {% else %}
+                                                {% endif %}
+                                            {% else %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                    ∅
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                    {{ c.fifty_game_submit_off_avg }}
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                    {{ c.fifty_game_submit_off_avg }}
+                                                {% else %}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% else %}
+                                        {% endif %}
+                                    </td>
+
+                                    <!-- Total Duration -->
+                                    <td class="text-start-center">
+                                        {% if c.fifty_game_submit_total is not none %}
+                                            {% if c.fifty_game_submit_total == 0 %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                    ∅
+                                                {% else %}
+                                                {% endif %}
+                                            {% elif c.fifty_game_submit_total < 6 %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                    --
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                    {{ c.fifty_game_duration_total_str }}
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                    ∅
+                                                {% else %}
+                                                {% endif %}
+                                            {% else %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                    ∅
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                    {{ c.fifty_game_duration_total_str }}
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                    {{ c.fifty_game_duration_total_str }}
+                                                {% else %}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% else %}
+                                        {% endif %}
+                                    </td>
+
+                                    <!-- Total Score -->
+                                    <td class="text-start-center">
+                                        {% if c.fifty_game_submit_total is not none %}
+                                            {% if c.fifty_game_submit_total == 0 %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                    {{ c.fifty_game_score_total }}
+                                                {% else %}
+                                                {% endif %}
+                                            {% elif c.fifty_game_submit_total < 6 %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                    --
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                    {{ c.fifty_game_score_total }}
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                    {{ c.fifty_game_score_total }}
+                                                {% else %}
+                                                {% endif %}
+                                            {% else %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                    {{ c.fifty_game_score_total }}
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                    {{ c.fifty_game_score_total }}
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                    {{ c.fifty_game_score_total }}
+                                                {% else %}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% else %}
+                                        {% endif %}
+                                    </td>
+
+                                    <!-- Review Button -->
+                                    <td class="text-start-center">
+                                        {% if c.fifty_game_submit_total is not none %}
+                                            {% if c.fifty_game_submit_total == 0 %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                    <form name="router" action="/fifty/dash" method="post">
+                                                        <input type="hidden" name="page" class="hidden-field" value="fifty_page_dash"></input>
+                                                        <input type="hidden" name="goto" class="hidden-field" value="fifty_page_game"></input>
+                                                        <input type="hidden" name="bttn" class="hidden-field" value="review"></input>
+                                                        <input type="hidden" name="loc" class="hidden-field" value="{{ c.id }}"></input>
+                                                        <input type="hidden" name="time" class="hidden-field" value="{{ c.fifty_game_duration_total_str }}"></input>
+                                                        <input type="hidden" name="score" class="hidden-field" value="{{ c.fifty_game_score_total }}"></input>
+                                                        <button class="bttn bttn-xsmall" type="submit">Review</button>
+                                                    </form>
+                                                {% else %}
+                                                {% endif %}
+                                            {% elif c.fifty_game_submit_total < 6 %}
+                                                {% if c.fifty_game_submit_validation == 0 %}
+                                                {% elif c.fifty_game_submit_validation == 1 %}
+                                                    <form name="router" action="/fifty/dash" method="post">
+                                                        <input type="hidden" name="page" class="hidden-field" value="fifty_page_dash"></input>
+                                                        <input type="hidden" name="goto" class="hidden-field" value="fifty_page_game"></input>
+                                                        <input type="hidden" name="bttn" class="hidden-field" value="review"></input>
+                                                        <input type="hidden" name="loc" class="hidden-field" value="{{ c.id }}"></input>
+                                                        <input type="hidden" name="time" class="hidden-field" value="{{ c.fifty_game_duration_total_str }}"></input>
+                                                        <input type="hidden" name="score" class="hidden-field" value="{{ c.fifty_game_score_total }}"></input>
+                                                        <button class="bttn bttn-xsmall" type="submit">Review</button>
+                                                    </form>
+                                                {% elif c.fifty_game_submit_validation == 2 %}
+                                                    <form name="router" action="/fifty/dash" method="post">
+                                                        <input type="hidden" name="page" class="hidden-field" value="fifty_page_dash"></input>
+                                                        <input type="hidden" name="goto" class="hidden-field" value="fifty_page_game"></input>
+                                                        <input type="hidden" name="bttn" class="hidden-field" value="review"></input>
+                                                        <input type="hidden" name="loc" class="hidden-field" value="{{ c.id }}"></input>
+                                                        <input type="hidden" name="time" class="hidden-field" value="{{ c.fifty_game_duration_total_str }}"></input>
+                                                        <input type="hidden" name="score" class="hidden-field" value="{{ c.fifty_game_score_total }}"></input>
+                                                        <button class="bttn bttn-xsmall" type="submit">Review</button>
+                                                    </form>
+                                                {% else %}
+                                                {% endif %}
+                                            {% else %}
+                                                <form name="router" action="/fifty/dash" method="post">
+                                                    <input type="hidden" name="page" class="hidden-field" value="fifty_page_dash"></input>
+                                                    <input type="hidden" name="goto" class="hidden-field" value="fifty_page_game"></input>
+                                                    <input type="hidden" name="bttn" class="hidden-field" value="review"></input>
+                                                    <input type="hidden" name="loc" class="hidden-field" value="{{ c.id }}"></input>
+                                                    <input type="hidden" name="time" class="hidden-field" value="{{ c.fifty_game_duration_total_str }}"></input>
+                                                    <input type="hidden" name="score" class="hidden-field" value="{{ c.fifty_game_score_total }}"></input>
+                                                    <button class="bttn bttn-xsmall" type="submit">Review</button>
+                                                </form>
+                                            {% endif %}
+                                        {% else %}
+                                        {% endif %}
+                                    </td>
+
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+
+                            <tfoot>
+                                <tr>
+                                    <td class="border-0" colspan="10">
+                                        &nbsp;
+                                    </td>
+                                </tr>
+                            </tfoot>
+
+                        </table>
+                        {% else %}
+
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th class="text-start">#</th>
+                                        <th class="text-start-center"></th>
+                                        <th class="text-start">Search Area</th>
+                                        <th class="text-start-center">Found</th>
+                                        <th class="text-start-center">Attempts<br>(max 6)</th>
+                                        <th class="text-start-center">Total <br>Time</th>
+                                        <th class="text-start-center">Avg Offset <br>per Location (ft)</th>
+                                        <th class="text-start-center">Score</th>
+                                        <th class="text-start-center"></th>
+                                    </tr>
+                                </thead>
+    
+                                <tbody>
+                                </tbody>
+    
+                                <tfoot>
+                                    <tr>
+                                        <td class="border-0" colspan="10">
+                                            <div class="container-bottom-history-message">
+                                                <br>
+                                                You have not started the challenge yet
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+    
+                            </table>
+                        
+                        {% endif %}
+
+                    </div>
+
+                </div>
+            
+            </div>
+
+        </div>
+            
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+
+
+
+
+
+

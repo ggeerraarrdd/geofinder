@@ -1,0 +1,176 @@
+{% extends "layout.html" %}
+
+{% block mapscript %}
+<script type="module" src="/static/game_map_general.js"></script>
+{% endblock %}
+
+{% block main %}
+
+<div class="container-bottom-map" id="map" map-lat="41.85732" map-lng="-87.778546" map-zoom="17">
+
+    <script>(g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
+            ({ key: "{{ map_api_key }}", v: "beta" });</script>
+
+</div>
+
+<div class="container-bottom-genpage">
+
+    <div class="container-bottom-genpage-main">
+
+        <div class="container-bottom-genpage-main-content">
+
+            <div class="container-bottom-genpage-main-content-top">
+
+                <div class="container-bottom-genpage-main-content-top-title">
+                    About
+                </div>
+                
+                <div class="container-bottom-genpage-main-content-top-buttons">
+                    {% if session["user_id"] %}
+                    {% else %}
+                    <div class="infowindow-index-button-right">
+                        {% set new_registration_status = "" if new_registrations else "disabled" %}
+                        {% set new_registration_status_button = "bttn-primary" if new_registrations else "" %}
+                        <form name="submit" action="/register" method="get">
+                            <button class="bttn bttn-small {{ new_registration_status_button}}" style="margin: 0 0 0 10px;" type="submit" {{ new_registration_status }}>Register</button>
+                        </form>
+                    </div>
+                    <div class="infowindow-index-button-right">
+                        <form name="submit" action="/login" method="post">
+                            <button class="bttn bttn-small bttn-primary" style="margin: 0 0 0 10px;" type="submit">Log In</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+                
+            </div>
+
+            <div class="container-bottom-genpage-main-content-body">
+
+                <!-- Main Section of About Content -->
+                <div class="container-bottom-genpage-main-content-body-main">
+                    <div style="text-align: center; padding-bottom:20px;">
+                        <i>It's like "Where's Waldo?" but for houses!</i>
+                    </div>
+                    <div class="container-bottom-genpage-main-content-body-main-text">
+                        Geofinder is an online scavenger hunt game.
+                    </div>
+                    <div class="container-bottom-genpage-main-content-body-main-text">
+                        The gameplay is simple: Given a photo of a house somewhere in the world, your task is to look for 
+                        that house inside a marked area on a map. While that may sound straighforward, how you will go 
+                        about looking might not be.
+                    </div>
+                    <div class="container-bottom-genpage-main-content-body-main-text" style="margin-bottom: -30px;">
+                        Geofinder comes in two modes. 
+                    </div>
+                </div>
+
+                <div class="container-bottom-genpage-main-content-body-subsection">
+                    <div class="container-bottom-genpage-main-content-body-subsection-title" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center;">
+                            <span class="material-symbols-outlined" style="font-size: 26px;">travel_explore</span>&nbsp;DEFAULT MODE
+                        </div>
+                        <div>
+                            {% if session["user_id"] %}
+                            <form name="submit" action="/" method="post">
+                                <input type="hidden" name="page" class="hidden-field" value="index"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="geofinder_game"></input>
+                                <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
+                                <input type="hidden" name="nav" class="hidden-field" value="no"></input>
+                                <input type="hidden" name="bttn" class="hidden-field" value="again"></input>
+                                <button class="bttn bttn-small" type="submit" disabled>
+                                    Start Geofinder
+                                </button>
+                            </form>
+                            {% else %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="container-bottom-genpage-main-content-body-main-text" style="margin-bottom: -30px;">
+                        In the Wordle-like default mode, you are given one house a day and have until the end of the day 
+                        (CST time) to find it. Start your daily streak today.
+                    </div>
+                </div>
+
+                <div class="container-bottom-genpage-main-content-body-subsection">
+                    <div class="container-bottom-genpage-main-content-body-subsection-title" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center;">
+                            <span class="material-symbols-outlined" style="font-size: 26px;">award_star</span>&nbsp;CHALLENGE MODE
+                        </div>
+                        <div>
+                            {% if session["user_id"] %}
+                            <form name="submit" action="/about" method="post">
+                                <input type="hidden" name="page" class="hidden-field" value="about"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="fifty_page_game"></input>
+                                <input type="hidden" name="bttn" class="hidden-field" value="new"></input>
+                                <button class="bttn bttn-small bttn-primary" type="submit">Play Challenge</button>
+                            </form>
+                            {% else %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="container-bottom-genpage-main-content-body-main-text">
+                        In the Netflix-like challenge mode, aka Geo50x, you are given 50 houses at once. See how many you can find.
+                    </div>
+
+                    <div class="container-bottom-genpage-main-content-body-main-text">
+                        <img src="https://geofinder-bucket.s3.amazonaws.com/geofinder.png" style="padding-top: 20px; max-width: 100%;">
+                        <!-- <iframe src="https://giphy.com/embed/werIbLq7aRKSEqPFqC" width="480" height="270" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/ashleykutcher-ashley-kutcher-lake-house-boy-from-carolina-werIbLq7aRKSEqPFqC">via GIPHY</a></p> -->
+                    </div>
+                
+                    <br>
+                    
+                    <div class="container-bottom-genpage-main-content-body-main-text">
+                        Geofinder is inspired by such childhood games as <a
+                            href="https://en.wikipedia.org/wiki/Where%27s_Wally%3F" target="_blank">Where's Waldo?</a> and <a
+                            href="https://en.wikipedia.org/wiki/Carmen_Sandiego"
+                            target="_blank">Where in the World Is Carmen Sandiego?</a>. And the simple pleasures of looking out
+                        through vehicle windows and just gazing at the passing landscapes and cityscapes.
+                    </div>
+                    
+                </div>
+
+                <!-- Sub Section - Contact -->
+                <div class="container-bottom-genpage-main-content-body-subsection">
+                    <div class="container-bottom-genpage-main-content-body-subsection-title">
+                        Contact
+                    </div>
+                    <p>
+                        info@geofinder.io
+                    </p>
+                </div>
+
+                <!-- Sub Section - Source Code -->
+                <div class="container-bottom-genpage-main-content-body-subsection">
+                    <div class="container-bottom-genpage-main-content-body-subsection-title">
+                        Source Code
+                    </div>
+                    <div>
+                        <a href="https://github.com/ggeerraarrdd/geofinder" target="_blank">https://github.com/ggeerraarrdd/geofinder</a>
+                    </div>
+                </div>
+
+                <!-- Sub Section - Version History -->
+                <div class="container-bottom-genpage-main-content-body-subsection">
+                    <div class="container-bottom-genpage-main-content-body-subsection-title">
+                        Version History
+                    </div>
+                    <div>
+                        The <a href="https://github.com/ggeerraarrdd/geofinder/releases/tag/v1.0.0" target="_blank" rel="noopener noreferrer">initial release</a> of Geofinder, as Geo50x, was submitted as the final project for  
+                        <a href="https://cs50.harvard.edu/x/2023/" target="_blank">CS50x: CS50's Introduction to Computer Science</a> (HarvardX, 2023).<br>
+                        <br>
+                        Development is ongoing: 
+                        <a href="https://github.com/ggeerraarrdd/geofinder/releases" target="_blank" rel="noopener noreferrer">https://github.com/ggeerraarrdd/geofinder/releases</a>.
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

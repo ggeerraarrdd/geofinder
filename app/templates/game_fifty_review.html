@@ -1,0 +1,179 @@
+{% extends "layout.html" %}
+
+{% block mapscript %}
+<script type="module" src="/static/game_map_fifty_review.js"></script>
+{% endblock %}
+
+{% block main %}
+
+<div class="container-bottom-map" id="map" 
+    map-lat="{{ package.loc_view_lat }}"
+    map-lng="{{ package.loc_view_lng }}" 
+    map-zoom="18" 
+    map-lat-offset="{{ package.loc_lat_game_offset }}" 
+    locations-right="{{ package.locations_right }}" 
+    locations-wrong="{{ package.locations_wrong }}" 
+    locations-none="{{ package.locations_none }}" 
+    locations-quit="{{ package.locations_quit }}"
+    locations-key="{{ package.locations_key }}">
+
+    <script>(g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
+            ({ key: "{{ map_api_key }}", v: "beta" });</script>
+
+</div>
+
+<div class="container-bottom-image-main">
+
+    <div class="container-bottom-image-top">
+        <div class="container-bottom-image-top-left">
+            <div style="display: flex; flex-direction: row; align-items: flex-end;">
+                <div style="padding-right: 6px;">
+                    <span class="material-symbols-outlined" style="font-size: 28px;">award_star</span>
+                </div>
+                <div>
+                    Geo50x #: {{ package.game_id }}<br>
+                    {{ package.loc_city }}, {{ package.loc_state }} {{ package.loc_country }}
+                </div>
+            </div>
+        </div>
+        <div class="container-bottom-image-top-right">
+            <div class="container-bottom-image-top-right-date">
+                {% if package.locations_right|length > 0 %}
+                    Found
+                {% elif package.locations_quit|length > 0 %}
+                    Not Found
+                {% else %}
+                    Not Found
+                {% endif %}
+            </div>    
+        </div>
+    </div>
+
+    <img src="{{ package.loc_image_source }}" width="400px"><br>
+
+    <div class="container-bottom-image-source">
+        <a href="{{ package.loc_url_source }}" target="_blank" rel="noopener noreferrer">source</a>
+    </div>
+
+    <div class="container-bottom-image-markers-label" style=" display: flex; flex-direction: row; justify-content: space-between;">
+        <div>
+            Time: {{ package.time_clock }}
+        </div>
+        <div>
+            Attempts: {{ package.locations_right|length + package.locations_wrong|length  }}
+        </div>
+        <div>
+            Score: {{ package.score }} pts
+        </div>
+    </div>
+    
+    <div class="container-bottom-image-markers-images" style="border-style: solid; border-width: 0 0 1px 0; display: flex; justify-content: center;">
+
+        <!-- Attempt with Quit 
+        {% if package.locations_right|length == 0 and package.locations_quit|length == 1 %}
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="25px"
+            height="35px" viewBox="-0.5 -0.5 45 65"
+            style="background-color: #ffffff;">
+            <defs />
+            <g>
+                <rect x="0" y="0" width="44" height="64" fill="#ffffff" stroke="none" pointer-events="all" />
+                <rect x="0" y="0" width="44" height="64" fill="#ffffff" stroke="none" pointer-events="all" />
+                <path
+                    d="M 22 0 L 40.74 30.48 C 42.87 33.94 44 37.93 44 42 C 44 47.83 41.68 53.43 37.56 57.56 C 33.43 61.68 27.83 64 22 64 C 9.85 64 0 54.15 0 42 C 0 37.93 1.13 33.94 3.26 30.48 Z"
+                    fill="#D95040" stroke="#B31312" stroke-width="0.5" stroke-miterlimit="10"
+                    transform="rotate(-180,22,32)" pointer-events="all" />
+                <ellipse cx="22" cy="23" rx="9" ry="9" fill="#000000" stroke="none" pointer-events="all" />
+            </g>
+        </svg>
+        {% else %}
+        {% endif %} -->
+
+        <!-- Attempts with Wrong Answers -->
+        {% for _ in range(package.locations_wrong|length) %}
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="25px"
+            height="30px" viewBox="-0.5 -0.5 45 65"
+            style="background-color: #ffffff; margin-right: 2px;">
+            <defs />
+            <g>
+                <rect x="0" y="0" width="44" height="64" fill="#ffffff" stroke="none" pointer-events="all" />
+                <rect x="0" y="0" width="44" height="64" fill="#ffffff" stroke="none" pointer-events="all" />
+                <path
+                    d="M 22 0 L 40.74 30.48 C 42.87 33.94 44 37.93 44 42 C 44 47.83 41.68 53.43 37.56 57.56 C 33.43 61.68 27.83 64 22 64 C 9.85 64 0 54.15 0 42 C 0 37.93 1.13 33.94 3.26 30.48 Z"
+                    fill="#D95040" stroke="#B31312" stroke-width="0.5" stroke-miterlimit="10"
+                    transform="rotate(-180,22,32)" pointer-events="all" />
+                <ellipse cx="22" cy="23" rx="9" ry="9" fill="#D95040" stroke="none" pointer-events="all" />
+            </g>
+        </svg>
+        {% endfor %}
+
+        <!-- Attempt with Correct Answer -->
+        {% if package.locations_right|length == 1 and package.locations_quit|length == 0 %}
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="25px"
+            height="30px" viewBox="-0.5 -0.5 45 65"
+            style="background-color: #ffffff; margin-right: 2px;">
+            <defs />
+            <g>
+                <rect x="0" y="0" width="44" height="64" fill="#ffffff" stroke="none" pointer-events="all" />
+                <rect x="0" y="0" width="44" height="64" fill="#ffffff" stroke="none" pointer-events="all" />
+                <path
+                    d="M 22 0 L 40.74 30.48 C 42.87 33.94 44 37.93 44 42 C 44 47.83 41.68 53.43 37.56 57.56 C 33.43 61.68 27.83 64 22 64 C 9.85 64 0 54.15 0 42 C 0 37.93 1.13 33.94 3.26 30.48 Z"
+                    fill="#D95040" stroke="#B31312" stroke-width="0.5" stroke-miterlimit="10"
+                    transform="rotate(-180,22,32)" pointer-events="all" />
+                <ellipse cx="22" cy="23" rx="9" ry="9" fill="#FFFF00" stroke="none" pointer-events="all" />
+            </g>
+        </svg>
+        {% else %}
+        {% endif %}
+
+        <!-- Attempts with No Answers -->
+        {% for _ in range(package.locations_none|length) %}
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="25px"
+            height="30px" viewBox="-0.5 -0.5 45 65"
+            style="background-color: #FFFFFF; margin-right: 2px;">
+            <defs />
+            <g>
+                <rect x="0" y="0" width="44" height="64" fill="#FFFFFF" stroke="none" pointer-events="all" />
+                <rect x="0" y="0" width="44" height="64" fill="#FFFFFF" stroke="none" pointer-events="all" />
+                <path
+                    d="M 22 0 L 40.74 30.48 C 42.87 33.94 44 37.93 44 42 C 44 47.83 41.68 53.43 37.56 57.56 C 33.43 61.68 27.83 64 22 64 C 9.85 64 0 54.15 0 42 C 0 37.93 1.13 33.94 3.26 30.48 Z"
+                    fill="#FFFFFF" stroke="gray" stroke-width="1.5" stroke-miterlimit="10"
+                    transform="rotate(-180,22,32)" pointer-events="all" />
+                <ellipse cx="22" cy="23" rx="9" ry="9" fill="#FFFFFF" stroke="none" pointer-events="all" />
+            </g>
+        </svg>
+        {% endfor %}
+
+    </div> 
+
+    <div class="container-bottom-image-buttons" style="padding-top: 15px;">
+        <div class="container-bottom-image-buttons-left">
+            <div class="container-bottom-image-buttons-new">
+                <form name="submit" action="/fifty/review" method="post">
+                    <input type="hidden" name="page" class="hidden-field" value="fifty_page_review"></input>
+                    <input type="hidden" name="goto" class="hidden-field" value="fifty_page_game"></input>
+                    <input type="hidden" name="bttn" class="hidden-field" value="new"></input>
+                    <button name="router" class="bttn bttn-xsmall bttn-primary" type="submit">New Search</button>
+                </form>
+            </div>
+        </div> 
+        <div class="container-bottom-image-buttons-right">
+            <form name="submit" action="/fifty/review" method="post">
+                <input type="hidden" name="page" class="hidden-field" value="fifty_page_review"></input>
+                <input type="hidden" name="goto" class="hidden-field" value="fifty_page_dash"></input>
+                <input type="hidden" name="bttn" class="hidden-field" value="history"></input>
+                <button name="submit" class="bttn bttn-xsmall" type="submit">Search History</button>
+            </form>
+        </div>
+    </div>
+    
+</div>      
+
+{% endblock %}
