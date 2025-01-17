@@ -5,12 +5,13 @@ import os
 from flask import Flask
 from flask_session import Session
 
-# Local Modules
-from blueprints.game.main import main
-from blueprints.game.authy import authy
-from blueprints.game.nav import nav
-from blueprints.game.profile import profile
-from blueprints.game.fifty import fifty
+# Local
+from blueprints.game.core import authy_bp
+from blueprints.game.core import main_bp
+from blueprints.game.core import nav_bp
+from blueprints.game.core import profile_bp
+from blueprints.game.fifty.routes import fifty_bp
+# from blueprints.game.geo.routes import geo_bp
 
 
 
@@ -35,11 +36,12 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Register blueprints
-app.register_blueprint(main)
-app.register_blueprint(authy)
-app.register_blueprint(nav)
-app.register_blueprint(profile)
-app.register_blueprint(fifty)
+app.register_blueprint(authy_bp)
+app.register_blueprint(main_bp)
+app.register_blueprint(nav_bp)
+app.register_blueprint(profile_bp)
+app.register_blueprint(fifty_bp)
+# app.register_blueprint(geo_bp)
 
 
 @app.after_request

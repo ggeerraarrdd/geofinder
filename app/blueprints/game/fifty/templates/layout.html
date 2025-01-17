@@ -11,12 +11,9 @@
         <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" rel="stylesheet">
         <script crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"></script>
 
-        <link href="/static/favicon.ico" rel="icon">
+        <link href="{{ url_for('fifty_bp.static', filename='favicon.ico') }}" rel="icon">
 
-        <!-- Styles for layout.html -->
-        <link href="/static/styles.css" rel="stylesheet" />
-        <!-- Styles for blueprints -->
-        {% block blueprintstyles %}{% endblock %}
+        <link href="{{ url_for('fifty_bp.static', filename='styles.css') }}" rel="stylesheet">
 
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 

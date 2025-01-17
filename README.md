@@ -4,6 +4,9 @@ An online game that's like _Where's Waldo?_ but for houses
 
 ## Description
 
+> [!NOTE]
+> ALL CONTENTS IN THIS REPO ARE FOR EDUCATIONAL PURPOSES ONLY.
+
 _Geofinder_ is an online scavenger hunt game. Its gameplay is simple: Given a photo of a house somewhere in the world, your task is to look for that house inside a marked area on a map. While that may sound straighforward, how you will go about looking might not be.
 
 _Geofinder_ comes in two modes.
@@ -17,9 +20,21 @@ _Geofinder_ is inspired by such childhood games as _[Where's Waldo?](https://en.
 
 More screenshots below.
 
-## Disclaimer
+## Table of Contents
 
-ALL CONTENTS IN THIS REPO ARE FOR EDUCATIONAL PURPOSES ONLY.
+TODO
+
+## Features
+
+TODO
+
+## Project Structure
+
+TODO
+
+## Prerequisites
+
+TODO
 
 ## Getting Started
 
@@ -106,13 +121,17 @@ ALL CONTENTS IN THIS REPO ARE FOR EDUCATIONAL PURPOSES ONLY.
 
 The [initial realease](https://github.com/ggeerraarrdd/geofinder/releases/tag/v1.0.0) of _Geofinder_, as _Geo50x_, was submitted as the final project for [CS50x: CS50's Introduction to Computer Science](https://cs50.harvard.edu/x/2023/) (HarvardX, 2023). Read the [project brief](https://cs50.harvard.edu/x/2023/project/) as of September 2023.
 
-### Future Work
+## Future Work
 
 Development is ongoing.
 
 ## License
 
 * [MIT License](https://github.com/ggeerraarrdd/geofinder/blob/main/LICENSE)
+
+## Contributing
+
+TODO
 
 ## Acknowledgments
 
@@ -131,3 +150,7 @@ Development is ongoing.
 ![Screenshot](docs/images/geofinder_04.png)
 ![Screenshot](docs/images/geofinder_05.png)
 ![Screenshot](docs/images/geofinder_06.png)
+
+## Frontispiece
+
+Screenshot of Playing with Geofinder web interface. Image taken from web-based game interface (Personal Collection, 2024). In the public domain.

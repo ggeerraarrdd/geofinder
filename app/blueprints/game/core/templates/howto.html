@@ -1,0 +1,160 @@
+{% extends "layout.html" %}
+
+{%- block mapscript -%}
+<script type="module" src="{{ url_for('main_bp.static', filename='game_map_general.js') }}"></script>
+{%- endblock -%}
+
+{% block main %}
+
+<div class="container-bottom-map" id="map" map-lat="41.85732" map-lng="-87.778546" map-zoom="17">
+
+    <script>(g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
+            ({ key: "{{ map_api_key }}", v: "beta" });</script>
+
+</div>
+
+<div class="container-bottom-genpage">
+
+    <div class="container-bottom-genpage-main">
+
+        <div class="container-bottom-genpage-main-content">
+
+            <div class="container-bottom-genpage-main-content-top">
+
+                <div class="container-bottom-genpage-main-content-top-title">
+                    How To Play
+                </div>
+                
+                <div class="container-bottom-genpage-main-content-top-buttons">
+                    {% if session["user_id"] %}
+                    {% else %}
+                    <div class="infowindow-index-button-right">
+                        {% set new_registration_status = "" if new_registrations else "disabled" %}
+                        {% set new_registration_status_button = "bttn-primary" if new_registrations else "" %}
+                        <form name="submit" action="/nav" method="post">
+                            <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
+                            <input type="hidden" name="bttn" class="hidden-field" value="register"></input>
+                            <button class="bttn bttn-small {{ new_registration_status_button }}" style="margin: 0 0 0 10px;" type="submit" {{ new_registration_status }}>Register</button>
+                        </form>
+                    </div>
+                    <div class="infowindow-index-button-right">
+                        <form name="submit" action="/nav" method="post">
+                            <input type="hidden" name="nav" class="hidden-field" value="yes"></input>
+                            <input type="hidden" name="bttn" class="hidden-field" value="login"></input>
+                            <button class="bttn bttn-small bttn-primary" style="margin: 0 0 0 10px;" type="submit">Log In</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+                
+            </div>
+
+            <div class="container-bottom-genpage-main-content-body">
+
+                <div class="container-bottom-genpage-main-content-body-main">
+                    <ol type="1">
+                        <li>You are given a photo of the exterior of a house somewhere in the world.</li>
+                        <li>Circled on a map is the search area where that house is located.</li>
+                        <li>You can zoom, pan, tilt and rotate the map. You can even go into Street View mode.</li>
+                        <li>The photo is sourced from a public Airbnb ad. A link to that ad is provided in case 
+                            it has other useful clues.</li>
+                        <li>If you think you have located the house, click it on the map and then the "Submit" button that pops
+                            up.</li>
+                        <li>If you get it wrong, you can try again.</li>
+                        <li>Have fun exploring the world one house at a time!</li>
+                    </ol>
+                </div>
+
+                <div class="container-bottom-genpage-main-content-body-subsection">
+                    <div class="container-bottom-genpage-main-content-body-subsection-title" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                        <div>
+                            SCORING - GEOFINDER
+                        </div>
+                        <div>
+                            {% if session["user_id"] %}
+                            <form name="submit" action="/" method="post">
+                                <input type="hidden" name="page" class="hidden-field" value="index"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="geofinder_game"></input>
+                                <input type="hidden" name="try-again" class="hidden-field" value="0"></input>
+                                <input type="hidden" name="nav" class="hidden-field" value="no"></input>
+                                <input type="hidden" name="bttn" class="hidden-field" value="again"></input>
+                                <button class="bttn bttn-small" type="submit" disabled>
+                                    Start Geofinder
+                                </button>
+                            </form>
+                            {% else %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="container-bottom-genpage-main-content-body-subsection-body">
+                        <ol type="1">
+                            <li>Your total score is based on how long it takes you to find the house.</li>
+                            <li>The max score is 100.</li>
+                            <ol type="a">
+                                <li>A multiplier is calculated using the formula: <i>e</i><sup>−0.0054(x-1)<sup>2</sup></sup>, where
+                                    <i>x</i> is the time elapsed to find the house.
+                                </li>
+                                <li><i>x</i> starts when you first open the location of the day.</li>
+                            </ol>
+                            <li>Essentially you get the full 100 points if you find the house in 2 minutes or less. You get
+                                1 point if found in 30 minutes.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="container-bottom-genpage-main-content-body-subsection">
+                    <div class="container-bottom-genpage-main-content-body-subsection-title" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                        <div>
+                            SCORING - GEO50X CHALLENGE
+                        </div>
+                        <div>
+                            {% if session["user_id"] %}
+                            <form name="submit" action="/howto" method="post">
+                                <input type="hidden" name="page" class="hidden-field" value="howto"></input>
+                                <input type="hidden" name="goto" class="hidden-field" value="fifty_page_game"></input>
+                                <input type="hidden" name="bttn" class="hidden-field" value="new"></input>
+                                <button class="bttn bttn-small bttn-primary" type="submit">Play Challenge</button>
+                            </form>
+                            {% else %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="container-bottom-genpage-main-content-body-subsection-body">
+                        <ol type="1">
+                            <li>Your score for each location is calculated when you have successfuly located the house, abandoned the search, or have submitted 6 incorrect coordinates.</li>
+                            <li>Your score is the combination of your base and bonus scores.</li>
+                            <li>The max base score is 50.</li>
+                            <ol type="a">
+                                <li>You get the full base score if you correctly located the house on your first attempt.</li>
+                                <li>You are allowed 6 attempts.</li>
+                                <ol type="i">
+                                    <li>For every incorrect attempt, your base score is lowered by 10.</li>
+                                    <li>You get 0 after you have exhausted all attempts.
+                                </ol>
+                            </ol>
+                            <li>The max bonus score is 50.</li>
+                            <ol type="a">
+                                <li>The bonus score is based on how long it takes you to find the house.</li>
+                                <li>A multiplier is calculated using the formula: <i>e</i><sup>−0.0054(x-1)<sup>2</sup></sup>, where
+                                    <i>x</i> is the time elapsed to find the house.
+                                </li>
+                                <li><i>x</i> is calculated from the moment you view a location for the first time.</li>
+                                <li>Essentially you get the full 50 bonus points if you find the house in 2 minutes or less. You get
+                                    1 point if found in 30 minutes. After 30 minutes, no bonus.</li>
+                            </ol>
+                            <li>So if you find the house on your first attempt and in 2 minutes or less, you get 100 points.</li>
+                            <li>If you abandoned the search for a location, the answer will be revealed as the anchor of the results info window. No further 
+                                attempts will be allowed and your total score will be recorded as 0 for that location.</li>
+                        </ol>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
