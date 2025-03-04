@@ -11,14 +11,14 @@ An online game that's like _Where's Waldo?_ but for houses
 * [Target Users](#target-users)
 * [Features](#features)
 * [Project Structure](#project-structure)
-* [Prerequisites](#prerequisites)
 * [Quick Start](#quick-start)
 * [Local Setup](#local-setup)
+  * [Prerequisites](#prerequisites)
   * [Dependencies](#dependencies)
   * [Installation](#installation)
   * [Configuration](#configuration)
-* [Production Setup](#production-setup)
 * [Usage](#usage)
+* [Production Setup](#production-setup)
 * [System Administration](#system-administration)
 * [Author(s)](#authors)
 * [Version History](#version-history)
@@ -55,15 +55,15 @@ _Geofinder_ is inspired by such childhood games as _[Where's Waldo?](https://en.
 
 * TBD
 
-## Prerequisites
-
-* TBD
-
 ## Quick Start
 
 * TBD
 
 ## Local Setup
+
+### Prerequisites
+
+* TBD
 
 ### Dependencies
 
@@ -118,10 +118,6 @@ _Geofinder_ is inspired by such childhood games as _[Where's Waldo?](https://en.
 
 * TBD
 
-## Production Setup
-
-* TBD
-
 ## Usage
 
 1. **Go into the app directory and run the command:**
@@ -141,6 +137,10 @@ _Geofinder_ is inspired by such childhood games as _[Where's Waldo?](https://en.
 4. **Login:**
 
     TBD
+
+## Production Setup
+
+* TBD
 
 ## System Administration
 
