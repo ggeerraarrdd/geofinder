@@ -2,12 +2,37 @@
 
 An online game that's like _Where's Waldo?_ but for houses
 
-## Description
+## Table of Contents
 
 > [!NOTE]
 > ALL CONTENTS IN THIS REPO ARE FOR EDUCATIONAL PURPOSES ONLY.
 
-_Geofinder_ is an online scavenger hunt game. Its gameplay is simple: Given a photo of a house somewhere in the world, your task is to look for that house inside a marked area on a map. While that may sound straighforward, how you will go about looking might not be.
+* [Description](#description)
+* [Target Users](#target-users)
+* [Features](#features)
+* [Project Structure](#project-structure)
+* [Prerequisites](#prerequisites)
+* [Quick Start](#quick-start)
+* [Local Setup](#local-setup)
+  * [Dependencies](#dependencies)
+  * [Installation](#installation)
+  * [Configuration](#configuration)
+* [Production Setup](#production-setup)
+* [Usage](#usage)
+* [System Administration](#system-administration)
+* [Author(s)](#authors)
+* [Version History](#version-history)
+  * [Release Notes](#release-notes)
+  * [Initial Release](#initial-release)
+* [Future Work](#future-work)
+* [License](#license)
+* [Contributing](#contributing)
+* [Acknowledgments](#acknowledgments)
+* [Screenshots](#screenshots)
+
+## Description
+
+_Geofinder_ is an online scavenger hunt game. Its gameplay is simple: Given a photo of a house somewhere in the world, your task is to look for that house inside a marked area on a map. While that may sound straightforward, how you will go about looking might not be.
 
 _Geofinder_ comes in two modes.
 
@@ -18,25 +43,27 @@ _Geofinder_ is inspired by such childhood games as _[Where's Waldo?](https://en.
 
 ![Screenshot](docs/images/geofinder_00.png)
 
-More screenshots below.
+## Target Users
 
-## Table of Contents
-
-TODO
+* TBD
 
 ## Features
 
-TODO
+* TBD
 
 ## Project Structure
 
-TODO
+* TBD
 
 ## Prerequisites
 
-TODO
+* TBD
 
-## Getting Started
+## Quick Start
+
+* TBD
+
+## Local Setup
 
 ### Dependencies
 
@@ -71,7 +98,7 @@ TODO
 
 5. **Set up a PostgreSQL Database:**
 
-    TODO
+    TBD
 
 6. **Set up a Google Maps API Key:**
 
@@ -85,9 +112,17 @@ TODO
 
     Create a file named `.env` in the `app` directory of the project and add the following variables:
 
-    TODO
+    TBD
 
-### Usage
+### Configuration
+
+* TBD
+
+## Production Setup
+
+* TBD
+
+## Usage
 
 1. **Go into the app directory and run the command:**
 
@@ -101,11 +136,15 @@ TODO
 
 3. **Register an account:**
 
-    TODO
+    TBD
 
 4. **Login:**
 
-    TODO
+    TBD
+
+## System Administration
+
+* TBD
 
 ## Author(s)
 
@@ -119,7 +158,7 @@ TODO
 
 ### Initial Release
 
-The [initial realease](https://github.com/ggeerraarrdd/geofinder/releases/tag/v1.0.0) of _Geofinder_, as _Geo50x_, was submitted as the final project for [CS50x: CS50's Introduction to Computer Science](https://cs50.harvard.edu/x/2023/) (HarvardX, 2023). Read the [project brief](https://cs50.harvard.edu/x/2023/project/) as of September 2023.
+The [initial release](https://github.com/ggeerraarrdd/geofinder/releases/tag/v1.0.0) of _Geofinder_, as _Geo50x_, was submitted as the final project for [CS50x: CS50's Introduction to Computer Science](https://cs50.harvard.edu/x/2023/) (HarvardX, 2023). Read the [project brief](https://cs50.harvard.edu/x/2023/project/) as of September 2023.
 
 ## Future Work
 
@@ -131,12 +170,12 @@ Development is ongoing.
 
 ## Contributing
 
-TODO
+* TBD
 
 ## Acknowledgments
 
 * The distribution code for CS50's Finance problem served as a template for the app.
-* The documentions for the Google Maps Platform were a daily, often hourly, read.
+* The documentations for the Google Maps Platform were a daily, often hourly, read.
 * Too many StackOverflow [Q&As](https://meta.stackoverflow.com/questions/267822/if-stack-overflow-doesnt-have-threads-what-the-heck-should-they-be-called) and Medium articles to mention but a couple proved immensely useful in developing two key functions
   * [Offset Latitude and Longitude by some meters accurately - Reverse Haversine](https://gis.stackexchange.com/questions/411859/offset-latitude-and-longitude-by-some-meters-accurately-reverse-haversine)
   * [Algorithm for offsetting a latitude/longitude by some amount of meters](https://gis.stackexchange.com/questions/2951/algorithm-for-offsetting-a-latitude-longitude-by-some-amount-of-meters)
