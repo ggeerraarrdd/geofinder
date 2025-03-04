@@ -1,5 +1,3 @@
-
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -66,6 +64,8 @@ db.sqlite3-journal
 # Flask stuff:
 instance/
 .webassets-cache
+flask_session/
+/*_session/
 
 # Scrapy stuff:
 .scrapy
@@ -139,6 +139,7 @@ venv.bak/
 
 # mkdocs documentation
 /site
+/zite
 
 # mypy
 .mypy_cache/
@@ -161,14 +162,12 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-####################################################
+# Pylint
+.pylintrc
+
+# VS Code
+.commons
+.vscode
+
 # macOS
 .DS_Store
-
-# Flask
-flask_session/
-/*_session/
-
-zketch*
-geo/
-####################################################
