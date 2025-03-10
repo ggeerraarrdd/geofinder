@@ -4,7 +4,7 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/236a15d715984d5c8c529261d53d8408)](https://app.codacy.com/gh/ggeerraarrdd/geofinder/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![codecov](https://codecov.io/gh/ggeerraarrdd/geofinder/graph/badge.svg?token=5C67LR1L0L)](https://codecov.io/gh/ggeerraarrdd/geofinder)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ggeerraarrdd_geofinder&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ggeerraarrdd_geofinder)
-[![Renovate enabled](https://img.shields.io/badge/renovate-disabled-brightgreen.svg)](https://renovatebot.com/)
+[![Renovate enabled](https://img.shields.io/badge/renovate-disabled-red.svg)](https://renovatebot.com/)
 <!-- markdownlint-enable MD041 -->
 
 # Geofinder
